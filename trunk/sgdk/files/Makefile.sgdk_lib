@@ -1,0 +1,56 @@
+CC = m68k-elf-gcc 
+AR = m68k-elf-ar 
+RANLIB = m68k-elf-ranlib 
+OBJC = m68k-elf-objcopy 
+RM = rm -f 
+ASMZ80 = sjasm 
+BINTOC = bin2c 
+
+OPTION= -Dnologo_ 
+
+# These should be gathered programmatically
+libmd.a_OBJS = bmp.o everdrive.o logo_lib.o psg.o tab_bmp.o \
+	tab_sin.o tfcplay.o vdp_bg.o vdp_spr.o z80_drv1.o bmp_cmn.o \
+	fat16.o maths3D.o sound.o tab_cnv.o tab_sqrt.o timer.o vdp.o \
+	vdp_tile.o z80_drv2.o bmp_ff.o font.o maths.o string.o  \
+	tab_log10.o tab_vol.o tools.o vdp_dma.o ym2612.o bmp_intr.o \
+	joy.o memory.o sys.o tab_log2.o tab_vram.o types.o vdp_pal.o \
+	sys_a.o bmp_cmn_a.o bmp_ff_a.o \
+	kdebug.o maths3D_a.o smp_null_pcm.o smp_null.o vdp_tile_a.o \
+	z80_drv3.o z80_drv4.o z80_mvs.o z80_tfm.o z80_ctrl.o 
+
+INCS = -I../include 
+FLAGS = $(OPTION) -m68000 -Wall -O1 -c -fomit-frame-pointer $(INCS) 
+FLAGSZ80 = -isrc -i../include  
+
+all: z80_drv1.o80 z80_drv1.c z80_drv2.o80 z80_drv2.c $(libmd.a_OBJS) libmd.a 
+
+%.a: $(libmd.a_OBJS) 
+	$(RM) $@ 
+	$(AR) cru $@ $($@_OBJS) 
+	$(RANLIB) $@ 
+
+%.o80: %.s80 
+	$(ASMZ80) $(FLAGSZ80) $< $@ out.lst 
+
+%.c: %.o80 
+	$(BINTOC) -o $@ $< 
+
+%.h: %.o80 
+	$(BINTOC) -o $@ $< 
+
+
+%.o: %.c 
+	$(CC) $(FLAGS) -c $< -o $@ 
+
+%.o: %.s 
+	$(CC) $(FLAGS) -c $< -o $@ 
+
+clean: 
+	$(RM) -rf *.o *.a *.o80 *.log *.lst 
+	$(RM) -f z80_drv1.c z80_drv2.c 
+
+install: all 
+	cp ../include/*.h $(GENDEV)/m68k-elf/include 
+	cp libmd.a $(GENDEV)/m68k-elf/lib 
+	install -b md.ld $(GENDEV)/ldscripts/sgdk.ld
