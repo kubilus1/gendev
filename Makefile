@@ -15,13 +15,21 @@ build: /opt/toolchains/gen
 	cd work && \
 	make -f makefile-gen
 
-postbuild: /opt/toolchains/gen/ldscripts /opt/toolchains/gen/bin /opt/toolchains/gen/bin/bin2c \
-   			/opt/toolchains/gen/bin/sjasm /opt/toolchains/gen/bin/zasm
+postbuild: /opt/toolchains/gen/ldscripts tools
+	
 	echo "Post build."
 	echo "export GENDEV=/opt/toolchains/gen" > ~/.gendev
 	echo "export PATH=\$$GENDEV/m68k-elf/bin:\$$GENDEV/bin:\$$PATH" >> ~/.gendev
 	echo "export GENDEV=/opt/toolchains/gen" > ~/.32xdev
 	echo "export PATH=\$$GENDEV/sh-elf/bin:\$$GENDEV/m68k-elf/bin:\$$GENDEV/bin:\$$PATH" >> ~/.32xdev
+
+tools: /opt/toolchains/gen/bin \
+	/opt/toolchains/gen/bin/bin2c \
+	/opt/toolchains/gen/bin/sjasm \
+	/opt/toolchains/gen/bin/zasm \
+	/opt/toolchains/gen/bin/vgm_cmp \
+	/opt/toolchains/gen/bin/sixpack
+	echo "Done with tools."
 
 clean:
 	rm -rf work
@@ -71,6 +79,12 @@ zasm-3.0.21-source-linux-2011-06-19.zip:
 Hex2bin-1.0.10.tar.bz2:
 	wget http://downloads.sourceforge.net/project/hex2bin/hex2bin/$@
 
+#genres_01.zip:
+#	wget http://gendev.spritesmind.net/files/genres_01.zip
+
+sixpack-13.zip:
+	wget http://jiggawatt.org/badc0de/sixpack/sixpack-13.zip
+
 VGMTools_src.rar:
 	wget -O $@ http://www.smspower.org/forums/download.php?id=3201
 
@@ -116,10 +130,11 @@ work/gcc-4.5.2/gmp: work/gcc-4.5.2
 	mkdir $@
 
 /opt/toolchains/gen/ldscripts: work/makefile-gen
-	mkdir $@
+	mkdir -p $@
 	cp work/*.ld $@/.
 
 /opt/toolchains/gen/bin/bin2c: bin2c-1.0.zip
+	- mkdir -p work 
 	cd work && \
 	unzip ../bin2c-1.0.zip && \
 	cd bin2c && \
@@ -127,14 +142,14 @@ work/gcc-4.5.2/gmp: work/gcc-4.5.2
 	cp bin2c $@ 
 
 /opt/toolchains/gen/bin/sjasm: sjasm39g6.zip
-	- mkdir work/sjasm
+	- mkdir -p work/sjasm
 	cd work/sjasm && \
 	unzip ../../sjasm39g6.zip && \
 	cp sjasm $@ && \
 	chmod +x $@
 
 /opt/toolchains/gen/bin/zasm: zasm-3.0.21-source-linux-2011-06-19.zip
-	- mkdir work/zasm 
+	- mkdir -p work/zasm 
 	cd work/zasm && \
 	unzip ../../$< && \
 	cd zasm-3.0.21-i386-ubuntu-linux-2011-06-19/source && \
@@ -142,16 +157,30 @@ work/gcc-4.5.2/gmp: work/gcc-4.5.2
 	cp zasm $@
 
 /opt/toolchains/gen/bin/hex2bin: Hex2bin-1.0.10.tar.bz2
+	- mkdir -p work 
 	cd work && \
 	tar xvjf ../$< && \
 	cp Hex2bin-1.0.10/hex2bin $@
 
+sixpack /opt/toolchains/gen/bin/sixpack: sixpack-13.zip
+	- mkdir -p work/sixpack && \
+	cd work/sixpack && \
+	unzip ../../$< 
+	cp work/sixpack/sixpack-12/bin/sixpack $@ 
+	chmod +x $@	
+
+#genres /opt/toolchains/gen/bin/genres: genres_01.zip
+#	- mkdir -p work/genres && \
+#	cd work/genres && \
+#	unzip ../../$< 
+	
+
 /opt/toolchains/gen/bin/vgm_cmp: VGMTools_src.rar
-	- mkdir work/vgmtools
+	- mkdir -p work/vgmtools
 	cd work/vgmtools && \
 	unrar x ../../$< 
 	cd work/vgmtools && \
 	patch -u < ../../files/vgm_cmp.diff && \
-	gcc  -c chip_cmp.c -o chip_cmp.o && \
-	gcc -lz chip_cmp.o vgm_cmp.c -o vgm_cmp && \
+	gcc -c chip_cmp.c -o chip_cmp.o && \
+	gcc chip_cmp.o vgm_cmp.c -lz -o vgm_cmp && \
 	cp vgm_cmp $@
