@@ -1,0 +1,19 @@
+--- vgm_cmp.c	2012-10-30 15:54:40.962180164 -0400
++++ vgm_cmp.c.new	2012-10-30 15:56:14.530183390 -0400
+@@ -782,7 +782,7 @@
+ 		VGMPos += CmdLen;
+ 		if (StopVGM)
+ 			break;
+-		
++	    /*	
+ 		if (CmdTimer < GetTickCount())
+ 		{
+ 			PrintMinSec(VGMSmplPos, MinSecStr);
+@@ -793,6 +793,7 @@
+ 					MinSecStr, TempStr, VGMPos, VGMHead.lngEOFOffset);
+ 			CmdTimer = GetTickCount() + 200;
+ 		}
++        */
+ 	}
+ 	DataSizeA = VGMPos - VGMHead.lngDataOffset;
+ 	DataSizeB = DstPos - VGMHead.lngDataOffset;

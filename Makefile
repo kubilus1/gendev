@@ -26,6 +26,9 @@ postbuild: /opt/toolchains/gen/ldscripts /opt/toolchains/gen/bin /opt/toolchains
 clean:
 	rm -rf work
 
+purge: clean
+	- rm *.rar *.bz2 *.gz *.tgz *.zip
+
 work:
 	mkdir work
 
@@ -67,6 +70,9 @@ zasm-3.0.21-source-linux-2011-06-19.zip:
 
 Hex2bin-1.0.10.tar.bz2:
 	wget http://downloads.sourceforge.net/project/hex2bin/hex2bin/$@
+
+VGMTools_src.rar:
+	wget -O $@ http://www.smspower.org/forums/download.php?id=3201
 
 work/makefile-gen:
 	cd work && \
@@ -139,3 +145,13 @@ work/gcc-4.5.2/gmp: work/gcc-4.5.2
 	cd work && \
 	tar xvjf ../$< && \
 	cp Hex2bin-1.0.10/hex2bin $@
+
+/opt/toolchains/gen/bin/vgm_cmp: VGMTools_src.rar
+	- mkdir work/vgmtools
+	cd work/vgmtools && \
+	unrar x ../../$< 
+	cd work/vgmtools && \
+	patch -u < ../../files/vgm_cmp.diff && \
+	gcc  -c chip_cmp.c -o chip_cmp.o && \
+	gcc -lz chip_cmp.o vgm_cmp.c -o vgm_cmp && \
+	cp vgm_cmp $@
