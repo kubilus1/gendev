@@ -14,8 +14,6 @@ sgdk-read-only/src/libmd.a:
 	cp files/Makefile.sgdk_lib sgdk-read-only/.
 	cd sgdk-read-only/src && patch -u < ../../files/z80_drvrs.diff
 	cd sgdk-read-only/src && make -f ../Makefile.sgdk_lib 
-	cp sgdk-read-only/src/boot/* skeleton/.
-
 
 install: sgdk-read-only/src/libmd.a
 	echo "Install"
