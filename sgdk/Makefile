@@ -18,6 +18,7 @@ sgdk-read-only/src/libmd.a:
 install: sgdk-read-only/src/libmd.a
 	echo "Install"
 	cd sgdk-read-only/src && make -f ../Makefile.sgdk_lib install
+	install -b files/sgdk.ld $(GENDEV)/ldscripts/sgdk.ld
 
 clean:
 	echo "Clean"

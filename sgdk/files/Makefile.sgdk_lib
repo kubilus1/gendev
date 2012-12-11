@@ -53,4 +53,3 @@ clean:
 install: all 
 	cp ../include/*.h $(GENDEV)/m68k-elf/include 
 	cp libmd.a $(GENDEV)/m68k-elf/lib 
-	install -b md.ld $(GENDEV)/ldscripts/sgdk.ld
