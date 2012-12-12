@@ -2,20 +2,30 @@
 # HINT: If makeinfo is missing on Ubuntu, install texinfo package.
 #
 
-GET =wget
+#SHELL=/bin/sh
 
-FILES=gcc-4.5.2.tar.bz2 gcc-g++-4.5.2.tar.bz2 gcc-objc-4.5.2.tar.bz2 \
-	  mpfr-2.4.2.tar.bz2 mpc-0.8.2.tar.gz gmp-5.0.5.tar.bz2 \
-	  binutils-2.21.1.tar.bz2 newlib-1.19.0.tar.gz makefiles-ldscripts-2.zip
+MGET?= wget
+MAKE?= make
+
+GCC_VERSION=4.5.2
+MPFR_VERSION=2.4.2
+MPC_VERSION=0.8.2
+GMP_VERSION=5.0.5
+BINUTILS_VERSION=2.21.1
+NEWLIB_VERSION=1.19.0
+
+FILES=gcc-$(GCC_VERSION).tar.bz2 gcc-g++-$(GCC_VERSION).tar.bz2 gcc-objc-$(GCC_VERSION).tar.bz2 \
+	  mpfr-$(MPFR_VERSION).tar.bz2 mpc-$(MPC_VERSION).tar.gz gmp-$(GMP_VERSION).tar.bz2 \
+	  binutils-$(BINUTILS_VERSION).tar.bz2 newlib-$(NEWLIB_VERSION).tar.gz makefiles-ldscripts-2.zip
 
 all: setup build postbuild
 
-setup: work $(FILES) work/gcc-4.5.2 work/gcc-4.5.2/mpfr work/gcc-4.5.2/mpc work/gcc-4.5.2/gmp work/binutils-2.21 work/newlib-1.19.0 work/makefile-gen
+setup: work $(FILES) work/gcc-$(GCC_VERSION) work/gcc-$(GCC_VERSION)/mpfr work/gcc-$(GCC_VERSION)/mpc work/gcc-$(GCC_VERSION)/gmp work/binutils-2.21 work/newlib-$(NEWLIB_VERSION) work/makefile-gen
 
 build: /opt/toolchains/gen
 	echo "Build"
 	cd work && \
-	make -f makefile-gen
+	$(MAKE) -f makefile-gen
 
 postbuild: /opt/toolchains/gen/ldscripts tools
 	
@@ -42,53 +52,53 @@ purge: clean
 work:
 	mkdir work
 
-gcc-4.5.2.tar.bz2:
-	$(GET) http://ftp.gnu.org/gnu/gcc/gcc-4.5.2/gcc-4.5.2.tar.bz2
+gcc-$(GCC_VERSION).tar.bz2:
+	$(MGET) http://ftp.gnu.org/gnu/gcc/gcc-$(GCC_VERSION)/gcc-$(GCC_VERSION).tar.bz2
 
-gcc-g++-4.5.2.tar.bz2:
-	$(GET) http://ftp.gnu.org/gnu/gcc/gcc-4.5.2/gcc-g++-4.5.2.tar.bz2
+gcc-g++-$(GCC_VERSION).tar.bz2:
+	$(MGET) http://ftp.gnu.org/gnu/gcc/gcc-$(GCC_VERSION)/gcc-g++-$(GCC_VERSION).tar.bz2
 
-gcc-objc-4.5.2.tar.bz2:
-	$(GET) http://ftp.gnu.org/gnu/gcc/gcc-4.5.2/gcc-objc-4.5.2.tar.bz2
+gcc-objc-$(GCC_VERSION).tar.bz2:
+	$(MGET) http://ftp.gnu.org/gnu/gcc/gcc-$(GCC_VERSION)/gcc-objc-$(GCC_VERSION).tar.bz2
 
-mpfr-2.4.2.tar.bz2:
-	$(GET) http://www.mpfr.org/mpfr-2.4.2/mpfr-2.4.2.tar.bz2
+mpfr-$(MPFR_VERSION).tar.bz2:
+	$(MGET) http://www.mpfr.org/mpfr-$(MPFR_VERSION)/mpfr-$(MPFR_VERSION).tar.bz2
 
-mpc-0.8.2.tar.gz:
-	$(GET) http://www.multiprecision.org/mpc/download/mpc-0.8.2.tar.gz
+mpc-$(MPC_VERSION).tar.gz:
+	$(MGET) http://www.multiprecision.org/mpc/download/mpc-$(MPC_VERSION).tar.gz
 
-gmp-5.0.5.tar.bz2:
-	$(GET) ftp://ftp.gmplib.org/pub/gmp-5.0.5/gmp-5.0.5.tar.bz2
+gmp-$(GMP_VERSION).tar.bz2:
+	$(MGET) ftp://ftp.gmplib.org/pub/gmp-$(GMP_VERSION)/gmp-$(GMP_VERSION).tar.bz2
 
-binutils-2.21.1.tar.bz2:
-	$(GET) http://ftp.gnu.org/gnu/binutils/binutils-2.21.1.tar.bz2
+binutils-$(BINUTILS_VERSION).tar.bz2:
+	$(MGET) http://ftp.gnu.org/gnu/binutils/binutils-$(BINUTILS_VERSION).tar.bz2
 
-newlib-1.19.0.tar.gz:
-	$(GET) ftp://sources.redhat.com/pub/newlib/newlib-1.19.0.tar.gz
+newlib-$(NEWLIB_VERSION).tar.gz:
+	$(MGET) ftp://sources.redhat.com/pub/newlib/newlib-$(NEWLIB_VERSION).tar.gz
 
 makefiles-ldscripts-2.zip:
-	$(GET) http://www.fileden.com/files/2009/2/3/2304902/makefiles-ldscripts-2.zip
+	$(MGET) http://www.fileden.com/files/2009/2/3/2304902/makefiles-ldscripts-2.zip
 
 bin2c-1.0.zip:
-	$(GET) http://downloads.sourceforge.net/project/bin2c/bin2c-1.0.zip
+	$(MGET) http://downloads.sourceforge.net/project/bin2c/bin2c-1.0.zip
 
 sjasm39g6.zip:
-	$(GET) http://home.wanadoo.nl/smastijn/sjasm39g6.zip
+	$(MGET) http://home.wanadoo.nl/smastijn/sjasm39g6.zip
 
 zasm-3.0.21-source-linux-2011-06-19.zip:
-	$(GET) http://k1.dyndns.org/Develop/projects/zasm/distributions/zasm-3.0.21-source-linux-2011-06-19.zip
+	$(MGET) http://k1.dyndns.org/Develop/projects/zasm/distributions/zasm-3.0.21-source-linux-2011-06-19.zip
 
 Hex2bin-1.0.10.tar.bz2:
-	$(GET) http://downloads.sourceforge.net/project/hex2bin/hex2bin/$@
+	$(MGET) http://downloads.sourceforge.net/project/hex2bin/hex2bin/$@
 
 #genres_01.zip:
-#	$(GET) http://gendev.spritesmind.net/files/genres_01.zip
+#	$(MGET) http://gendev.spritesmind.net/files/genres_01.zip
 
 sixpack-13.zip:
-	$(GET) http://jiggawatt.org/badc0de/sixpack/sixpack-13.zip
+	$(MGET) http://jiggawatt.org/badc0de/sixpack/sixpack-13.zip
 
 VGMTools_src.rar:
-	$(GET) -O $@ http://www.smspower.org/forums/download.php?id=3201
+	$(MGET) -O $@ http://www.smspower.org/forums/download.php?id=3201
 
 work/makefile-gen:
 	cd work && \
@@ -96,33 +106,33 @@ work/makefile-gen:
 
 work/binutils-2.21:
 	cd work && \
-	tar xvjf ../binutils-2.21.1.tar.bz2 && \
-	mv binutils-2.21.1 binutils-2.21
+	tar xvjf ../binutils-$(BINUTILS_VERSION).tar.bz2 && \
+	mv binutils-$(BINUTILS_VERSION) binutils-2.21
 
-work/newlib-1.19.0:
+work/newlib-$(NEWLIB_VERSION):
 	cd work && \
-	tar xvzf ../newlib-1.19.0.tar.gz
+	tar xvzf ../newlib-$(NEWLIB_VERSION).tar.gz
 
-work/gcc-4.5.2:
+work/gcc-$(GCC_VERSION):
 	cd work && \
-	tar xvjf ../gcc-4.5.2.tar.bz2 && \
-	tar xvjf ../gcc-g++-4.5.2.tar.bz2 && \
-	tar xvjf ../gcc-objc-4.5.2.tar.bz2
+	tar xvjf ../gcc-$(GCC_VERSION).tar.bz2 && \
+	tar xvjf ../gcc-g++-$(GCC_VERSION).tar.bz2 && \
+	tar xvjf ../gcc-objc-$(GCC_VERSION).tar.bz2
 
-work/gcc-4.5.2/mpfr: work/gcc-4.5.2
+work/gcc-$(GCC_VERSION)/mpfr: work/gcc-$(GCC_VERSION)
 	cd work && \
-	tar xvjf ../mpfr-2.4.2.tar.bz2 && \
-	mv mpfr-2.4.2 gcc-4.5.2/mpfr
+	tar xvjf ../mpfr-$(MPFR_VERSION).tar.bz2 && \
+	mv mpfr-$(MPFR_VERSION) gcc-$(GCC_VERSION)/mpfr
 
-work/gcc-4.5.2/mpc: work/gcc-4.5.2
+work/gcc-$(GCC_VERSION)/mpc: work/gcc-$(GCC_VERSION)
 	cd work && \
-	tar xvzf ../mpc-0.8.2.tar.gz && \
-	mv mpc-0.8.2 gcc-4.5.2/mpc
+	tar xvzf ../mpc-$(MPC_VERSION).tar.gz && \
+	mv mpc-$(MPC_VERSION) gcc-$(GCC_VERSION)/mpc
 
-work/gcc-4.5.2/gmp: work/gcc-4.5.2
+work/gcc-$(GCC_VERSION)/gmp: work/gcc-$(GCC_VERSION)
 	cd work && \
-	tar xvjf ../gmp-5.0.5.tar.bz2 && \
-	mv gmp-5.0.5 gcc-4.5.2/gmp
+	tar xvjf ../gmp-$(GMP_VERSION).tar.bz2 && \
+	mv gmp-$(GMP_VERSION) gcc-$(GCC_VERSION)/gmp
 
 /opt/toolchains/gen:
 	sudo mkdir -p $@
@@ -155,7 +165,7 @@ work/gcc-4.5.2/gmp: work/gcc-4.5.2
 	cd work/zasm && \
 	unzip ../../$< && \
 	cd zasm-3.0.21-i386-ubuntu-linux-2011-06-19/source && \
-	make && \
+	$(MAKE) && \
 	cp zasm $@
 
 /opt/toolchains/gen/bin/hex2bin: Hex2bin-1.0.10.tar.bz2
