@@ -13,7 +13,7 @@ sgdk-read-only:
 
 sgdk-read-only/src/libmd.a:
 	cp files/Makefile.sgdk_lib sgdk-read-only/.
-	cd sgdk-read-only/src && patch -u < ../../files/z80_drvrs.diff
+	cd sgdk-read-only/include && patch -u < ../../files/types.h.diff
 	cd sgdk-read-only/src && $(MAKE) -f ../Makefile.sgdk_lib 
 
 install: sgdk-read-only/src/libmd.a
