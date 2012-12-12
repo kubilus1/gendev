@@ -25,7 +25,8 @@ setup: work $(FILES) work/gcc-$(GCC_VERSION) work/gcc-$(GCC_VERSION)/mpfr work/g
 build: /opt/toolchains/gen
 	echo "Build"
 	cd work && \
-	$(MAKE) -f makefile-gen
+	patch -u < ../files/makefile-gen.diff || true && \
+	MAKE=$(MAKE) $(MAKE) -f makefile-gen
 
 postbuild: /opt/toolchains/gen/ldscripts tools
 	
