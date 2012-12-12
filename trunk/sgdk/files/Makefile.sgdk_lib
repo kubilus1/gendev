@@ -8,22 +8,37 @@ BINTOC = bin2c
 
 OPTION= -Dnologo_ 
 
+CS=$(wildcard *.c)
+HS=$(wildcard *.h)
+SS=$(wildcard *.s)
+S80S=$(wildcard *.s80)
+
+
+RESOURCES=$(CS:.c=.o)
+RESOURCES+=$(HS:.h=.o)
+RESOURCES+=$(SS:.s=.o)
+RESOURCES+=$(S80S:.s80=.o80)
+RESOURCES+=$(S80S:.s80=.c)
+
+libmd.a_OBJS=$(RESOURCES)
+
 # These should be gathered programmatically
-libmd.a_OBJS = bmp.o everdrive.o logo_lib.o psg.o tab_bmp.o \
-	tab_sin.o tfcplay.o vdp_bg.o vdp_spr.o z80_drv1.o bmp_cmn.o \
-	fat16.o maths3D.o sound.o tab_cnv.o tab_sqrt.o timer.o vdp.o \
-	vdp_tile.o z80_drv2.o bmp_ff.o font.o maths.o string.o  \
-	tab_log10.o tab_vol.o tools.o vdp_dma.o ym2612.o bmp_intr.o \
-	joy.o memory.o sys.o tab_log2.o tab_vram.o types.o vdp_pal.o \
-	sys_a.o bmp_cmn_a.o bmp_ff_a.o \
-	kdebug.o maths3D_a.o smp_null_pcm.o smp_null.o vdp_tile_a.o \
-	z80_drv3.o z80_drv4.o z80_mvs.o z80_tfm.o z80_ctrl.o 
+#libmd.a_OBJS = bmp.o everdrive.o logo_lib.o psg.o tab_bmp.o \
+#	tab_sin.o tfcplay.o vdp_bg.o vdp_spr.o z80_drv1.o bmp_cmn.o \
+#	fat16.o maths3D.o sound.o tab_cnv.o tab_sqrt.o timer.o vdp.o \
+#	vdp_tile.o z80_drv2.o bmp_ff.o font.o maths.o string.o  \
+#	tab_log10.o tab_vol.o tools.o vdp_dma.o ym2612.o bmp_intr.o \
+#	joy.o memory.o sys.o tab_log2.o tab_vram.o types.o vdp_pal.o \
+#	sys_a.o bmp_cmn_a.o bmp_ff_a.o \
+#	kdebug.o maths3D_a.o smp_null_pcm.o smp_null.o vdp_tile_a.o \
+#	z80_drv3.o z80_drv4.o z80_mvs.o z80_tfm.o z80_ctrl.o 
 
 INCS = -I../include 
 FLAGS = $(OPTION) -m68000 -Wall -O1 -c -fomit-frame-pointer $(INCS) 
 FLAGSZ80 = -isrc -i../include  
 
-all: z80_drv1.o80 z80_drv1.c z80_drv2.o80 z80_drv2.c $(libmd.a_OBJS) libmd.a 
+all: $(libmd.a_OBJS) libmd.a 
+#all: z80_drv1.o80 z80_drv1.c z80_drv2.o80 z80_drv2.c $(libmd.a_OBJS) libmd.a 
 
 %.a: $(libmd.a_OBJS) 
 	$(RM) $@ 
@@ -47,8 +62,9 @@ all: z80_drv1.o80 z80_drv1.c z80_drv2.o80 z80_drv2.c $(libmd.a_OBJS) libmd.a
 	$(CC) $(FLAGS) -c $< -o $@ 
 
 clean: 
+	#$(RM) -f z80_drv1.c z80_drv2.c 
+	$(RM) $(RESOURCES)
 	$(RM) -rf *.o *.a *.o80 *.log *.lst 
-	$(RM) -f z80_drv1.c z80_drv2.c 
 
 install: all 
 	cp ../include/*.h $(GENDEV)/m68k-elf/include 
