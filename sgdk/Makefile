@@ -1,4 +1,5 @@
-GENDEV!=/opt/toolchains/gen/
+GENDEV?=/opt/toolchains/gen/
+MAKE?=make
 
 all: sgdk-read-only sgdk-read-only/src/libmd.a tools
 
@@ -13,16 +14,16 @@ sgdk-read-only:
 sgdk-read-only/src/libmd.a:
 	cp files/Makefile.sgdk_lib sgdk-read-only/.
 	cd sgdk-read-only/src && patch -u < ../../files/z80_drvrs.diff
-	cd sgdk-read-only/src && make -f ../Makefile.sgdk_lib 
+	cd sgdk-read-only/src && $(MAKE) -f ../Makefile.sgdk_lib 
 
 install: sgdk-read-only/src/libmd.a
 	echo "Install"
-	cd sgdk-read-only/src && make -f ../Makefile.sgdk_lib install
+	cd sgdk-read-only/src && $(MAKE) -f ../Makefile.sgdk_lib install
 	install -b files/sgdk.ld $(GENDEV)/ldscripts/sgdk.ld
 
 clean:
 	echo "Clean"
-	cd sgdk-read-only/src && make -f ../Makefile.sgdk_lib clean
+	cd sgdk-read-only/src && $(MAKE) -f ../Makefile.sgdk_lib clean
 	svn revert sgdk-read-only/src/*
 
 purge: clean
