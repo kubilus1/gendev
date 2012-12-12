@@ -4,7 +4,7 @@ OBJC = m68k-elf-objcopy
 LD = m68k-elf-ld
 RM = rm -f
 ASMZ80 = zasm
-BINTOC = bin2c
+BINTOC = bintos
 
 OPTION =
 #INCS = -I. -I$(GENDEV)/m68k-elf/include -I$(GENDEV)/m68k-elf/m68k-elf/include
