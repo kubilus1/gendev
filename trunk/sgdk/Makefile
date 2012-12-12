@@ -16,7 +16,7 @@ sgdk-read-only/src/libmd.a:
 	cd sgdk-read-only/include && patch -u < ../../files/types.h.diff
 	cd sgdk-read-only/src && $(MAKE) -f ../Makefile.sgdk_lib 
 
-install: sgdk-read-only/src/libmd.a
+install: sgdk-read-only sgdk-read-only/src/libmd.a
 	echo "Install"
 	cd sgdk-read-only/src && $(MAKE) -f ../Makefile.sgdk_lib install
 	install -b files/sgdk.ld $(GENDEV)/ldscripts/sgdk.ld
@@ -24,7 +24,7 @@ install: sgdk-read-only/src/libmd.a
 clean:
 	echo "Clean"
 	cd sgdk-read-only/src && $(MAKE) -f ../Makefile.sgdk_lib clean
-	svn revert sgdk-read-only/src/*
+	svn revert -R sgdk-read-only/.
 
 purge: clean
 	echo "Purge"
