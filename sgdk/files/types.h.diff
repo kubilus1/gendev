@@ -1,0 +1,11 @@
+--- types.h.orig	2012-12-12 16:36:39.734989382 -0500
++++ types.h	2012-12-12 16:36:48.755034106 -0500
+@@ -158,7 +158,7 @@
+ 
+ // used for memcpy and memset ISO C method
+ typedef unsigned int size_t;
+-
++#define __size_t
+ 
+ #define FASTCALL
+ 
