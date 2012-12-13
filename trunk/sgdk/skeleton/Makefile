@@ -17,9 +17,14 @@ LINKFLAGS = -T $(GENDEV)/ldscripts/sgdk.ld -Wl,-Map=output.map -nostdlib $(GENDE
 
 BOOTCS=$(wildcard boot/*.c)
 BOOTSS=$(wildcard boot/*.s)
-CS=$(wildcard *.c)
-SS=$(wildcard *.s)
-S80S=$(wildcard *.s80)
+BOOTCS+=$(wildcard src/boot/*.c)
+BOOTSS+=$(wildcard src/boot/*.s)
+CS=$(wildcard src/*.c)
+SS=$(wildcard src/*.s)
+S80S=$(wildcard src/*.s80)
+CS+=$(wildcard *.c)
+SS+=$(wildcard *.s)
+S80S+=$(wildcard *.s80)
 
 RESOURCES=$(BOOTCS:.c=.o)
 RESOURCES+=$(BOOTSS:.s=.o)
