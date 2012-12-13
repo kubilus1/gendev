@@ -36,12 +36,14 @@ postbuild: /opt/toolchains/gen/ldscripts tools
 	echo "export GENDEV=/opt/toolchains/gen" > ~/.32xdev
 	echo "export PATH=\$$GENDEV/sh-elf/bin:\$$GENDEV/m68k-elf/bin:\$$GENDEV/bin:\$$PATH" >> ~/.32xdev
 
-tools: /opt/toolchains/gen/bin \
-	/opt/toolchains/gen/bin/bin2c \
-	/opt/toolchains/gen/bin/sjasm \
-	/opt/toolchains/gen/bin/zasm \
-	/opt/toolchains/gen/bin/vgm_cmp \
-	/opt/toolchains/gen/bin/sixpack 
+TOOLS=/opt/toolchains/gen/bin
+TOOLS+=/opt/toolchains/gen/bin/bin2c
+TOOLS+=/opt/toolchains/gen/bin/sjasm
+TOOLS+=/opt/toolchains/gen/bin/zasm
+TOOLS+=/opt/toolchains/gen/bin/vgm_cmp
+TOOLS+=/opt/toolchains/gen/bin/sixpack 
+
+tools: $(TOOLS)
 	echo "Done with tools."
 
 clean:
