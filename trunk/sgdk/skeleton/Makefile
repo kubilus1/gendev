@@ -27,12 +27,18 @@ RESOURCES+=$(CS:.c=.o)
 RESOURCES+=$(SS:.s=.o)
 RESOURCES+=$(S80S:.s80=.o)
 
-BMPS=$(wildcard *.bmp)
-VGMS=$(wildcard *.vgm)
-RAWS=$(wildcard *.raw)
-PCMS=$(wildcard *.pcm)
-MVSS=$(wildcard *.mvs)
-TFDS=$(wildcard *.tfd)
+BMPS=$(wildcard res/*.bmp)
+VGMS=$(wildcard res/*.vgm)
+RAWS=$(wildcard res/*.raw)
+PCMS=$(wildcard res/*.pcm)
+MVSS=$(wildcard res/*.mvs)
+TFDS=$(wildcard res/*.tfd)
+BMPS+=$(wildcard *.bmp)
+VGMS+=$(wildcard *.vgm)
+RAWS+=$(wildcard *.raw)
+PCMS+=$(wildcard *.pcm)
+MVSS+=$(wildcard *.mvs)
+TFDS+=$(wildcard *.tfd)
 RESOURCES+=$(BMPS:.bmp=.o)
 RESOURCES+=$(VGMS:.vgm=.o)
 RESOURCES+=$(RAWS:.raw=.o)
@@ -63,7 +69,7 @@ boot/sega.o: boot/rom_head.bin
 %.o: %.c
 	$(CC) $(CCFLAGS) $(INCS) -c $< -o $@
 
-%.o: %.s
+%.o: %.s 
 	$(AS) $(ASFLAGS) $< -o $@
 
 %.s: %.bmp
@@ -90,7 +96,7 @@ boot/sega.o: boot/rom_head.bin
 %.s: %.eif
 	$(BINTOS) -align 256 $<
 
-%.s: %.vgm
+%.s: %.vgm 
 	$(BINTOS) -align 256 $<
 
 %.s: %.raw
