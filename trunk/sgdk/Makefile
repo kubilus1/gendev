@@ -29,8 +29,8 @@ install: sgdk-read-only sgdk-read-only/src/libmd.a
 
 clean:
 	echo "Clean"
-	cd sgdk-read-only/src && $(MAKE) -f ../Makefile.sgdk_lib clean
-	svn revert -R sgdk-read-only/.
+	-cd sgdk-read-only/src && $(MAKE) -f ../Makefile.sgdk_lib clean
+	-svn revert -R sgdk-read-only/.
 
 purge: clean
 	echo "Purge"
