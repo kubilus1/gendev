@@ -7,7 +7,7 @@
 MGET?= wget
 MAKE?= make
 
-UNAMEO:=$(shell uname -o)
+UNAMEO:=$(shell uname)
 
 GCC_VERSION=4.5.2
 MPFR_VERSION=2.4.2
@@ -41,7 +41,7 @@ postbuild: /opt/toolchains/gen/ldscripts tools
 TOOLS=/opt/toolchains/gen/bin
 TOOLS+=/opt/toolchains/gen/bin/bin2c
 TOOLS+=/opt/toolchains/gen/bin/sjasm
-ifneq ($(UNAMEO), FreeBD)
+ifeq ($(UNAME), Linux)
 TOOLS+=/opt/toolchains/gen/bin/zasm
 TOOLS+=/opt/toolchains/gen/bin/vgm_cmp
 endif
