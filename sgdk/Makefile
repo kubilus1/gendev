@@ -10,7 +10,9 @@ tools: sgdk-read-only
 	cd sgdk-read-only/tools/pcmtoraw/src && \
 	patch -u < ../../../../files/pcmtoraw.diff && \
 	gcc -o pcmtoraw pcmtoraw.c  && cp pcmtoraw $(GENDEV)/bin/.
-	cd sgdk-read-only/tools/sizebnd/src && gcc -o sizebnd sizebnd.c  && cp sizebnd $(GENDEV)/bin/.
+	cd sgdk-read-only/tools/sizebnd/src && \
+	patch -u < ../../../../files/sizebnd.diff && \
+	gcc -o sizebnd sizebnd.c  && cp sizebnd $(GENDEV)/bin/.
 
 sgdk-read-only:
 	svn co http://sgdk.googlecode.com/svn/trunk/ sgdk-read-only
