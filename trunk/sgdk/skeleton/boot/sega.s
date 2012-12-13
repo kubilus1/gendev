@@ -40,7 +40,7 @@ _Vecteurs_68K:
         dc.l    _INT,_INT,_INT,_INT,_INT,_INT,_INT,_INT
         dc.l    _INT,_INT,_INT,_INT,_INT,_INT,_INT,_INT
 
-        .incbin "rom_head.bin", 0x10, 0x100
+        .incbin "boot/rom_head.bin", 0x10, 0x100
 
 _Entry_Point:
         tst.l   0xa10008
