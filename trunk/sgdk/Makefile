@@ -1,7 +1,7 @@
 GENDEV?=/opt/toolchains/gen/
 MAKE?=make
 
-all: sgdk-read-only sgdk-read-only/src/libmd.a tools
+all: tools sgdk-read-only sgdk-read-only/src/libmd.a
 
 tools: sgdk-read-only
 	cd sgdk-read-only/tools/bintos/src && gcc -o bintos bintos.c  && cp bintos $(GENDEV)/bin/.
