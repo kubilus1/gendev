@@ -4,24 +4,48 @@ OBJC = m68k-elf-objcopy
 LD = m68k-elf-ld
 RM = rm -f
 ASMZ80 = zasm
-BINTOC = bintos
+BINTOS = bintos
 
 OPTION =
-#INCS = -I. -I$(GENDEV)/m68k-elf/include -I$(GENDEV)/m68k-elf/m68k-elf/include
-INCS = -I. -I$(GENDEV)/m68k-elf/include 
+INCS = -I. -I$(GENDEV)/m68k-elf/include -I$(GENDEV)/m68k-elf/m68k-elf/include -Isrc -Ires
 CCFLAGS = $(OPTION) -m68000 -Wall -O2 -c -fomit-frame-pointer
 HWCCFLAGS = $(OPTION) -m68000 -Wall -O1 -c -fomit-frame-pointer
 Z80FLAGS = -vb2
 ASFLAGS = -m68000 --register-prefix-optional
-LIBS = -L$(GENDEV)/m68k-elf/lib -L$(GENDEV)/m68k-elf/m68k-elf/lib -lmd -lgcc -lnosys -lc
-LINKFLAGS = -T $(GENDEV)/ldscripts/sgdk.ld -Wl,-Map=output.map -nostdlib $(GENDEV)/m68k-elf/lib/libmd.a
+LIBS =  -L$(GENDEV)/m68k-elf/lib -L$(GENDEV)/m68k-elf/lib/gcc/m68k-elf/4.5.2 -L$(GENDEV)/m68k-elf/m68k-elf/lib -lmd -lc -lgcc -lnosys 
+LINKFLAGS = -T $(GENDEV)/ldscripts/sgdk.ld -Wl,-Map=output.map -nostdlib $(GENDEV)/m68k-elf/lib/libmd.a $(GENDEV)/m68k-elf/lib/gcc/m68k-elf/4.5.2/libgcc.a $(GENDEV)/m68k-elf/m68k-elf/lib/libc.a
 
-OBJS = rom_head.o sega.o main.o 
+BOOTCS=$(wildcard boot/*.c)
+BOOTSS=$(wildcard boot/*.s)
+CS=$(wildcard *.c)
+SS=$(wildcard *.s)
+S80S=$(wildcard *.s80)
+
+RESOURCES=$(BOOTCS:.c=.o)
+RESOURCES+=$(BOOTSS:.s=.o)
+RESOURCES+=$(CS:.c=.o)
+RESOURCES+=$(SS:.s=.o)
+RESOURCES+=$(S80S:.s80=.o)
+
+BMPS=$(wildcard *.bmp)
+VGMS=$(wildcard *.vgm)
+RAWS=$(wildcard *.raw)
+PCMS=$(wildcard *.pcm)
+MVSS=$(wildcard *.mvs)
+TFDS=$(wildcard *.tfd)
+RESOURCES+=$(BMPS:.bmp=.o)
+RESOURCES+=$(VGMS:.vgm=.o)
+RESOURCES+=$(RAWS:.raw=.o)
+RESOURCES+=$(PCMS:.pcm=.o)
+RESOURCES+=$(MVSS:.mvs=.o)
+RESOURCES+=$(TFDS:.tfd=.o)
+
+OBJS = $(RESOURCES)
 
 all: out.bin 
 
-sega.o: rom_head.bin
-	$(AS) $(ASFLAGS) sega.s -o $@
+boot/sega.o: boot/rom_head.bin
+	$(AS) $(ASFLAGS) boot/sega.s -o $@
 
 %.bin: %.elf
 	$(OBJC) -O binary $< temp.bin
@@ -34,7 +58,7 @@ sega.o: rom_head.bin
 	$(ASMZ80) $(Z80FLAGS) -o $@ $<
 
 %.c: %.o80
-	$(BINTOC) $<
+	$(BINTOS) $<
 
 %.o: %.c
 	$(CC) $(CCFLAGS) $(INCS) -c $< -o $@
@@ -42,8 +66,42 @@ sega.o: rom_head.bin
 %.o: %.s
 	$(AS) $(ASFLAGS) $< -o $@
 
-rom_head.bin: rom_head.o
+%.s: %.bmp
+	bintos -bmp $<
+
+%.rawpcm: %.pcm
+	$(PCMTORAW) $< $@
+
+#%.tfc: %.tfd
+#	$(TFMCOM) $<
+
+#%.o80: %.s80
+#	$(ASMZ80) $(FLAGSZ80) $< $@ out.lst
+
+%.s: %.tfd
+	$(BINTOS) -align 32768 $<
+
+%.s: %.mvs
+	$(BINTOS) -align 256 $<
+
+%.s: %.esf
+	$(BINTOS) -align 32768 $<
+
+%.s: %.eif
+	$(BINTOS) -align 256 $<
+
+%.s: %.vgm
+	$(BINTOS) -align 256 $<
+
+%.s: %.raw
+	$(BINTOS) -align 256 -sizealign 256 $<
+
+%.s: %.rawpcm
+	$(BINTOS) -align 128 -sizealign 128 -nullfill 136 $<
+
+boot/rom_head.bin: boot/rom_head.o
 	$(CC) -o $@ $(LINKFLAGS) $<
 
 clean:
+	$(RM) $(RESOURCES)
 	$(RM) *.o *.bin *.elf *.map
