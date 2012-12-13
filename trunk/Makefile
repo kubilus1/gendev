@@ -158,6 +158,8 @@ work/gcc-$(GCC_VERSION)/gmp: work/gcc-$(GCC_VERSION)
 	- mkdir -p work/sjasm
 	cd work/sjasm && \
 	unzip ../../sjasm39g6.zip && \
+	cd sjasmsrc39g6 && \
+	$(MAKE) && \
 	cp sjasm $@ && \
 	chmod +x $@
 
