@@ -15,22 +15,14 @@ ASFLAGS = -m68000 --register-prefix-optional
 LIBS =  -L$(GENDEV)/m68k-elf/lib -L$(GENDEV)/m68k-elf/lib/gcc/m68k-elf/4.5.2 -L$(GENDEV)/m68k-elf/m68k-elf/lib -lmd -lc -lgcc -lnosys 
 LINKFLAGS = -T $(GENDEV)/ldscripts/sgdk.ld -Wl,-Map=output.map -nostdlib $(GENDEV)/m68k-elf/lib/libmd.a $(GENDEV)/m68k-elf/lib/gcc/m68k-elf/4.5.2/libgcc.a $(GENDEV)/m68k-elf/m68k-elf/lib/libc.a
 
+RESOURCES=
+
 BOOTCS=$(wildcard boot/*.c)
 BOOTSS=$(wildcard boot/*.s)
 BOOTCS+=$(wildcard src/boot/*.c)
 BOOTSS+=$(wildcard src/boot/*.s)
-CS=$(wildcard src/*.c)
-SS=$(wildcard src/*.s)
-S80S=$(wildcard src/*.s80)
-CS+=$(wildcard *.c)
-SS+=$(wildcard *.s)
-S80S+=$(wildcard *.s80)
-
-RESOURCES=$(BOOTCS:.c=.o)
+RESOURCES+=$(BOOTCS:.c=.o)
 RESOURCES+=$(BOOTSS:.s=.o)
-RESOURCES+=$(CS:.c=.o)
-RESOURCES+=$(SS:.s=.o)
-RESOURCES+=$(S80S:.s80=.o)
 
 BMPS=$(wildcard res/*.bmp)
 VGMS=$(wildcard res/*.vgm)
@@ -50,6 +42,16 @@ RESOURCES+=$(RAWS:.raw=.o)
 RESOURCES+=$(PCMS:.pcm=.o)
 RESOURCES+=$(MVSS:.mvs=.o)
 RESOURCES+=$(TFDS:.tfd=.o)
+
+CS=$(wildcard src/*.c)
+SS=$(wildcard src/*.s)
+S80S=$(wildcard src/*.s80)
+CS+=$(wildcard *.c)
+SS+=$(wildcard *.s)
+S80S+=$(wildcard *.s80)
+RESOURCES+=$(CS:.c=.o)
+RESOURCES+=$(SS:.s=.o)
+RESOURCES+=$(S80S:.s80=.o)
 
 OBJS = $(RESOURCES)
 
