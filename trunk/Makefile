@@ -18,7 +18,7 @@ NEWLIB_VERSION=1.19.0
 
 FILES=gcc-$(GCC_VERSION).tar.bz2 gcc-g++-$(GCC_VERSION).tar.bz2 gcc-objc-$(GCC_VERSION).tar.bz2 \
 	  mpfr-$(MPFR_VERSION).tar.bz2 mpc-$(MPC_VERSION).tar.gz gmp-$(GMP_VERSION).tar.bz2 \
-	  binutils-$(BINUTILS_VERSION).tar.bz2 newlib-$(NEWLIB_VERSION).tar.gz makefiles-ldscripts-2.zip
+	  binutils-$(BINUTILS_VERSION).tar.bz2 newlib-$(NEWLIB_VERSION).tar.gz 
 
 all: setup build postbuild
 
@@ -83,9 +83,6 @@ binutils-$(BINUTILS_VERSION).tar.bz2:
 newlib-$(NEWLIB_VERSION).tar.gz:
 	$(MGET) ftp://sources.redhat.com/pub/newlib/newlib-$(NEWLIB_VERSION).tar.gz
 
-makefiles-ldscripts-2.zip:
-	$(MGET) http://www.fileden.com/files/2009/2/3/2304902/makefiles-ldscripts-2.zip
-
 bin2c-1.0.zip:
 	$(MGET) http://downloads.sourceforge.net/project/bin2c/bin2c-1.0.zip
 
@@ -109,7 +106,7 @@ VGMTools_src.rar:
 
 work/makefile-gen:
 	cd work && \
-	unzip ../makefiles-ldscripts-2.zip
+	unzip ../files/makefiles-ldscripts-2.zip
 
 work/binutils-2.21:
 	cd work && \
