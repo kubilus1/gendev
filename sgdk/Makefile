@@ -5,13 +5,10 @@ all: tools sgdk-read-only sgdk-read-only/src/libmd.a
 
 tools: sgdk-read-only
 	cd sgdk-read-only/tools/bintos/src && \
-	patch -u < ../../../../files/bintos.diff && \
 	gcc -o bintos bintos.c  && cp bintos $(GENDEV)/bin/.
 	cd sgdk-read-only/tools/pcmtoraw/src && \
-	patch -u < ../../../../files/pcmtoraw.diff && \
 	gcc -o pcmtoraw pcmtoraw.c  && cp pcmtoraw $(GENDEV)/bin/.
 	cd sgdk-read-only/tools/sizebnd/src && \
-	patch -u < ../../../../files/sizebnd.diff && \
 	gcc -o sizebnd sizebnd.c  && cp sizebnd $(GENDEV)/bin/.
 
 sgdk-read-only:
@@ -19,7 +16,6 @@ sgdk-read-only:
 
 sgdk-read-only/src/libmd.a:
 	cp files/Makefile.sgdk_lib sgdk-read-only/.
-	cd sgdk-read-only/include && patch -u < ../../files/types.h.diff
 	cd sgdk-read-only/src && $(MAKE) -f ../Makefile.sgdk_lib 
 
 install: sgdk-read-only sgdk-read-only/src/libmd.a
