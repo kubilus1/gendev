@@ -18,7 +18,7 @@ sgdk-read-only/src/libmd.a:
 	cp files/Makefile.sgdk_lib sgdk-read-only/.
 	cd sgdk-read-only/src && $(MAKE) -f ../Makefile.sgdk_lib 
 
-install: sgdk-read-only sgdk-read-only/src/libmd.a
+install: tools sgdk-read-only sgdk-read-only/src/libmd.a
 	echo "Install"
 	cd sgdk-read-only/src && $(MAKE) -f ../Makefile.sgdk_lib install
 	install -b files/sgdk.ld $(GENDEV)/ldscripts/sgdk.ld
