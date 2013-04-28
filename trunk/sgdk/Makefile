@@ -10,6 +10,8 @@ tools: sgdk-read-only
 	gcc -o pcmtoraw pcmtoraw.c  && cp pcmtoraw $(GENDEV)/bin/.
 	cd sgdk-read-only/tools/sizebnd/src && \
 	gcc -o sizebnd sizebnd.c  && cp sizebnd $(GENDEV)/bin/.
+	cd sgdk-read-only/tools/wavtoraw/src && \
+	gcc -o wavtoraw wavtoraw.c -lm && cp wavtoraw $(GENDEV)/bin/.
 
 sgdk-read-only:
 	svn co http://sgdk.googlecode.com/svn/trunk/ sgdk-read-only
