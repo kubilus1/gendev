@@ -5,6 +5,8 @@ LD = m68k-elf-ld
 RM = rm -f
 ASMZ80 = zasm
 BINTOS = bintos
+PCMTORAW = pcmtoraw
+WAVTORAW = wavtoraw
 
 OPTION =
 INCS = -I. -I$(GENDEV)/m68k-elf/include -I$(GENDEV)/m68k-elf/m68k-elf/include -Isrc -Ires
@@ -30,18 +32,24 @@ RAWS=$(wildcard res/*.raw)
 PCMS=$(wildcard res/*.pcm)
 MVSS=$(wildcard res/*.mvs)
 TFDS=$(wildcard res/*.tfd)
+WAVS=$(wildcard res/*.wav)
+WAVPCMS=$(wildcard res/*.wavpcm)
 BMPS+=$(wildcard *.bmp)
 VGMS+=$(wildcard *.vgm)
 RAWS+=$(wildcard *.raw)
 PCMS+=$(wildcard *.pcm)
 MVSS+=$(wildcard *.mvs)
 TFDS+=$(wildcard *.tfd)
+WAVS+=$(wildcard *.wav)
+WAVPCMS+=$(wildcard res/*.wavpcm)
 RESOURCES+=$(BMPS:.bmp=.o)
 RESOURCES+=$(VGMS:.vgm=.o)
 RESOURCES+=$(RAWS:.raw=.o)
 RESOURCES+=$(PCMS:.pcm=.o)
 RESOURCES+=$(MVSS:.mvs=.o)
 RESOURCES+=$(TFDS:.tfd=.o)
+RESOURCES+=$(WAVS:.wav=.o)
+RESOURCES+=$(WAVPCMS:.wavpcm=.o)
 
 CS=$(wildcard src/*.c)
 SS=$(wildcard src/*.s)
@@ -85,6 +93,12 @@ boot/sega.o: boot/rom_head.bin
 %.rawpcm: %.pcm
 	$(PCMTORAW) $< $@
 
+%.raw: %.wav
+	$(WAVTORAW) $< $@ 16000
+
+%.pcm: %.wavpcm
+	$(WAVTORAW) $< $@ 22050
+
 #%.tfc: %.tfd
 #	$(TFMCOM) $<
 
@@ -108,6 +122,9 @@ boot/sega.o: boot/rom_head.bin
 
 %.s: %.raw
 	$(BINTOS) -align 256 -sizealign 256 $<
+
+%.s: %.rawpcm
+	$(BINTOS) -align 128 -sizealign 128 -nullfill 136 $<
 
 %.s: %.rawpcm
 	$(BINTOS) -align 128 -sizealign 128 -nullfill 136 $<
