@@ -24,6 +24,13 @@ all: setup build postbuild
 
 setup: work $(FILES) work/gcc-$(GCC_VERSION) work/gcc-$(GCC_VERSION)/mpfr work/gcc-$(GCC_VERSION)/mpc work/gcc-$(GCC_VERSION)/gmp work/binutils-2.21 work/newlib-$(NEWLIB_VERSION) work/makefile-gen
 
+gendev.tgz: /opt/toolchains/gen/ldscripts tools
+	tar czvf gendev.tgz /opt/toolchains/gen
+
+gendev_1_all.deb: gendev.tgz
+	cd pkg && tar xvzf ../gendev.tgz
+	dpkg --build pkg ./
+
 build: /opt/toolchains/gen
 	echo "Build"
 	cd work && \
@@ -55,6 +62,9 @@ clean:
 
 purge: clean
 	- rm *.rar *.bz2 *.gz *.tgz *.zip
+	- rm gendev.tgz
+	- rm gendev*.deb
+	- rm -rf pkg/opt
 
 work:
 	mkdir work
