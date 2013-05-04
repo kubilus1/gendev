@@ -24,8 +24,8 @@ all: setup build postbuild
 
 setup: work $(FILES) work/gcc-$(GCC_VERSION) work/gcc-$(GCC_VERSION)/mpfr work/gcc-$(GCC_VERSION)/mpc work/gcc-$(GCC_VERSION)/gmp work/binutils-2.21 work/newlib-$(NEWLIB_VERSION) work/makefile-gen
 
-gendev.tgz: /opt/toolchains/gen/ldscripts
-	tar czvf gendev.tgz /opt/toolchains/gen
+gendev.txz: /opt/toolchains/gen/ldscripts
+	tar cJvf gendev.txz /opt/toolchains/gen
 
 pkg/opt:
 	mkdir -p pkg/opt/toolchains
