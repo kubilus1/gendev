@@ -41,12 +41,13 @@ build: /opt/toolchains/gen
 	MAKE=$(MAKE) $(MAKE) -f makefile-gen
 
 postbuild: /opt/toolchains/gen/ldscripts tools
-	
 	echo "Post build."
 	echo "export GENDEV=/opt/toolchains/gen" > ~/.gendev
 	echo "export PATH=\$$GENDEV/m68k-elf/bin:\$$GENDEV/bin:\$$PATH" >> ~/.gendev
 	echo "export GENDEV=/opt/toolchains/gen" > ~/.32xdev
 	echo "export PATH=\$$GENDEV/sh-elf/bin:\$$GENDEV/m68k-elf/bin:\$$GENDEV/bin:\$$PATH" >> ~/.32xdev
+	cp -r sgdk/skeleton /opt/toolchains/gen/.
+
 
 TOOLS=/opt/toolchains/gen/bin
 TOOLS+=/opt/toolchains/gen/bin/bin2c
