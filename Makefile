@@ -59,6 +59,7 @@ endif
 TOOLS+=/opt/toolchains/gen/bin/sixpack 
 
 tools: $(TOOLS)
+	cp extras/scripts/* /opt/toolchains/gen/bin/.
 	echo "Done with tools."
 
 clean:
