@@ -74,7 +74,7 @@ boot/sega.o: boot/rom_head.bin
 	$(OBJC) -O binary $< temp.bin
 	dd if=temp.bin of=$@ bs=8K conv=sync
 
-%.elf: $(OBJS)
+%.elf: $(OBJS) $(BOOT_RESOURCES)
 	$(CC) -o $@ $(LINKFLAGS) $(BOOT_RESOURCES) $(ARCHIVES) $(OBJS) $(LIBS)
 
 %.o80: %.s80
