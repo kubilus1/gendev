@@ -944,7 +944,8 @@ BIOS_LEDSET macro
 ;   a1.l  pointer to display strings
 ;-----------------------------------------------------------------------
 BIOS_BRMINIT macro
-      BURAM #BRMINIT
+      move.w #BRMINIT,d0
+      jsr _BURAM
       endm
 
 ;-----------------------------------------------------------------------
@@ -958,7 +959,8 @@ BIOS_BRMINIT macro
 ;   d1.w  number of files in directory
 ;-----------------------------------------------------------------------
 BIOS_BRMSTAT macro
-      BURAM #BRMSTAT
+      move.w #BRMSTAT,d0
+      jsr _BURAM
       endm
 
 ;-----------------------------------------------------------------------
@@ -979,7 +981,8 @@ BIOS_BRMSTAT macro
 ;   a0.l  backup ram start address for search
 ;-----------------------------------------------------------------------
 BIOS_BRMSERCH macro
-      BURAM #BRMSERCH
+      move.w #BRMSERCH,d0
+      jsr _BURAM
       endm
 
 ;-----------------------------------------------------------------------
@@ -998,7 +1001,8 @@ BIOS_BRMSERCH macro
 ;        -1 : data protected
 ;-----------------------------------------------------------------------
 BIOS_BRMREAD macro
-      BURAM #BRMREAD
+      move.w #BRMREAD,d0
+      jsr _BURAM
       endm
 
 ;-----------------------------------------------------------------------
@@ -1017,7 +1021,8 @@ BIOS_BRMREAD macro
 ;   cs    Error, cannot write in the file
 ;-----------------------------------------------------------------------
 BIOS_BRMWRITE macro
-      BURAM #BRMWRITE
+      move.w #BRMWRITE,d0
+      jsr _BURAM
       endm
 
 ;-----------------------------------------------------------------------
@@ -1031,7 +1036,8 @@ BIOS_BRMWRITE macro
 ;   cs    not found
 ;-----------------------------------------------------------------------
 BIOS_BRMDEL macro
-      BURAM #BRMDEL
+      move.w #BRMDEL,d0
+      jsr _BURAM
       endm
 
 ;-----------------------------------------------------------------------
@@ -1048,7 +1054,8 @@ BIOS_BRMDEL macro
 ;   cs    Error, cannot format
 ;-----------------------------------------------------------------------
 BIOS_BRMFORMAT macro
-      BURAM #BRMFORMAT
+      move.w #BRMFORMAT,d0
+      jsr _BURAM
       endm
 
 ;-----------------------------------------------------------------------
@@ -1066,7 +1073,8 @@ BIOS_BRMFORMAT macro
 ;   cs    Full, too much to read into directory buffer
 ;-----------------------------------------------------------------------
 BIOS_BRMDIR macro
-      BURAM #BRMDIR
+      move.w #BRMDIR,d0
+      jsr _BURAM
       endm
 
 ;-----------------------------------------------------------------------
@@ -1088,6 +1096,7 @@ BIOS_BRMDIR macro
 ;         0 : File not found
 ;-----------------------------------------------------------------------
 BIOS_BRMVERIFY macro
-      BURAM #BRMVERIFY
+      move.w #BRMVERIFY,d0
+      jsr _BURAM
       endm
 
