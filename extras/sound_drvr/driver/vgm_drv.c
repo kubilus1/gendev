@@ -83,11 +83,12 @@ unsigned char pcm_index;
 unsigned char vgmbyte;
 
 //unsigned char sfx_play = 0x00;
-_Bool sfx_play = 0;
-unsigned long sfx_addr = 0x00000000;
+unsigned char sfx_play = 0;
+unsigned char sfx_bank = 0;
+unsigned int sfx_addr = 0x00000000;
 //banked_addr sfx_addr;
 unsigned int sfx_len = 0x0000;
-
+unsigned char  bank_8x;
 
 #define MAX_SAMPLES 16 
 
@@ -120,6 +121,7 @@ union Address store_u16;
 unsigned long store_u32;
 _Bool vgmbanked = 0;
 unsigned int pcm_delay;
+unsigned char bank_bkp;
 
 
 #define get_offset(x) (x & (~0xFF8000))
@@ -216,37 +218,37 @@ skipget:
                 if(sfx_play == 0) {
                     __asm
                         exx
+                        ; Calculate PCM location
+                        ; WARNING: This could overflow!
                         ld de,(_pcms)
                         ld hl,(_store_u16)
                         add hl,de
-                        ; hl contains pcm_address
-
                         ld b,h
                         ld c,l
 
                         ; Load bank
-                        ;inc hl
-                        ;ld a,(hl)
-                        ;ld (_bank_p),a
-
-                        ld de,(_fm1_data)
+                        ld a,(_pcms + 0x0002)
+                        ld (_bank_8x),a
                         exx
                     __endasm;
                    
-                    bank_p = pcms[0].bank;
-                    //pcm_addr.w = pcms[0].addr + store_u16.w;
-                    //debug_it.w = pcm_addr.w;
-                    /*
+                    ;bank_8x = pcms[0].bank;
+                } else {
                     __asm
                         exx
-                        ld de,(_fm1_data)
-                        ld hl,#_pcm_addr
-                        ld c,(hl)
-                        inc hl
-                        ld b,(hl)
+                        ; Calculate PCM location
+                        ; WARNING: This could overflow!
+                        ld de,(_pcms)
+                        ld hl,(_store_u16)
+                        add hl,de
+                        ld d,h
+                        ld e,l
+
+                        ; Load bank
+                        ld a,(_pcms + 0x0002)
+                        ld (_bank_bkp),a
                         exx
                     __endasm;
-                    */
                 }
                 getop();
             }
@@ -338,10 +340,6 @@ skipget:
                     //exx
                 __endasm;
 
-                //addrs[pcm_index] = (curaddr.w);
-                //datalens[pcm_index] = store_u16.w;
-                //banks[pcm_index] = addr_bank;
-
                 pcms[pcm_index].addr = curaddr.w;
                 pcms[pcm_index].bank = addr_bank;
                 pcms[pcm_index].datalen = store_u16.w;
@@ -373,21 +371,55 @@ skipget:
                 break;
             case 0x70:
             case 0x71:
-            case 0x72:
-            case 0x73:
-            case 0x74:
-            case 0x75:
-            case 0x76:
                 //Just breaking even here.
+            case 0x72:
+                SAMPLEWAIT;
+                goto getbyte;
+            case 0x73:
+                SAMPLEWAIT;
+                SAMPLEWAIT;
+                goto getbyte;
+            case 0x74:
+                SAMPLEWAIT;
+                SAMPLEWAIT;
+                SAMPLEWAIT;
+                goto getbyte;
+            case 0x75:
+                SAMPLEWAIT;
+                SAMPLEWAIT;
+                SAMPLEWAIT;
+                SAMPLEWAIT;
+                goto getbyte;
+            case 0x76:
+                SAMPLEWAIT;
+                SAMPLEWAIT;
+                SAMPLEWAIT;
+                SAMPLEWAIT;
+                SAMPLEWAIT;
                 goto getbyte;
             case 0x77:
+                SAMPLEWAIT;
+                SAMPLEWAIT;
+                SAMPLEWAIT;
+                SAMPLEWAIT;
+                SAMPLEWAIT;
                 SAMPLEWAIT;
                 goto getbyte;
             case 0x78:
                 SAMPLEWAIT;
                 SAMPLEWAIT;
+                SAMPLEWAIT;
+                SAMPLEWAIT;
+                SAMPLEWAIT;
+                SAMPLEWAIT;
+                SAMPLEWAIT;
                 goto getbyte;
             case 0x79:
+                SAMPLEWAIT;
+                SAMPLEWAIT;
+                SAMPLEWAIT;
+                SAMPLEWAIT;
+                SAMPLEWAIT;
                 SAMPLEWAIT;
                 SAMPLEWAIT;
                 SAMPLEWAIT;
@@ -397,8 +429,18 @@ skipget:
                 SAMPLEWAIT;
                 SAMPLEWAIT;
                 SAMPLEWAIT;
+                SAMPLEWAIT;
+                SAMPLEWAIT;
+                SAMPLEWAIT;
+                SAMPLEWAIT;
+                SAMPLEWAIT;
                 goto getbyte;
             case 0x7b:
+                SAMPLEWAIT;
+                SAMPLEWAIT;
+                SAMPLEWAIT;
+                SAMPLEWAIT;
+                SAMPLEWAIT;
                 SAMPLEWAIT;
                 SAMPLEWAIT;
                 SAMPLEWAIT;
@@ -412,8 +454,18 @@ skipget:
                 SAMPLEWAIT;
                 SAMPLEWAIT;
                 SAMPLEWAIT;
+                SAMPLEWAIT;
+                SAMPLEWAIT;
+                SAMPLEWAIT;
+                SAMPLEWAIT;
+                SAMPLEWAIT;
                 goto getbyte;
             case 0x7d:
+                SAMPLEWAIT;
+                SAMPLEWAIT;
+                SAMPLEWAIT;
+                SAMPLEWAIT;
+                SAMPLEWAIT;
                 SAMPLEWAIT;
                 SAMPLEWAIT;
                 SAMPLEWAIT;
@@ -431,8 +483,18 @@ skipget:
                 SAMPLEWAIT;
                 SAMPLEWAIT;
                 SAMPLEWAIT;
+                SAMPLEWAIT;
+                SAMPLEWAIT;
+                SAMPLEWAIT;
+                SAMPLEWAIT;
+                SAMPLEWAIT;
                 goto getbyte;
             case 0x7f:
+                SAMPLEWAIT;
+                SAMPLEWAIT;
+                SAMPLEWAIT;
+                SAMPLEWAIT;
+                SAMPLEWAIT;
                 SAMPLEWAIT;
                 SAMPLEWAIT;
                 SAMPLEWAIT;
@@ -513,7 +575,6 @@ skipget:
 quickplay:
                 __asm
     ;
-    ; de' contains (_fm1_data)
     ; bc' contains #_pcm_addr
     ;
 
@@ -521,6 +582,42 @@ quickplay:
     ; Get the shadow registers
     ;    
     exx
+
+; Check for sfx_play
+    ld a,(_sfx_play)
+    sub a,#0x02
+    jr NZ,00571$
+
+    ; de contains the original pcm address
+
+    ; Increment the original pointers, increment
+    inc de
+    ld a,d
+    or a,a
+    jr NZ,00570$
+    ld d,#0x80
+    ; Overflow, so increment bank
+    ;inc ix
+    ld a,(_bank_bkp)
+    inc a
+    ld (_bank_bkp), a
+00570$:
+    ld hl,(_pcm_datalen)
+    dec hl
+    ld (_pcm_datalen),hl
+    ld a,l
+    or a,h
+    jr NZ,00571$
+
+    ; Done
+    xor a,a
+    ld (_sfx_play),a
+    ld a,(_bank_bkp)
+    ld (_bank_8x), a
+    push de
+    pop bc
+
+00571$:
 
 ;vgm_drv.c:525: if(pcm_addr.h == 0x00) {
     ;
@@ -532,14 +629,14 @@ quickplay:
 ;vgm_drv.c:526: pcm_addr.h = 0x80;
 	ld	b,#0x80
 ;vgm_drv.c:527: bank_p++;  
-	ld	iy,#_bank_p
-	inc	0 (iy)
-
+    ld a,(_bank_8x)
+    inc a
+    ld (_bank_8x), a
+    ;ld hl,#_bank_8x
 ;vgm_drv.c:528: bank_switch(bank_p); 
     ;
     ; Bank switch!
     ;
-	ld	a,(_bank_p)
     ld  hl, (_switch_bank_addr)         ; hl = bankreg  
     ld  (hl), a             ; #1 (bit 15)              
     rra                     ;                         
@@ -558,8 +655,8 @@ quickplay:
     ld  (hl), a             ; #8 (bit 22)            
     ld  (hl), l             ; #9 (bit 23 = 0)       
 ;vgm_drv.c:529: vgmbanked = 0;
-	ld	iy,#_vgmbanked
-	ld	0 (iy),#0x00
+    xor a,a
+    ld (_vgmbanked), a
 	jr	00573$
 
 00572$:
@@ -567,8 +664,7 @@ quickplay:
     ;
     ; Check if vgm processing changed the bank
     ;
-	ld	iy,#_vgmbanked
-	ld	a,0 (iy)
+    ld a,(_vgmbanked)
 	sub	a, #0x01
 	jr	NZ,00573$
 
@@ -576,7 +672,7 @@ quickplay:
     ;
     ;  Switch banks!
     ;
-	ld	a,(_bank_p)
+	ld	a,(_bank_8x)
     ld  hl, (_switch_bank_addr)         ; hl = bankreg  
     ld  (hl), a             ; #1 (bit 15)              
     rra                     ;                         
@@ -595,8 +691,8 @@ quickplay:
     ld  (hl), a             ; #8 (bit 22)            
     ld  (hl), l             ; #9 (bit 23 = 0)       
 ;vgm_drv.c:532: vgmbanked = 0;
-	ld	iy,#_vgmbanked
-	ld	0 (iy),#0x00
+    xor a,a
+    ld (_vgmbanked), a
 
 00573$:
 ;vgm_drv.c:546:
@@ -611,19 +707,13 @@ quickplay:
     ;  Play a byte!
     ;    
 	ld	a,(bc)
-	ld	(de),a
+    ld (#0x4001),a
 
 ;vgm_drv.c:550: pcm_addr.l++;
     ;
     ;  Increment the pcm index
     ;
-	inc	c
-;vgm_drv.c:551: if(pcm_addr.l == 0) {
-	jp	NZ,00574$
-;vgm_drv.c:552: pcm_addr.h++;
-	inc	b
-;vgm_drv.c:554: goto getbyte;
-00574$:
+	inc	bc
 
     ;
     ;  Switch the registers back
@@ -750,7 +840,7 @@ quickplay:
                         ld c,(hl)
                         inc hl
                         ld b,(hl)
-                        ;ld (_pcm_addr),bc
+                        ld (_pcm_addr),bc
                         
                         ; Load bank
                         inc hl
@@ -765,40 +855,48 @@ quickplay:
                         ld d,(hl)
                         ld (_pcm_datalen),de
 
-                        ld de,(_fm1_data)
+                        ;ld de,(_fm1_data)
                         exx
                     __endasm;
                 }
 
                 goto getbyte;
             }
-            if(sfx_play == 1 && pcm_play == 0) {
-                __asm 
-                    exx
-                __endasm;
-                bank_p = (sfx_addr & (0xFF8000))>>15;
-                pcm_addr.w = (sfx_addr & ~0xff8000) + 0x8000;
+            if(sfx_play == 1) {
+                //
+                // Start a sound effect
+                //
+                sfx_play++;
+
+                // Make sure the DAC is enabled
+                *fm1_register = 0x2b;
+                *fm1_data = 0x80;
+                bank_p = sfx_bank;
+                pcm_addr.w = sfx_addr;
                 pcm_datalen = sfx_len;
-                //debug_it.w = (sfx_addr & ~0xff8000) + 0x8000;
                 pcm_play = 1;
                 __asm
-                    ;exx
-                    ld de,(_fm1_data)
-                    ld hl,#_pcm_addr
-                    ld c,(hl)
-                    inc hl
-                    ld b,(hl)
+                    exx
+                    push bc
+                    pop de
+                    ld bc,(_pcm_addr)
+                    ld a,(_bank_8x)
+                    ld (_bank_bkp),a
+                    ld a,(_bank_p)
+                    ld (_bank_8x),a
                     exx
                 __endasm;
+
             }
         }
     }
 play_n_pause:
+    //*fm1_register = 0x2b;
+    //*fm1_data = 0x80;
                 __asm
 
     ;
-    ; de' contains (_fm1_data)
-    ; bc' contains #_pcm_addr
+    ;
     ;
 
 ;vgm_drv.c:824: if(pcm_play == 1){
@@ -861,10 +959,6 @@ play_n_pause:
 
 00609$:
 
-;
-;   THIS IS INCORRECT
-;
-
 ;vgm_drv.c:848: if(pause_len.w == 0)
 ;
 ;   Check the remaining pause length
@@ -914,6 +1008,8 @@ play_n_pause:
 	ld	(_pcm_datalen),hl
 
     exx
+    push bc
+    ld bc,(_pcm_addr)
 ;vgm_drv.c:862: if(pcm_addr.h == 0x00) {
 ;
 ;   Check to see if we need to bank
@@ -971,7 +1067,8 @@ play_n_pause:
 ;   Play a PCM byte!
 ;
 	ld	a,(bc)
-	ld	(de),a
+    ld (#0x4001),a
+
 
     push ix
     pop ix
@@ -984,15 +1081,14 @@ play_n_pause:
     push ix
     pop ix
 
-;vgm_drv.c:877: pcm_addr.l++;
-	inc	c
-;vgm_drv.c:878: if(pcm_addr.l == 0) {
-	jr	NZ,00595$
-;vgm_drv.c:879: pcm_addr.h++;
-    inc b
-00595$:
+;vgm_drv.c:877: pcm_addr++;
+	inc	bc
+    ld (_pcm_addr),bc
+    pop bc
+    inc bc
     exx 	
     ld	hl,(_pause_len)
+	dec	hl
 	dec	hl
 	dec	hl
 	dec	hl
@@ -1246,10 +1342,13 @@ void getop()
 ;vgm_drv.c:1230: curaddr.h = 0x80;
     ld b,#0x80
 ;vgm_drv.c:1231: addr_bank++;
-	ld	iy,#_addr_bank
-	inc	0 (iy)
+	;ld	iy,#_addr_bank
+	;inc	0 (iy)
+    ld a,(_addr_bank)
+    inc a
+    ld (_addr_bank),a
 ;vgm_drv.c:1232: bank_switch(addr_bank);
-	ld	a,(_addr_bank)
+	;ld	a,(_addr_bank)
 	ld	hl, (_switch_bank_addr) ; hl = bankreg
 	ld	(hl), a ; #1 (bit 15)
 	rra	;
