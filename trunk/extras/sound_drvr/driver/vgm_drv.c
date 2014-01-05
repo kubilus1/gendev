@@ -6,8 +6,6 @@
  */
 #include <string.h>
 
-//#pragma NOJTBOUND
-
 union Address {
     struct {
         unsigned char l;
@@ -119,9 +117,9 @@ union Address romptr;
 unsigned int sample_len;
 union Address store_u16;
 unsigned long store_u32;
-_Bool vgmbanked = 0;
 unsigned int pcm_delay;
 unsigned char bank_bkp;
+unsigned char vgm_bank;
 
 
 #define get_offset(x) (x & (~0xFF8000))
@@ -160,6 +158,7 @@ unsigned char bank_bkp;
 
 #define BANK_SWITCH \
 __asm \
+    ld (_addr_bank),a \
     ld  hl, (_switch_bank_addr)         \
     ld  (hl), a             \
     rra                     \
@@ -253,6 +252,9 @@ skipget:
                 getop();
             }
             switch(op) { // 121 to jump to position
+            case 0x4f:
+                // Some kind of Game Gear command
+                getop();
             case 0x50:
                 //op1 = getop();
                 getop();
@@ -348,9 +350,15 @@ skipget:
 
                 //This can overflow!
                 if(((curaddr.w-0x8000)+store_u16.w)>=0x8000) {
-                    curaddr.w = (curaddr.w - 0x8000) + store_u16.w; 
-                    bank_switch(++addr_bank);
-                    vgmbanked = 1;
+                    curaddr.w = (curaddr.w - 0x8000) + store_u16.w - 4; 
+                    //++addr_bank;
+                    __asm
+                        ld a,(_addr_bank)
+                        inc a
+                        ld (_vgm_bank),a
+                    __endasm;
+                    BANK_SWITCH;
+                    //bank_switch(++addr_bank);
                 }
                 else{
                     curaddr.w += (store_u16.w) - 4;
@@ -572,8 +580,49 @@ skipget:
                 //pause_len.l = 0x0f;
                 //initial_pause = pause_len.w;
                 //goto quickplay;
+                __asm
+    ;
+    ;  Setup the fm channel for pcm play
+    ; 
+	ld	hl,#0x4000
+	ld	(hl),#0x2A
+                __endasm;
 quickplay:
                 __asm
+00670$:                    
+    ;
+    ; Check if vgm processing changed the bank
+    ;
+    ;ld hl,#_addr_bank
+    ;ld a,(#_bank_8x)
+    ;cp a,(hl)
+	;jr	Z,00569$
+
+;vgm_drv.c:531: bank_switch(bank_p); 
+    ;
+    ;  Switch banks!
+    ;
+	ld	a,(_bank_8x)
+    ld (_addr_bank),a
+    ld  hl, (_switch_bank_addr)         ; hl = bankreg  
+    ld  (hl), a             ; #1 (bit 15)              
+    rra                     ;                         
+    ld  (hl), a             ; #2 (bit 16)            
+    rra                     ;                       
+    ld  (hl), a             ; #3 (bit 17)              
+    rra                     ;                         
+    ld  (hl), a             ; #4 (bit 18)            
+    rra                     ;                       
+    ld  (hl), a             ; #5 (bit 19)          
+    rra                     ;                     
+    ld  (hl), a             ; #6 (bit 20)        
+    rra                     ;                           
+    ld  (hl), a             ; #7 (bit 21)              
+    rra                     ;                         
+    ld  (hl), a             ; #8 (bit 22)            
+    ld  (hl), l             ; #9 (bit 23 = 0)       
+
+00569$:
     ;
     ; bc' contains #_pcm_addr
     ;
@@ -597,7 +646,6 @@ quickplay:
     jr NZ,00570$
     ld d,#0x80
     ; Overflow, so increment bank
-    ;inc ix
     ld a,(_bank_bkp)
     inc a
     ld (_bank_bkp), a
@@ -619,89 +667,7 @@ quickplay:
 
 00571$:
 
-;vgm_drv.c:525: if(pcm_addr.h == 0x00) {
-    ;
-    ; Check for overflow
-    ;
-	ld	a,b
-	or	a, a
-	jr	NZ,00572$
-;vgm_drv.c:526: pcm_addr.h = 0x80;
-	ld	b,#0x80
-;vgm_drv.c:527: bank_p++;  
-    ld a,(_bank_8x)
-    inc a
-    ld (_bank_8x), a
-    ;ld hl,#_bank_8x
-;vgm_drv.c:528: bank_switch(bank_p); 
-    ;
-    ; Bank switch!
-    ;
-    ld  hl, (_switch_bank_addr)         ; hl = bankreg  
-    ld  (hl), a             ; #1 (bit 15)              
-    rra                     ;                         
-    ld  (hl), a             ; #2 (bit 16)            
-    rra                     ;                       
-    ld  (hl), a             ; #3 (bit 17)              
-    rra                     ;                         
-    ld  (hl), a             ; #4 (bit 18)            
-    rra                     ;                       
-    ld  (hl), a             ; #5 (bit 19)          
-    rra                     ;                     
-    ld  (hl), a             ; #6 (bit 20)        
-    rra                     ;                           
-    ld  (hl), a             ; #7 (bit 21)              
-    rra                     ;                         
-    ld  (hl), a             ; #8 (bit 22)            
-    ld  (hl), l             ; #9 (bit 23 = 0)       
-;vgm_drv.c:529: vgmbanked = 0;
-    xor a,a
-    ld (_vgmbanked), a
-	jr	00573$
-
-00572$:
-;vgm_drv.c:530: } else if (vgmbanked == 1) {
-    ;
-    ; Check if vgm processing changed the bank
-    ;
-    ld a,(_vgmbanked)
-	sub	a, #0x01
-	jr	NZ,00573$
-
-;vgm_drv.c:531: bank_switch(bank_p); 
-    ;
-    ;  Switch banks!
-    ;
-	ld	a,(_bank_8x)
-    ld  hl, (_switch_bank_addr)         ; hl = bankreg  
-    ld  (hl), a             ; #1 (bit 15)              
-    rra                     ;                         
-    ld  (hl), a             ; #2 (bit 16)            
-    rra                     ;                       
-    ld  (hl), a             ; #3 (bit 17)              
-    rra                     ;                         
-    ld  (hl), a             ; #4 (bit 18)            
-    rra                     ;                       
-    ld  (hl), a             ; #5 (bit 19)          
-    rra                     ;                     
-    ld  (hl), a             ; #6 (bit 20)        
-    rra                     ;                           
-    ld  (hl), a             ; #7 (bit 21)              
-    rra                     ;                         
-    ld  (hl), a             ; #8 (bit 22)            
-    ld  (hl), l             ; #9 (bit 23 = 0)       
-;vgm_drv.c:532: vgmbanked = 0;
-    xor a,a
-    ld (_vgmbanked), a
-
-00573$:
 ;vgm_drv.c:546:
-    ;
-    ;  Setup the fm channel for pcm play
-    ; 
-;	*fm1_register = 0x2a
-	ld	hl,#0x4000
-	ld	(hl),#0x2A
 ;	*fm1_data = *(unsigned char)pcm_addr.w
     ;
     ;  Play a byte!
@@ -714,6 +680,20 @@ quickplay:
     ;  Increment the pcm index
     ;
 	inc	bc
+    
+    ;
+    ; Check for pcm bank switch
+    ; 
+    ld a,b
+    or a,a
+    jr NZ,00574$
+    ld b,#0x80
+
+;vgm_drv.c:527: bank_p++;  
+    ld a,(_bank_8x)
+    inc a
+    ld (_bank_8x), a
+00574$:    
 
     ;
     ;  Switch the registers back
@@ -725,12 +705,62 @@ quickplay:
     ;     
     ;jp 00101$
     __endasm;
-            getop();
-            if((op & 0xf0) == 0x80) {
-                goto quickplay;
-            } else {
-                goto skipget;
-            }
+    __asm
+    ;
+    ; Check if vgm processing changed the bank
+    ;
+    ;ld hl,#_addr_bank
+    ;ld a,(_vgm_bank)
+    ;cp a,(hl)
+	;jr	Z,00502$
+
+;vgm_drv.c:531: bank_switch(bank_p); 
+    ;
+    ;  Switch banks!
+    ;
+    ld a,(_vgm_bank)
+    ld (_addr_bank),a
+    ld  hl, (_switch_bank_addr)         ; hl = bankreg  
+    ld  (hl), a             ; #1 (bit 15)              
+    rra                     ;                         
+    ld  (hl), a             ; #2 (bit 16)            
+    rra                     ;                       
+    ld  (hl), a             ; #3 (bit 17)              
+    rra                     ;                         
+    ld  (hl), a             ; #4 (bit 18)            
+    rra                     ;                       
+    ld  (hl), a             ; #5 (bit 19)          
+    rra                     ;                     
+    ld  (hl), a             ; #6 (bit 20)        
+    rra                     ;                           
+    ld  (hl), a             ; #7 (bit 21)              
+    rra                     ;                         
+    ld  (hl), a             ; #8 (bit 22)            
+    ld  (hl), l             ; #9 (bit 23 = 0)       
+
+00502$:
+;vgm_drv.c:1225: op = *(unsigned char *)curaddr.w;
+    ld a,(bc)
+    ld d,a
+;vgm_drv.c:1226: curaddr.l++;
+	inc	bc
+    ld a,b
+    or a,a
+;vgm_drv.c:1229: if(curaddr.h == 0x00) {
+    jp nz,00503$
+    ld b,#0x80
+    ld a,(_vgm_bank)
+    inc a
+    ld (_vgm_bank),a
+00503$:    
+;vgm_drv.c:709: if((op & 0xf0) == 0x80) {
+	ld a,d
+	and	a, #0xF0
+	sub	a, #0x80
+	jp	Z,00670$
+	jp	00102$
+    __endasm;
+            goto skipget;
             goto pause;
 
             case 0x90:
@@ -859,7 +889,6 @@ quickplay:
                         exx
                     __endasm;
                 }
-
                 goto getbyte;
             }
             if(sfx_play == 1) {
@@ -891,8 +920,6 @@ quickplay:
         }
     }
 play_n_pause:
-    //*fm1_register = 0x2b;
-    //*fm1_data = 0x80;
                 __asm
 
     ;
@@ -905,20 +932,37 @@ play_n_pause:
 ;
     ld a,(_pcm_play)
     sub a,#0x01
-	;ld	iy,#_pcm_play
-	;ld	a,0 (iy)
-	;sub	a, #0x01
 	jp	NZ,00612$
 
-;vgm_drv.c:832: if (vgmbanked == 1) {
+    ;
+    ; Enable the DAC
+    ;
+    ;ld hl,(_fm1_register)
+    ;ld (hl),#0x2b
+    ;ld a,#0x80
+    ;ld (#0x4001),a
+
+;vgm_drv.c:843: *fm1_register = 0x2A; // 34
 ;
-;  Check the bank
+;   Setup the register for PCM play
 ;
-	ld	a,(#_vgmbanked + 0)
-	sub	a, #0x01
-	jr	NZ,00587$
-;vgm_drv.c:833: bank_switch(bank_p); 
-	ld	a,(_bank_p)
+	ld	hl,(_fm1_register)
+	ld	(hl),#0x2A
+
+00609$:
+
+    ;
+    ; Check if vgm processing changed the bank
+    ;
+    ld hl,#_addr_bank
+    ld a,(#_bank_p)
+    cp a,(hl)
+	jr	Z,00610$
+
+    ;
+    ;  Switch banks!
+    ;
+    ld (_addr_bank),a
     ld  hl, (_switch_bank_addr)         ; hl = bankreg  
     ld  (hl), a             ; #1 (bit 15)              
     rra                     ;                         
@@ -936,11 +980,6 @@ play_n_pause:
     rra                     ;                         
     ld  (hl), a             ; #8 (bit 22)            
     ld  (hl), l             ; #9 (bit 23 = 0)       
-;vgm_drv.c:834: vgmbanked = 0;
-    xor a,a
-    ld (_vgmbanked), a
-	;ld	iy,#_vgmbanked
-	;ld	0 (iy),#0x00
 ;
 ;  Banking chews up time
 ;
@@ -949,15 +988,7 @@ play_n_pause:
 	dec	hl
 	ld	(_pause_len),hl
 
-00587$:
-;vgm_drv.c:843: *fm1_register = 0x2A; // 34
-;
-;   Setup the register for PCM play
-;
-	ld	hl,(_fm1_register)
-	ld	(hl),#0x2A
-
-00609$:
+00610$:
 
 ;vgm_drv.c:848: if(pause_len.w == 0)
 ;
@@ -974,9 +1005,6 @@ play_n_pause:
 ;
 ;   Check the remaining PCM bytes
 ;
-	;ld	iy,#_pcm_datalen
-	;ld	a,1 (iy)
-	;or	a,0 (iy)
     ld hl,#_pcm_datalen
     ld d,(hl)
     inc hl
@@ -990,14 +1018,7 @@ play_n_pause:
 ;
     xor a,a
     ld (_pcm_play), a
-	;ld	hl,#_pcm_play + 0
-	;ld	(hl), #0x00
-;vgm_drv.c:857: sfx_play = 0;// ??
     ld (_sfx_play),a
-    ;ld hl,#_sfx_play
-    ;ld (hl), #0x00
-	;ld	iy,#_sfx_play
-	;ld	0 (iy),#0x00
 ;vgm_drv.c:858: goto pause;
 	jr	00612$
 
@@ -1018,48 +1039,14 @@ play_n_pause:
 	or	a, a
 	jr	NZ,00593$
 ;vgm_drv.c:863: pcm_addr.h = 0x80;
-	;ld	(hl),#0x80
     ld b,#0x80
 ;vgm_drv.c:864: bank_p++;  
 ;
 ;   Increase the bank pointer
 ;
-	;ld	iy,#_bank_p
-	;inc	0 (iy)
     ld a,(_bank_p)
     inc a
     ld (_bank_p),a
-;vgm_drv.c:865: bank_switch(bank_p); 
-	;ld	a,(_bank_p)
-    ld  hl, (_switch_bank_addr)         ; hl = bankreg  
-    ld  (hl), a             ; #1 (bit 15)              
-    rra                     ;                         
-    ld  (hl), a             ; #2 (bit 16)            
-    rra                     ;                       
-    ld  (hl), a             ; #3 (bit 17)              
-    rra                     ;                         
-    ld  (hl), a             ; #4 (bit 18)            
-    rra                     ;                       
-    ld  (hl), a             ; #5 (bit 19)          
-    rra                     ;                     
-    ld  (hl), a             ; #6 (bit 20)        
-    rra                     ;                           
-    ld  (hl), a             ; #7 (bit 21)              
-    rra                     ;                         
-    ld  (hl), a             ; #8 (bit 22)            
-    ld  (hl), l             ; #9 (bit 23 = 0)       
-;vgm_drv.c:866: vgmbanked = 0;
-	;ld	iy,#_vgmbanked
-	;ld	0 (iy),#0x00
-    xor a,a
-    ld (_vgmbanked), a
-;
-;  Banking chews up time
-;
-    ld	hl,(_pause_len)
-	dec	hl
-	dec	hl
-	ld	(_pause_len),hl
 
 00593$:
 ;vgm_drv.c:875: *fm1_data = *(unsigned char*)pcm_addr.w;
@@ -1069,17 +1056,16 @@ play_n_pause:
 	ld	a,(bc)
     ld (#0x4001),a
 
-
     push ix
     pop ix
-    push ix
-    pop ix
-    push ix
-    pop ix
-    push ix
-    pop ix
-    push ix
-    pop ix
+    ;push ix
+    ;pop ix
+    ;push ix
+    ;pop ix
+    ;push ix
+    ;pop ix
+    ;push ix
+    ;pop ix
 
 ;vgm_drv.c:877: pcm_addr++;
 	inc	bc
@@ -1088,7 +1074,6 @@ play_n_pause:
     inc bc
     exx 	
     ld	hl,(_pause_len)
-	dec	hl
 	dec	hl
 	dec	hl
 	dec	hl
@@ -1164,50 +1149,6 @@ pause:
     ld (hl),a
     jp 00101$
     __endasm;
-#if 0
-    __asm
-00612$:
-    ld bc,#_pause_len
-    ;ld hl,#_pause_len
-    ;ld b,(hl)
-    ;inc hl
-    ;ld c,(hl)
-00613$:
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    djnz 00613$
-    ld hl,#_pause_len
-    xor a,a
-    ld (hl),a
-    inc hl
-    ld (hl),a
-    jp 00101$
-
-;vgm_drv.c:982: if(pause_len.w == 0){
-	;ld	hl,#_pause_len
-	;ld	d,(hl)
-	;inc	hl
-	;ld	e,(hl)
-	;ld	a,e
-	;or	a,d
-	;jp	Z,00101$
-	
-    ;ld	hl,(_pause_len)
-	;dec	hl
-	;ld	(_pause_len),hl
-;vgm_drv.c:995: }
-	;jr	00613$
-                __endasm;
-#endif
-
 }
 
 
@@ -1219,16 +1160,21 @@ void start(void){
     //debug_it.w = GET_VGM_POS;
 
     addr_bank = start_bank;
+    vgm_bank = start_bank;
+    bank_p = start_bank;
+    bank_8x = start_bank;
+
+    //pcm_addr.w = 0;
     pcm_play = 0; 
     pcm_index = 0;
     //setup_bank(start_addr);
-    bank_switch(addr_bank);
-    vgmbanked = 1; 
-    //fill_buf();
-    //swap_bufs();
+    //bank_switch(addr_bank);
+    __asm
+        ld a,(_addr_bank)
+    __endasm;
+    BANK_SWITCH;
     
-    debug_it.w = 0xffff;
-    
+
     __asm
         ld bc,(_curaddr)
     __endasm;
@@ -1239,18 +1185,29 @@ void initialize(void){
 
     //Find the offset within a bank for the VGM file
     file_offset = get_offset(addr);
+    debug_it.w = file_offset;
     //Find the starting bank for the VGM file
     start_bank = get_bank(addr);
     //start_bank = (addr & (0xFF8000)) >> 15;
     //Switch to the starting bank
-    bank_switch(start_bank);
+    //bank_switch(start_bank);
+    __asm
+        ld a,(_start_bank)
+    __endasm;
+    BANK_SWITCH;
     //cur_bank = start_bank;
-  
     if((0x0034 + file_offset)>=0x8000) {
         // We wrapped around, go to the new bank
         file_offset = (file_offset + 0x0034) - 0x8000;
-        bank_switch(++start_bank);
+        ++start_bank;
+        __asm
+            ld a,(_start_bank)
+        __endasm;
+        BANK_SWITCH;
+
+        //bank_switch(++start_bank);
     }
+    //addr_bank = start_bank;
     //Get the VGM data location
     vgm_data_offset = (unsigned long *) (0x0034+file_offset+0x8000);
     
@@ -1263,7 +1220,6 @@ void initialize(void){
     loop_bank = (loop_addr & (0xFF8000))>>15;
     loop_offset = get_offset(loop_addr);
 
-    vgmbanked = 1;
     init = 0;
 }
 
@@ -1295,104 +1251,56 @@ void getop()
 
     // Best case 60 cycles
     // One bank 189 cycles
-    // Worst case (two banks) 386 cycles
 
     __asm
-;vgm_drv.c:1220: if(vgmbanked == 0) {
-	ld	hl,#_vgmbanked+0
-	bit	0, (hl)
-	jr	NZ,00502$
-;vgm_drv.c:1222: vgmbanked = 1;
-	ld	(hl), #0x01
-;vgm_drv.c:1221: bank_switch(addr_bank);
-	ld	a,(_addr_bank)
-	ld	hl, (_switch_bank_addr) ; hl = bankreg
-	ld	(hl), a ; #1 (bit 15)
-	rra	;
-	ld	(hl), a ; #2 (bit 16)
-	rra	;
-	ld	(hl), a ; #3 (bit 17)
-	rra	;
-	ld	(hl), a ; #4 (bit 18)
-	rra	;
-	ld	(hl), a ; #5 (bit 19)
-	rra	;
-	ld	(hl), a ; #6 (bit 20)
-	rra	;
-	ld	(hl), a ; #7 (bit 21)
-	rra	;
-	ld	(hl), a ; #8 (bit 22)
-	ld	(hl), l ; #9 (bit 23 = 0)
+    ;
+    ; Check if vgm processing changed the bank
+    ;
+    ld hl,#_addr_bank
+    ld a,(_vgm_bank)
+    cp a,(hl)
+	jr	Z,00502$
+
+;vgm_drv.c:531: bank_switch(bank_p); 
+    ;
+    ;  Switch banks!
+    ;
+    ld a,(_vgm_bank)
+    ld (_addr_bank),a
+    ld  hl, (_switch_bank_addr)         ; hl = bankreg  
+    ld  (hl), a             ; #1 (bit 15)              
+    rra                     ;                         
+    ld  (hl), a             ; #2 (bit 16)            
+    rra                     ;                       
+    ld  (hl), a             ; #3 (bit 17)              
+    rra                     ;                         
+    ld  (hl), a             ; #4 (bit 18)            
+    rra                     ;                       
+    ld  (hl), a             ; #5 (bit 19)          
+    rra                     ;                     
+    ld  (hl), a             ; #6 (bit 20)        
+    rra                     ;                           
+    ld  (hl), a             ; #7 (bit 21)              
+    rra                     ;                         
+    ld  (hl), a             ; #8 (bit 22)            
+    ld  (hl), l             ; #9 (bit 23 = 0)       
+
 00502$:
 ;vgm_drv.c:1225: op = *(unsigned char *)curaddr.w;
-    ;ld bc,(_curaddr)
     ld a,(bc)
     ld d,a
-	;ld	(#_op + 0),a
-;vgm_drv.c:1226: curaddr.l++;
-	inc	c
-;vgm_drv.c:1227: if(curaddr.l == 0) { 
-    ;JP NZ,00503$
-    ret nz
-;vgm_drv.c:1228: curaddr.h++;
-	inc	b
-;vgm_drv.c:1229: if(curaddr.h == 0x00) {
-    ;JP NZ,00503$
+;vgm_drv.c:1226: curaddr++;
+	inc	bc
+    ld a,b
+    or a,a
     ret nz
 ;vgm_drv.c:1230: curaddr.h = 0x80;
     ld b,#0x80
-;vgm_drv.c:1231: addr_bank++;
-	;ld	iy,#_addr_bank
-	;inc	0 (iy)
-    ld a,(_addr_bank)
+;vgm_drv.c:1231: vgm_bank++;
+    ld a,(_vgm_bank)
     inc a
-    ld (_addr_bank),a
-;vgm_drv.c:1232: bank_switch(addr_bank);
-	;ld	a,(_addr_bank)
-	ld	hl, (_switch_bank_addr) ; hl = bankreg
-	ld	(hl), a ; #1 (bit 15)
-	rra	;
-	ld	(hl), a ; #2 (bit 16)
-	rra	;
-	ld	(hl), a ; #3 (bit 17)
-	rra	;
-	ld	(hl), a ; #4 (bit 18)
-	rra	;
-	ld	(hl), a ; #5 (bit 19)
-	rra	;
-	ld	(hl), a ; #6 (bit 20)
-	rra	;
-	ld	(hl), a ; #7 (bit 21)
-	rra	;
-	ld	(hl), a ; #8 (bit 22)
-	ld	(hl), l ; #9 (bit 23 = 0)
-;vgm_drv.c:1233: vgmbanked = 1;
-	ld	hl,#_vgmbanked + 0
-	ld	(hl), #0x01
-00503$:
-    ;ld (_curaddr),bc
-	ret
+    ld (_vgm_bank),a
     __endasm;
-
-//
-#if 0
-    if(vgmbanked == 0) {
-        bank_switch(addr_bank);
-        vgmbanked = 1;
-    }
-
-    op = *(unsigned char *)curaddr.w;
-    curaddr.l++;
-    if(curaddr.l == 0) { 
-        curaddr.h++;
-        if(curaddr.h == 0x00) {
-            curaddr.h = 0x80;
-            addr_bank++;
-            bank_switch(addr_bank);
-            vgmbanked = 1;
-        } 
-    }
-#endif
 }
 
 void stop_sounds()
