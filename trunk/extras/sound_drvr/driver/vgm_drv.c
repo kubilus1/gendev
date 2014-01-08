@@ -216,35 +216,64 @@ skipget:
 
                 if(sfx_play == 0) {
                     __asm
+                        ;
+                        ; Enable the DAC
+                        ;
+                        ld hl,#0x4000
+                        ld (hl),#0x2b
+                        ld a,#0x80
+                        ld (#0x4001),a
                         exx
+                        ; Load bank
+                        ld a,(_pcms + 0x0002)
+                        
                         ; Calculate PCM location
-                        ; WARNING: This could overflow!
                         ld de,(_pcms)
                         ld hl,(_store_u16)
                         add hl,de
+                        
+                        ; Check for carry
+                        jr NC,00650$
+                        ld de,#0x8000
+                        add hl,de
+                        inc a 
+                    00650$:   
                         ld b,h
                         ld c,l
 
-                        ; Load bank
-                        ld a,(_pcms + 0x0002)
                         ld (_bank_8x),a
                         exx
                     __endasm;
                    
-                    ;bank_8x = pcms[0].bank;
+                    //;bank_8x = pcms[0].bank;
                 } else {
                     __asm
+                        ;
+                        ; Enable the DAC
+                        ;
+                        ld hl,#0x4000
+                        ld (hl),#0x2b
+                        ld a,#0x80
+                        ld (#0x4001),a
+                        
                         exx
+                        ; Load bank
+                        ld a,(_pcms + 0x0002)
+                        
                         ; Calculate PCM location
-                        ; WARNING: This could overflow!
                         ld de,(_pcms)
                         ld hl,(_store_u16)
                         add hl,de
+                        
+                        ; Check for carry
+                        jr NC,00651$
+                        ld de,#0x8000
+                        add hl,de
+                        inc a
+                    00651$:
                         ld d,h
                         ld e,l
 
-                        ; Load bank
-                        ld a,(_pcms + 0x0002)
                         ld (_bank_bkp),a
                         exx
                     __endasm;
@@ -380,6 +409,7 @@ skipget:
             case 0x70:
             case 0x71:
                 //Just breaking even here.
+                goto getbyte;
             case 0x72:
                 SAMPLEWAIT;
                 goto getbyte;
@@ -531,7 +561,6 @@ skipget:
             case 0x83:
                 //pause_len.l = 0x03;
                 //initial_pause = pause_len.w;
-                //goto quickplay;
             case 0x84:
                 //pause_len.l = 0x04;
                 //initial_pause = pause_len.w;
@@ -590,13 +619,6 @@ skipget:
 quickplay:
                 __asm
 00670$:                    
-    ;
-    ; Check if vgm processing changed the bank
-    ;
-    ;ld hl,#_addr_bank
-    ;ld a,(#_bank_8x)
-    ;cp a,(hl)
-	;jr	Z,00569$
 
 ;vgm_drv.c:531: bank_switch(bank_p); 
     ;
@@ -700,20 +722,6 @@ quickplay:
     ;
     exx
 
-    ;
-    ;  Go to getbyte
-    ;     
-    ;jp 00101$
-    __endasm;
-    __asm
-    ;
-    ; Check if vgm processing changed the bank
-    ;
-    ;ld hl,#_addr_bank
-    ;ld a,(_vgm_bank)
-    ;cp a,(hl)
-	;jr	Z,00502$
-
 ;vgm_drv.c:531: bank_switch(bank_p); 
     ;
     ;  Switch banks!
@@ -767,10 +775,6 @@ quickplay:
                 //Setup Stream Control
                 getop();
                 getop();
-                //op1 = getop(); //ss
-                //op2 = getop(); //tt
-                //op3 = getop(); //pp
-                //op4 = getop(); //cc
                 getop();
                 *fm1_register = op;
                 getop();
@@ -782,22 +786,9 @@ quickplay:
                 getop();
                 getop();
                 getop();
-                /*
-                op1 = getop(); //ss
-                op2 = getop(); //dd
-                op3 = getop(); //ll
-                op4 = getop(); //bb
-                */
                 break;
             case 0x92:
                 //Set Stream Freq
-                /*
-                op1 = getop();
-                op2 = getop(); //ff
-                op3 = getop(); //ff
-                op4 = getop(); //ff
-                op5 = getop(); //ff 
-                */
                 getop();
                 getop();
                 //store_u16.l = op;
@@ -805,9 +796,6 @@ quickplay:
                 //store_u16.h = op;
                 getop();
                 getop();
-                //store_u16 |= op3 << 8;
-                //store_u32 |= op4 << 16;
-                //store_u32 |= op5 << 24;
 
                 /*
                 switch (store_u16.w)
@@ -850,12 +838,6 @@ quickplay:
                 
                 pcm_play = 1;
                 if(sfx_play == 0) {
-                    //pcm_addr.w = pcms[pcm_index].addr;
-                    //bank_p = pcms[pcm_index].bank;
-                    //pcm_datalen = pcms[pcm_index].datalen;
-
-                    //debug_it.w = (unsigned int)&pcms;
-
                     __asm
                         exx
                         ld de,#_pcms
@@ -898,8 +880,8 @@ quickplay:
                 sfx_play++;
 
                 // Make sure the DAC is enabled
-                *fm1_register = 0x2b;
-                *fm1_data = 0x80;
+                //*fm1_register = 0x2b;
+                //*fm1_data = 0x80;
                 bank_p = sfx_bank;
                 pcm_addr.w = sfx_addr;
                 pcm_datalen = sfx_len;
@@ -934,20 +916,23 @@ play_n_pause:
     sub a,#0x01
 	jp	NZ,00612$
 
-    ;
-    ; Enable the DAC
-    ;
-    ;ld hl,(_fm1_register)
-    ;ld (hl),#0x2b
-    ;ld a,#0x80
-    ;ld (#0x4001),a
 
 ;vgm_drv.c:843: *fm1_register = 0x2A; // 34
 ;
 ;   Setup the register for PCM play
 ;
-	ld	hl,(_fm1_register)
+    ;
+    ; Enable the DAC
+    ;
+    ld hl,#0x4000
+    ld (hl),#0x2b
+    ld a,#0x80
+    ld (#0x4001),a
+
+    ; Play PCM
+	;ld	hl,(_fm1_register)
 	ld	(hl),#0x2A
+    
 
 00609$:
 
@@ -1019,6 +1004,14 @@ play_n_pause:
     xor a,a
     ld (_pcm_play), a
     ld (_sfx_play),a
+    
+    ;
+    ; Turn off the DAC
+    ;
+    ld hl,(_fm1_register)
+    ld (hl),#0x2b
+    ld a,#0x00
+    ld (#0x4001),a
 ;vgm_drv.c:858: goto pause;
 	jr	00612$
 
@@ -1120,7 +1113,7 @@ pause:
         //DELAY;
     }
     goto getbyte;
-
+#if 0
     __asm
 ;00612$:
     ld hl,(_pause_len)
@@ -1149,6 +1142,7 @@ pause:
     ld (hl),a
     jp 00101$
     __endasm;
+#endif
 }
 
 
@@ -1157,6 +1151,7 @@ void start(void){
 
     curaddr.w = start_addr + 0x8000;
 
+    debug_it.w = 0xffff;
     //debug_it.w = GET_VGM_POS;
 
     addr_bank = start_bank;
@@ -1185,7 +1180,6 @@ void initialize(void){
 
     //Find the offset within a bank for the VGM file
     file_offset = get_offset(addr);
-    debug_it.w = file_offset;
     //Find the starting bank for the VGM file
     start_bank = get_bank(addr);
     //start_bank = (addr & (0xFF8000)) >> 15;
