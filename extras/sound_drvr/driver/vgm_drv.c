@@ -1,7 +1,18 @@
  /*
-   
+  
 
+    NTSC
+    ; 53693175/15/44100
+    ~81.16882086167800453515
+    
+    PAL
+    ; 53203424/15/44100
+    ~80.42845653817082388511
+     
     One sample is roughly 81 clock cycles.
+
+
+    8khz NTSC 447 cycles, PAL 443 cycles
 
  */
 #include <string.h>
@@ -70,7 +81,8 @@ unsigned int file_offset;
 //unsigned char pcm_play = 0x00;
 _Bool pcm_play = 0;
 
-unsigned int pcm_datalen;
+union Address pcm_datalen;
+//unsigned int pcm_datalen;
 //unsigned int pcm_addr;
 //unsigned int pcm_delay;
 
@@ -149,12 +161,19 @@ unsigned char vgm_bank;
  __asm \
     push ix \
     pop ix \
-    push ix \
-    pop ix \
+    push hl \
+    pop hl \
     push hl \
     pop hl \
  __endasm;
 
+#define HALFWAIT \
+__asm \
+    push hl \
+    pop hl \
+    push hl \
+    pop hl \
+__endasm;
 
 #define BANK_SWITCH \
 __asm \
@@ -202,7 +221,7 @@ void main(void) {
         {
 getbyte:
             //
-            // 198 cycles from here to jump to instruction.
+            // 119 cycles from here to jump to instruction.
             //
             getop();
 skipget:
@@ -280,7 +299,7 @@ skipget:
                 }
                 getop();
             }
-            switch(op) { // 121 to jump to position
+            switch(op) { 
             case 0x4f:
                 // Some kind of Game Gear command
                 getop();
@@ -408,27 +427,33 @@ skipget:
                 break;
             case 0x70:
             case 0x71:
-                //Just breaking even here.
+                //Here in 119 cycles, need 43 more
+                HALFWAIT;
                 goto getbyte;
             case 0x72:
+                HALFWAIT;
                 SAMPLEWAIT;
                 goto getbyte;
             case 0x73:
+                HALFWAIT;
                 SAMPLEWAIT;
                 SAMPLEWAIT;
                 goto getbyte;
             case 0x74:
+                HALFWAIT;
                 SAMPLEWAIT;
                 SAMPLEWAIT;
                 SAMPLEWAIT;
                 goto getbyte;
             case 0x75:
+                HALFWAIT;
                 SAMPLEWAIT;
                 SAMPLEWAIT;
                 SAMPLEWAIT;
                 SAMPLEWAIT;
                 goto getbyte;
             case 0x76:
+                HALFWAIT;
                 SAMPLEWAIT;
                 SAMPLEWAIT;
                 SAMPLEWAIT;
@@ -436,6 +461,7 @@ skipget:
                 SAMPLEWAIT;
                 goto getbyte;
             case 0x77:
+                HALFWAIT;
                 SAMPLEWAIT;
                 SAMPLEWAIT;
                 SAMPLEWAIT;
@@ -444,6 +470,7 @@ skipget:
                 SAMPLEWAIT;
                 goto getbyte;
             case 0x78:
+                HALFWAIT;
                 SAMPLEWAIT;
                 SAMPLEWAIT;
                 SAMPLEWAIT;
@@ -453,6 +480,7 @@ skipget:
                 SAMPLEWAIT;
                 goto getbyte;
             case 0x79:
+                HALFWAIT;
                 SAMPLEWAIT;
                 SAMPLEWAIT;
                 SAMPLEWAIT;
@@ -463,6 +491,7 @@ skipget:
                 SAMPLEWAIT;
                 goto getbyte;
             case 0x7a:
+                HALFWAIT;
                 SAMPLEWAIT;
                 SAMPLEWAIT;
                 SAMPLEWAIT;
@@ -474,6 +503,7 @@ skipget:
                 SAMPLEWAIT;
                 goto getbyte;
             case 0x7b:
+                HALFWAIT;
                 SAMPLEWAIT;
                 SAMPLEWAIT;
                 SAMPLEWAIT;
@@ -486,6 +516,7 @@ skipget:
                 SAMPLEWAIT;
                 goto getbyte;
             case 0x7c:
+                HALFWAIT;
                 SAMPLEWAIT;
                 SAMPLEWAIT;
                 SAMPLEWAIT;
@@ -499,6 +530,7 @@ skipget:
                 SAMPLEWAIT;
                 goto getbyte;
             case 0x7d:
+                HALFWAIT;
                 SAMPLEWAIT;
                 SAMPLEWAIT;
                 SAMPLEWAIT;
@@ -513,6 +545,7 @@ skipget:
                 SAMPLEWAIT;
                 goto getbyte;
             case 0x7e:
+                HALFWAIT;
                 SAMPLEWAIT;
                 SAMPLEWAIT;
                 SAMPLEWAIT;
@@ -528,6 +561,7 @@ skipget:
                 SAMPLEWAIT;
                 goto getbyte;
             case 0x7f:
+                HALFWAIT;
                 SAMPLEWAIT;
                 SAMPLEWAIT;
                 SAMPLEWAIT;
@@ -545,9 +579,8 @@ skipget:
                 goto getbyte;
             case 0x80:
                 //
-                //  Play 1 byte 170 cycles (before pause)
-                //      327 worst case
-
+                // ~443 cycles when looping
+                //
                 //pause_len.l = 0x00;
                 //goto quickplay;
             case 0x81:
@@ -812,16 +845,63 @@ quickplay:
                 */
                 break;
             case 0x93:
-                getop();
-                getop();
-                getop();
-                getop();
-                getop();
-                getop();
-                getop();
-                getop();
-                getop();
-                getop();
+                getop(); // ss
+                pcm_index = op;
+                
+                getop(); // aa
+                store_u16.l = op;
+                getop(); // aa
+                store_u16.h = op;
+                getop(); // aa
+                getop(); // aa
+                
+                getop(); // mm
+                
+                getop(); // ll
+                pcm_datalen.l = op;
+                getop(); // ll
+                pcm_datalen.h = op;
+                getop(); // ll 
+                getop(); // ll
+
+                if(sfx_play == 0) {
+                    __asm
+                        exx
+                        ld de,#_pcms
+                        ld hl,(_pcm_index)
+                        add hl,hl
+                        add hl,hl
+                        add hl,hl
+                        add hl,de
+                        ; hl contains address of record
+
+                        ; Load pcm_addr
+                        ld c,(hl)
+                        inc hl
+                        ld b,(hl)
+                        ;ld (_pcm_addr),bc
+
+                        ; Load bank
+                        inc hl
+                        ld a,(hl)
+
+                        ld hl,(_store_u16)
+                        add hl,bc
+                        
+                        ; Check for carry
+                        jr NC,00652$
+                        ld de,#0x8000
+                        add hl,de
+                        inc a
+                    00652$:
+                        ld b,h
+                        ld c,l
+                        ld (_pcm_addr),bc
+                        ld (_bank_p),a
+                        exx
+                    __endasm;
+                    pcm_play = 1;
+                }
                 break;
             case 0x94:
                 getop();
@@ -873,6 +953,55 @@ quickplay:
                 }
                 goto getbyte;
             }
+
+            __asm
+                ;vgm_drv.c:956: if(sfx_play == 1) {
+                    ld	hl,#_sfx_play
+                    ld	a,(hl)
+                    sub	a, #0x01
+                    jp	NZ,00198$
+                ;vgm_drv.c:960: sfx_play++;
+                    inc	(hl)
+                ;vgm_drv.c:965: bank_p = sfx_bank;
+                    ld	a,(#_sfx_bank)
+                    ld	(#_bank_p),a
+
+                ; Preserve bc (VGM pointer)
+                    exx
+                    push bc
+
+                ;vgm_drv.c:966: pcm_addr.w = sfx_addr;                    
+                    ld	hl,#_pcm_addr
+                    ld	de,(_sfx_addr)
+                    ld	(hl),e
+                    inc	hl
+                    ld	(hl),d
+                ;vgm_drv.c:967: pcm_datalen.w = sfx_len;
+                    ld	hl,#_pcm_datalen
+                    ld	de,(_sfx_len)
+                    ld	(hl),e
+                    inc	hl
+                    ld	(hl),d
+                ;vgm_drv.c:968: pcm_play = 1;
+                    ld	iy,#_pcm_play
+                    ld	0 (iy),#0x01
+                
+                ; Preserve bc (PCM index)
+                    push	bc
+                    pop	de
+
+                    ld	bc,(_pcm_addr)
+                    ld	a,(_bank_8x)
+                    ld	(_bank_bkp),a
+                    ld	a,(_bank_p)
+                    ld	(_bank_8x),a
+                    exx
+                    jp	00198$
+
+            __endasm;
+
+#if 0
+
             if(sfx_play == 1) {
                 //
                 // Start a sound effect
@@ -884,7 +1013,7 @@ quickplay:
                 //*fm1_data = 0x80;
                 bank_p = sfx_bank;
                 pcm_addr.w = sfx_addr;
-                pcm_datalen = sfx_len;
+                pcm_datalen.w = sfx_len;
                 pcm_play = 1;
                 __asm
                     exx
@@ -897,11 +1026,13 @@ quickplay:
                     ld (_bank_8x),a
                     exx
                 __endasm;
-
             }
+#endif
         }
     }
 play_n_pause:
+        // 441 cycles when looping
+
                 __asm
 
     ;
@@ -1051,6 +1182,12 @@ play_n_pause:
 
     push ix
     pop ix
+    ;nop
+    ;nop
+    ;nop
+    ;nop
+    ;nop
+    ;nop
     ;push ix
     ;pop ix
     ;push ix
@@ -1095,9 +1232,10 @@ pause:
         ld	hl,(_pause_len)
         dec	hl
         dec	hl
-        dec	hl
         ld	(_pause_len),hl
     __endasm;    
+
+    // 119 + 48 = 167 
 
     for(;;) {
         if(initial_pause < pause_len.w) {
@@ -1108,6 +1246,7 @@ pause:
             dec	hl
             dec	hl
             ld	(_pause_len),hl
+            nop
         __endasm;    
         //pause_len.w--;
         //DELAY;
