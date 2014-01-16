@@ -6,23 +6,22 @@
 #include "rrrf.h"
 #include "tjae_eb.h"
 #include "bhb_s1.h"
+#include "tjae_test.h"
 #include "tjae_tjsj.h"
 #include "tjae_hack.h"
 #include "sound1.h"
 #include "laser1.h"
+#include "boom.h"
 #include "vgm_client.h"
 
-#define MAX_SONGS 8
+#define MAX_SONGS 5 
 
 int main(void)
 {
     int song_addrs[MAX_SONGS]= {
-        &tjae_hack,
-        &bhb_s1,
         &ghz,
         &tjae_tjsj,
         &tjae_eb,
-        &yfc2_vgm,
         &rrpc,
         &rrrf_vgm
     };
@@ -47,7 +46,7 @@ int main(void)
 
     VDP_drawText(" VGM TEST:", 5, 2);
     VDP_setTextPalette(1);
-    VDP_drawText(" Press a button to change track...", 5, 10);
+    VDP_drawText(" A - Fire    B - Change track", 5, 10);
 
     while(1)
     {
@@ -61,15 +60,7 @@ int main(void)
             state = JOY_readJoypad(0);
         }
 
-        sprintf(buf, "Song: 0x%X ", song_addrs[song_idx]);
-        VDP_drawText(buf, 2, 16);
-        sprintf(buf, "Sfx: 0x%X ", &sound1_pcm);
-        VDP_drawText(buf, 2, 17);
-
-
-        
-
-        if(state & state & BUTTON_B || state & BUTTON_C)
+        if(state & BUTTON_C | state & BUTTON_B)
         {
             VGM_stop();
             song_idx+=1;
@@ -103,13 +94,22 @@ int main(void)
         else if(state & BUTTON_A) {
             //VGM_play_sfx(sound1_pcm, sound1_pcm_size);
             VGM_play_sfx(laser1_pcm, laser1_pcm_size);
-            VDP_drawText("COWBELL",5,20);
+            VDP_drawText("Bang!",5,20);
             VDP_waitVSync();
-        } else {
+        } 
+        /*
+        else if(state & BUTTON_B) {
+            //VGM_play_sfx(sound1_pcm, sound1_pcm_size);
+            VGM_play_sfx(boom_pcm, boom_pcm_size);
+            VDP_drawText("BOOM!",5,20);
+            VDP_waitVSync();
+        } 
+        */
+        else {
             VDP_drawText("       ",5,20);
         }
 
-        VGM_debug();
+        //VGM_debug();
 
         VDP_waitVSync();
     }
