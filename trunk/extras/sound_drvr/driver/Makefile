@@ -36,7 +36,8 @@ vgm_drv.ihx: vgm_drv.o crt0.o
 	cp vgm_drv.o vgm_drv.rel
 	cp crt0.o crt0.rel
 	$(SDCC) --verbose --xstack --fomit-frame-pointer $(SDCCFLAGS) --no-std-crt0 --code-loc 0x0101 --data-loc 0xfff -V -mz80 crt0.rel vgm_drv.rel
-	python timez80.py vgm_drv.lst > vgm_drv_timed.lst
+	#python timez80.py vgm_drv.lst > vgm_drv_timed.lst
+	python ../../scripts/timez80/timez80.py vgm_drv.lst > vgm_drv_timed.lst
 	mv crt0.ihx vgm_drv.ihx
 
 clean:
