@@ -208,6 +208,9 @@ void main(void) {
     initial_pause = 0;
 
     for(;;) {
+        __asm
+00698$:
+        __endasm;
         if (play == 0){ // 30
             stop_sounds();
             DELAY;
@@ -384,7 +387,13 @@ skipget:
 
                 //store_u32 |= op4 << 16;
                 //store_u32 |= op5 << 24;
-               
+             
+                if(store_u16.w < 4) {
+                    // If the length is too short, skip this, it's not really
+                    // a sample.
+                    break;
+                }
+
                 __asm
                     ld (_curaddr),bc
                     //exx
@@ -396,8 +405,10 @@ skipget:
 
                 pcm_index+=1;
 
-                //This can overflow!
-                if(((curaddr.w-0x8000)+store_u16.w)>=0x8000) {
+                // Move the curaddr (and bc) to the end of the PCM location.
+                // Note that the PCM length starts from the *beginning* of the
+                // length param, so we will subtract 4.
+                if(((curaddr.w-0x8000)+store_u16.w-4)>=0x8000) {
                     curaddr.w = (curaddr.w - 0x8000) + store_u16.w - 4; 
                     //++addr_bank;
                     __asm
@@ -415,6 +426,7 @@ skipget:
                     //exx
                     ld bc,(_curaddr)
                 __endasm;
+                debug_it.w=curaddr.w;
                 break;
             case 0x68:
             case 0x69:
@@ -959,7 +971,7 @@ quickplay:
                     ld	hl,#_sfx_play
                     ld	a,(hl)
                     sub	a, #0x01
-                    jp	NZ,00198$
+                    jp	NZ,00698$
                 ;vgm_drv.c:960: sfx_play++;
                     inc	(hl)
                 ;vgm_drv.c:965: bank_p = sfx_bank;
@@ -996,7 +1008,7 @@ quickplay:
                     ld	a,(_bank_p)
                     ld	(_bank_8x),a
                     exx
-                    jp	00198$
+                    jp	00698$
 
             __endasm;
 
