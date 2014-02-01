@@ -388,12 +388,6 @@ skipget:
                 //store_u32 |= op4 << 16;
                 //store_u32 |= op5 << 24;
              
-                if(store_u16.w < 4) {
-                    // If the length is too short, skip this, it's not really
-                    // a sample.
-                    break;
-                }
-
                 __asm
                     ld (_curaddr),bc
                     //exx
@@ -408,8 +402,8 @@ skipget:
                 // Move the curaddr (and bc) to the end of the PCM location.
                 // Note that the PCM length starts from the *beginning* of the
                 // length param, so we will subtract 4.
-                if(((curaddr.w-0x8000)+store_u16.w-4)>=0x8000) {
-                    curaddr.w = (curaddr.w - 0x8000) + store_u16.w - 4; 
+                if(((curaddr.w-0x8000)+store_u16.w)>=0x8000) {
+                    curaddr.w = (curaddr.w - 0x8000) + store_u16.w; 
                     //++addr_bank;
                     __asm
                         ld a,(_addr_bank)
@@ -420,13 +414,16 @@ skipget:
                     //bank_switch(++addr_bank);
                 }
                 else{
-                    curaddr.w += (store_u16.w) - 4;
+                    curaddr.w += (store_u16.w);
                 }
+
+                //debug_it.w = file_offset;
+
                 __asm
                     //exx
                     ld bc,(_curaddr)
                 __endasm;
-                debug_it.w=curaddr.w;
+
                 break;
             case 0x68:
             case 0x69:
