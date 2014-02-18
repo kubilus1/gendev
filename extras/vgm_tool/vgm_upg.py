@@ -1,9 +1,14 @@
-import argparse
+#!/usr/bin/env python
+
+from optparse import OptionParser
 import struct
 
 
-class VGM_upgrader(object):
+class VGM_tool(object):
+    
+    # pcms: [(pcm_len, pcmdata)]
     pcms = []
+    # pcm_lens: {start_addr, (index, addr_len, data)}
     pcm_lens = {}
 
     def __init__(self, infile, outfile):
@@ -45,7 +50,6 @@ class VGM_upgrader(object):
         with open(self.infile, 'rb') as h_in:
             header = h_in.read(self.vgm_start)
 
-
             opcode = h_in.read(1)
             while opcode:
                 #print "Opcode: ", hex(ord(opcode))
@@ -58,7 +62,8 @@ class VGM_upgrader(object):
                     if ss > pcm_end:
                         pcm_end = ss
                     pcm_h_in = h_in.read(ss)
-                    self.pcms.append((ss, pcm_h_in))
+                    pcm_out = self.transcode_pcm(pcm_h_in)
+                    self.pcms.append((len(pcm_out), pcm_out))
                 
                 elif(opcode == '\x50'):
                     op1 = h_in.read(1)
@@ -155,9 +160,10 @@ class VGM_upgrader(object):
 
         index = 0
         prev_addr = 0
+        print "start | end | len"
         for addr in addr_list:
-            print prev_addr, " ",
-            print addr, " ",
+            print prev_addr, " | ",
+            print addr, " | ",
             addr_len = addr - prev_addr
             print addr_len
             data = self.pcms[0][1][prev_addr:addr]
@@ -166,53 +172,63 @@ class VGM_upgrader(object):
             prev_addr = addr
 
         #print self.pcm_lens
+
+    def transcode_pcm(self, pcm_data):
+        return pcm_data
+        
     
-    def upgrade(self):
+    def write_vgm_16(self, pcm_mode="0x95"):
         with open(self.infile, 'rb') as h_in:
             header = h_in.read(self.vgm_start)
 
             with open(self.outfile, 'wb') as h_out:
                 h_out.write(header)
                 
-                if(self.pcm_lens):
-                    #for i in xrange(len(self.pcm_lens)):
-                    pcm_list = self.pcm_lens.values()
-                    pcm_list.sort()
-                    h_in.read(7)
-                    for pcm_data in pcm_list:
-                        pcm_idx = pcm_data[0]
-                        pcm_len = pcm_data[1]
-                        pcm_bytes = pcm_data[2]
-
-                        print "PCM: ", pcm_idx, pcm_len
-
-                        h_out.write('\x67')
-                        h_out.write('\x66')
-                        h_out.write('\x00')
-                        h_out.write(struct.pack('I', pcm_len))
-                       
-                        h_out.write(pcm_bytes)
-                        
-                        h_in.read(pcm_len)
-                    
-                    h_out.write('\x90\x00\x02\x00\x2a')
-                    h_out.write('\x91\x00\x00\x01\x00')
-                    h_out.write('\x92')
-                    h_out.write('\x00\x40\x1f\x00\x00')
-
-                foo = """
-                if(self.pcm_lens):
-                    for pcm_len, pcm_data in self.pcms:
-                        h_out.write('\x67')
-                        h_out.write('\x66')
-                        h_out.write('\x00')
-                        h_out.write(struct.pack('I', pcm_len))
-                        h_out.write(pcm_data)
+                if pcm_mode == "0x95":
+                    if(self.pcm_lens):
+                        #for i in xrange(len(self.pcm_lens)):
+                        pcm_list = self.pcm_lens.values()
+                        pcm_list.sort()
                         h_in.read(7)
-                        h_in.read(pcm_len)
-                    
-                    h_out.write('\x90\x00\x02\x00\x2a')
-                    h_out.write('\x91\x00\x00\x01\x00')
+                        
+                        for pcm_data in pcm_list:
+                            pcm_idx = pcm_data[0]
+                            pcm_len = pcm_data[1]
+                            pcm_bytes = pcm_data[2]
+
+                            print "PCM: ", pcm_idx, pcm_len
+
+                            h_out.write('\x67')
+                            h_out.write('\x66')
+                            h_out.write('\x00')
+                            h_out.write(struct.pack('I', pcm_len))
+                           
+                            h_out.write(pcm_bytes)
+                            
+                            h_in.read(pcm_len)
+                        
+                        h_out.write('\x90\x00\x02\x00\x2a')
+                        h_out.write('\x91\x00\x00\x01\x00')
+                        h_out.write('\x92')
+                        h_out.write('\x00\x40\x1f\x00\x00')
+
+    
+                foo = """
+                elif pcm_mode == "0x93":
+                    if(self.pcm_lens):
+                        for pcm_len, pcm_data in self.pcms:
+                            h_out.write('\x67')
+                            h_out.write('\x66')
+                            h_out.write('\x00')
+                            h_out.write(struct.pack('I', pcm_len))
+                            h_out.write(pcm_data)
+                            h_in.read(7)
+                            h_in.read(pcm_len)
+                        
+                        h_out.write('\x90\x00\x02\x00\x2a')
+                        h_out.write('\x91\x00\x00\x01\x00')
+                        h_out.write('\x92')
+                        h_out.write('\x00\x40\x1f\x00\x00')
                 """
 
                 opcode = 0
@@ -386,23 +402,25 @@ class VGM_upgrader(object):
                         pcm_data = self.pcm_lens.get(addr)
                         if pcm_data:
 
-                            #h_out.write('\x92')
-                            #h_out.write('\x00\x40\x1f\x00\x00')
-
                             pcm_idx = pcm_data[0]
                             pcm_len = pcm_data[1]
 
-                            foo="""
-                            h_out.write('\x93')
-                            h_out.write(struct.pack('I', addr))
-                            h_out.write('\x01')
-                            h_out.write(struct.pack('I', pcm_len))
-                            """
-                            h_out.write('\x95')
-                            h_out.write('\x00')
-                            h_out.write(struct.pack('H', pcm_idx))
-                            h_out.write('\x00')
-                            #print "0x95", pcm_idx
+                            #h_out.write('\x90\x00\x02\x00\x2a')
+                            #h_out.write('\x91\x00\x00\x01\x00')
+                            #h_out.write('\x92')
+                            #h_out.write('\x00\x40\x1f\x00\x00')
+                            if pcm_mode == "0x93":
+                                h_out.write('\x93')
+                                h_out.write(struct.pack('I', addr))
+                                # Perhaps use a different command....
+                                h_out.write('\x01')
+                                h_out.write(struct.pack('I', pcm_len))
+                            elif pcm_mode == "0x95": 
+                                h_out.write('\x95')
+                                h_out.write('\x00')
+                                h_out.write(struct.pack('H', pcm_idx))
+                                h_out.write('\x00')
+                                #print "0x95", pcm_idx
                     else:
                         print "(0x%x) Unknown opcode: 0x%s" % (h_in.tell(),
                                 hex(ord(opcode)))
@@ -420,12 +438,25 @@ class VGM_upgrader(object):
                     
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Upgrade VGM file")
-    parser.add_argument('infile')
-    parser.add_argument('outfile')
-    args = parser.parse_args()
-    vu = VGM_upgrader(infile=args.infile, outfile=args.outfile)
+    parser = OptionParser("usage: %prog [options]")
+    parser.add_option(
+        "-i",
+        "--infile",
+        dest="infile",
+        action="store",
+        type="string"
+    )
+    parser.add_option(
+        "-o",
+        "--outfile",
+        dest="outfile",
+        action="store",
+        type="string"
+    )
+    opts, args = parser.parse_args()
+    
+    vu = VGM_tool(infile=opts.infile, outfile=opts.outfile)
     vu.print_header()
     vu.get_pcms()
-    vu.upgrade()
+    vu.write_vgm_16()
 
