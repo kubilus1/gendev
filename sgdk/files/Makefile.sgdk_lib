@@ -18,7 +18,7 @@ RESOURCES+=$(S80S:.s80=.o)
 
 libmd.a_OBJS=$(RESOURCES)
 
-INCS = -I../include 
+INCS = -I../inc -I../res
 FLAGS = $(OPTION) -m68000 -Wall -O1 -c -fomit-frame-pointer $(INCS) 
 FLAGSZ80 = -isrc -i../include  
 
