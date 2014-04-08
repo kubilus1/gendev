@@ -1,0 +1,309 @@
+Index: src/vgmmusic.c
+===================================================================
+--- src/vgmmusic.c	(revision 176)
++++ src/vgmmusic.c	(working copy)
+@@ -20,7 +20,7 @@
+ 
+ static int isSupported(char *type)
+ {
+-    if (!stricmp(type, "VGM")) return 1;
++    if (!strcmp(type, "VGM")) return 1;
+ 
+     return 0;
+ }
+Index: src/img_tools.c
+===================================================================
+--- src/img_tools.c	(revision 176)
++++ src/img_tools.c	(working copy)
+@@ -46,8 +46,8 @@
+ 
+     fileExt = getFileExtension(fileName);
+ 
+-    if (!stricmp(fileExt, "PNG")) return Png_getInfos(fileName, w, h, bpp);
+-    if (!stricmp(fileExt, "BMP")) return Bmp_getInfos(fileName, w, h, bpp);
++    if (!strcmp(fileExt, "PNG")) return Png_getInfos(fileName, w, h, bpp);
++    if (!strcmp(fileExt, "BMP")) return Bmp_getInfos(fileName, w, h, bpp);
+ 
+     printf("Unsupported image file %s\n", fileName);
+ 
+@@ -60,8 +60,8 @@
+ 
+     fileExt = getFileExtension(fileName);
+ 
+-    if (!stricmp(fileExt, "PNG")) return Png_getPalette(fileName, size);
+-    if (!stricmp(fileExt, "BMP")) return Bmp_getPalette(fileName, size);
++    if (!strcmp(fileExt, "PNG")) return Png_getPalette(fileName, size);
++    if (!strcmp(fileExt, "BMP")) return Bmp_getPalette(fileName, size);
+ 
+     printf("Unsupported image file %s\n", fileName);
+ 
+@@ -76,8 +76,8 @@
+ 
+     fileExt = getFileExtension(fileName);
+ 
+-    if (!stricmp(fileExt, "PNG")) result = Png_getData(fileName, size, wAlign, hAlign);
+-    else if (!stricmp(fileExt, "BMP")) result = Bmp_getData(fileName, size, wAlign, hAlign);
++    if (!strcmp(fileExt, "PNG")) result = Png_getData(fileName, size, wAlign, hAlign);
++    else if (!strcmp(fileExt, "BMP")) result = Bmp_getData(fileName, size, wAlign, hAlign);
+     else
+     {
+         printf("Unsupported image file %s\n", fileName);
+Index: src/wav.c
+===================================================================
+--- src/wav.c	(revision 176)
++++ src/wav.c	(working copy)
+@@ -21,7 +21,7 @@
+ 
+ static int isSupported(char *type)
+ {
+-    if (!stricmp(type, "WAV")) return 1;
++    if (!strcmp(type, "WAV")) return 1;
+ 
+     return 0;
+ }
+Index: src/palette.c
+===================================================================
+--- src/palette.c	(revision 176)
++++ src/palette.c	(working copy)
+@@ -20,7 +20,7 @@
+ 
+ static int isSupported(char *type)
+ {
+-    if (!stricmp(type, "PALETTE")) return 1;
++    if (!strcmp(type, "PALETTE")) return 1;
+ 
+     return 0;
+ }
+@@ -53,7 +53,7 @@
+     adjustPath(resDir, temp, fileIn);
+ 
+     // PAL file ?
+-    if (!stricmp(getFileExtension(fileIn), "pal"))
++    if (!strcmp(getFileExtension(fileIn), "pal"))
+     {
+         // get palette data
+         palette = (unsigned short*) readFile(fileIn, &size);
+Index: src/bitmap.c
+===================================================================
+--- src/bitmap.c	(revision 176)
++++ src/bitmap.c	(working copy)
+@@ -20,7 +20,7 @@
+ 
+ static int isSupported(char *type)
+ {
+-    if (!stricmp(type, "BITMAP")) return 1;
++    if (!strcmp(type, "BITMAP")) return 1;
+ 
+     return 0;
+ }
+Index: src/image.c
+===================================================================
+--- src/image.c	(revision 176)
++++ src/image.c	(working copy)
+@@ -23,7 +23,7 @@
+ 
+ static int isSupported(char *type)
+ {
+-    if (!stricmp(type, "IMAGE")) return 1;
++    if (!strcmp(type, "IMAGE")) return 1;
+ 
+     return 0;
+ }
+Index: src/sprite.c
+===================================================================
+--- src/sprite.c	(revision 176)
++++ src/sprite.c	(working copy)
+@@ -22,7 +22,7 @@
+ 
+ static int isSupported(char *type)
+ {
+-    if (!stricmp(type, "SPRITE")) return 1;
++    if (!strcmp(type, "SPRITE")) return 1;
+ 
+     return 0;
+ }
+@@ -66,8 +66,8 @@
+         return FALSE;
+     }
+ 
+-    if (!stricmp(collision, "CIRCLE")) collid = COLLISION_CIRCLE;
+-    else if (!stricmp(collision, "BOX")) collid = COLLISION_BOX;
++    if (!strcmp(collision, "CIRCLE")) collid = COLLISION_CIRCLE;
++    else if (!strcmp(collision, "BOX")) collid = COLLISION_BOX;
+     else collid = COLLISION_NONE;
+ 
+     // adjust input file path
+Index: src/bin.c
+===================================================================
+--- src/bin.c	(revision 176)
++++ src/bin.c	(working copy)
+@@ -20,7 +20,7 @@
+ 
+ static int isSupported(char *type)
+ {
+-    if (!stricmp(type, "BIN")) return 1;
++    if (!strcmp(type, "BIN")) return 1;
+ 
+     return 0;
+ }
+Index: src/rescomp.c
+===================================================================
+--- src/rescomp.c	(revision 176)
++++ src/rescomp.c	(working copy)
+@@ -162,62 +162,62 @@
+         id = getFilename(name);
+         removeExtension(id);
+ 
+-        if (!stricmp(ext, "bmp"))
++        if (!strcmp(ext, "bmp"))
+         {
+             // BMP resource
+             fprintf(fileOutput, "BITMAP %s %s\n", id, filename);
+         }
+-        else if (!stricmp(ext, "wav"))
++        else if (!strcmp(ext, "wav"))
+         {
+             // WAV resource
+             fprintf(fileOutput, "WAV %s %s 0 16000\n", id, filename);
+         }
+-        else if (!stricmp(ext, "wavpcm"))
++        else if (!strcmp(ext, "wavpcm"))
+         {
+             // ADPCM resource
+             fprintf(fileOutput, "WAV %s %s 1\n", id, name);
+         }
+-        else if (!stricmp(ext, "pcm"))
++        else if (!strcmp(ext, "pcm"))
+         {
+             // ADPCM resource
+             fprintf(fileOutput, "PCM %s %s 1\n", id, filename);
+         }
+-        else if (!stricmp(ext, "tfd"))
++        else if (!strcmp(ext, "tfd"))
+         {
+             // TFD resource
+             fprintf(fileOutput, "TFM %s %s 1\n", id, filename);
+         }
+-        else if (!stricmp(ext, "tfc"))
++        else if (!strcmp(ext, "tfc"))
+         {
+             // TFC resource
+             fprintf(fileOutput, "TFM %s %s 1\n", id, filename);
+         }
+-        else if (!stricmp(ext, "mvs"))
++        else if (!strcmp(ext, "mvs"))
+         {
+             // MVS resource
+             fprintf(fileOutput, "BIN %s %s 256\n", id, filename);
+         }
+-        else if (!stricmp(ext, "vgm"))
++        else if (!strcmp(ext, "vgm"))
+         {
+             // VGM resource
+             fprintf(fileOutput, "VGM %s %s\n", id, filename);
+         }
+-        else if (!stricmp(ext, "eif"))
++        else if (!strcmp(ext, "eif"))
+         {
+             // EIF resource
+             fprintf(fileOutput, "BIN %s %s 256\n", id, filename);
+         }
+-        else if (!stricmp(ext, "esf"))
++        else if (!strcmp(ext, "esf"))
+         {
+             // ESF resource
+             fprintf(fileOutput, "BIN %s %s 32768\n", id, filename);
+         }
+-        else if (!stricmp(ext, "dat"))
++        else if (!strcmp(ext, "dat"))
+         {
+             // DAT resource
+             fprintf(fileOutput, "BIN %s %s 256 256\n", id, filename);
+         }
+-        else if (!stricmp(ext, "raw"))
++        else if (!strcmp(ext, "raw"))
+         {
+             // RAW resource
+             fprintf(fileOutput, "BIN %s %s 256 256\n", id, filename);
+@@ -289,7 +289,7 @@
+ 
+     // get file name in uppercase
+     strcpy(tempName, getFilename(fileNameOut));
+-    strupr(tempName);
++    //strupr(tempName);
+ 
+     fprintf(fileOutputH, "#ifndef _%s_H_\n", tempName);
+     fprintf(fileOutputH, "#define _%s_H_\n\n", tempName);
+@@ -336,9 +336,9 @@
+     if (sscanf(info, "%s", type) < 1)
+         return TRUE;
+     // pass comment
+-    if (!strnicmp(type, "//", 2))
++    if (!strncmp(type, "//", 2))
+         return TRUE;
+-    if (!strnicmp(type, "#", 1))
++    if (!strncmp(type, "#", 1))
+         return TRUE;
+ 
+     plugin = plugins;
+Index: src/tileset.c
+===================================================================
+--- src/tileset.c	(revision 176)
++++ src/tileset.c	(working copy)
+@@ -20,7 +20,7 @@
+ 
+ static int isSupported(char *type)
+ {
+-    if (!stricmp(type, "TILESET")) return 1;
++    if (!strcmp(type, "TILESET")) return 1;
+ 
+     return 0;
+ }
+Index: src/map.c
+===================================================================
+--- src/map.c	(revision 176)
++++ src/map.c	(working copy)
+@@ -18,7 +18,7 @@
+ 
+ static int isSupported(char *type)
+ {
+-    if (!stricmp(type, "MAP")) return 1;
++    if (!strcmp(type, "MAP")) return 1;
+ 
+     return 0;
+ }
+Index: src/pcm.c
+===================================================================
+--- src/pcm.c	(revision 176)
++++ src/pcm.c	(working copy)
+@@ -21,7 +21,7 @@
+ 
+ static int isSupported(char *type)
+ {
+-    if (!stricmp(type, "PCM")) return 1;
++    if (!strcmp(type, "PCM")) return 1;
+ 
+     return 0;
+ }
+Index: src/tfmmusic.c
+===================================================================
+--- src/tfmmusic.c	(revision 176)
++++ src/tfmmusic.c	(working copy)
+@@ -20,7 +20,7 @@
+ 
+ static int isSupported(char *type)
+ {
+-    if (!stricmp(type, "TFM")) return 1;
++    if (!strcmp(type, "TFM")) return 1;
+ 
+     return 0;
+ }
+@@ -56,7 +56,7 @@
+     strcpy(temp, fileIn);
+ 
+     // need conversion to TFC ?
+-    if (stricmp(getFileExtension(fileIn), "tfc"))
++    if (strcmp(getFileExtension(fileIn), "tfc"))
+     {
+         // change extension of output file name to .tfc
+         removeExtension(temp);

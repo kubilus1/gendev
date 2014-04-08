@@ -48,4 +48,5 @@ clean:
 
 install: all 
 	cp ../inc/*.h $(GENDEV)/m68k-elf/include 
+	cp ../res/*.h $(GENDEV)/m68k-elf/include 
 	cp libmd.a $(GENDEV)/m68k-elf/lib 
