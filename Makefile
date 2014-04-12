@@ -48,18 +48,20 @@ postbuild: /opt/toolchains/gen/ldscripts tools
 	echo "export PATH=\$$GENDEV/sh-elf/bin:\$$GENDEV/m68k-elf/bin:\$$GENDEV/bin:\$$PATH" >> ~/.32xdev
 	cp -r sgdk/skeleton /opt/toolchains/gen/.
 
+TOOLSDIR=/opt/toolchains/gen/bin
 
-TOOLS=/opt/toolchains/gen/bin
-TOOLS+=/opt/toolchains/gen/bin/bin2c
-TOOLS+=/opt/toolchains/gen/bin/sjasm
+TOOLS=$(TOOLSDIR)/bin2c
+TOOLS+=$(TOOLSDIR)/sjasm
 ifeq ($(UNAME), Linux)
-TOOLS+=/opt/toolchains/gen/bin/zasm
-TOOLS+=/opt/toolchains/gen/bin/vgm_cmp
+TOOLS+=$(TOOLSDIR)/zasm
+TOOLS+=$(TOOLSDIR)/vgm_cmp
 endif
-TOOLS+=/opt/toolchains/gen/bin/sixpack 
+TOOLS+=$(TOOLSDIR)/sixpack 
+TOOLS+=$(TOOLSDIR)/appack
+TOOLS+=/opt/toolchains
 
-tools: $(TOOLS)
-	-cp extras/scripts/* /opt/toolchains/gen/bin/.
+tools: $(TOOLSDIR) $(TOOLS)
+	-cp extras/scripts/* $(TOOLSDIR)/.
 	echo "Done with tools."
 
 clean:
@@ -73,6 +75,10 @@ purge: clean
 
 work:
 	mkdir work
+
+#########################################################
+#########################################################
+#########################################################
 
 gcc-$(GCC_VERSION).tar.bz2:
 	$(MGET) http://ftp.gnu.org/gnu/gcc/gcc-$(GCC_VERSION)/gcc-$(GCC_VERSION).tar.bz2
@@ -119,6 +125,13 @@ sixpack-13.zip:
 VGMTools_src.rar:
 	$(MGET) -O $@ http://www.smspower.org/forums/download.php?id=3201
 
+aPLib-1.1.0.zip:
+	$(MGET) http://ibsensoftware.com/files/$@
+
+#########################################################
+#########################################################
+#########################################################
+
 work/makefile-gen:
 	cd work && \
 	unzip ../files/makefiles-ldscripts-2.zip
@@ -153,18 +166,22 @@ work/gcc-$(GCC_VERSION)/gmp: work/gcc-$(GCC_VERSION)
 	tar xvjf ../gmp-$(GMP_VERSION).tar.bz2 && \
 	mv gmp-$(GMP_VERSION) gcc-$(GCC_VERSION)/gmp
 
+#########################################################
+#########################################################
+#########################################################
+
 /opt/toolchains/gen:
 	sudo mkdir -p $@
 	sudo chmod 777 /opt/toolchains/gen
 
-/opt/toolchains/gen/bin:
+$(TOOLSDIR):
 	mkdir $@
 
 /opt/toolchains/gen/ldscripts: work/makefile-gen
 	mkdir -p $@
 	cp work/*.ld $@/.
 
-/opt/toolchains/gen/bin/bin2c: bin2c-1.0.zip
+$(TOOLSDIR)/bin2c: bin2c-1.0.zip
 	- mkdir -p work 
 	cd work && \
 	unzip ../bin2c-1.0.zip && \
@@ -172,7 +189,7 @@ work/gcc-$(GCC_VERSION)/gmp: work/gcc-$(GCC_VERSION)
 	gcc bin2c.c -o bin2c && \
 	cp bin2c $@ 
 
-/opt/toolchains/gen/bin/sjasm: sjasm39g6.zip
+$(TOOLSDIR)/sjasm: sjasm39g6.zip
 	- mkdir -p work/sjasm
 	cd work/sjasm && \
 	unzip ../../sjasm39g6.zip && \
@@ -181,7 +198,7 @@ work/gcc-$(GCC_VERSION)/gmp: work/gcc-$(GCC_VERSION)
 	cp sjasm $@ && \
 	chmod +x $@
 
-/opt/toolchains/gen/bin/zasm: zasm-3.0.21-source-linux-2011-06-19.zip
+$(TOOLSDIR)/zasm: zasm-3.0.21-source-linux-2011-06-19.zip
 	- mkdir -p work/zasm 
 	cd work/zasm && \
 	unzip ../../$< && \
@@ -189,26 +206,26 @@ work/gcc-$(GCC_VERSION)/gmp: work/gcc-$(GCC_VERSION)
 	$(MAKE) && \
 	cp zasm $@
 
-/opt/toolchains/gen/bin/hex2bin: Hex2bin-1.0.10.tar.bz2
+$(TOOLSDIR)/hex2bin: Hex2bin-1.0.10.tar.bz2
 	- mkdir -p work 
 	cd work && \
 	tar xvjf ../$< && \
 	cp Hex2bin-1.0.10/hex2bin $@
 
-sixpack /opt/toolchains/gen/bin/sixpack: sixpack-13.zip
+sixpack $(TOOLSDIR)/sixpack: sixpack-13.zip
 	- mkdir -p work/sixpack && \
 	cd work/sixpack && \
 	unzip ../../$< 
 	cp work/sixpack/sixpack-12/bin/sixpack $@ 
 	chmod +x $@	
 
-#genres /opt/toolchains/gen/bin/genres: genres_01.zip
+#genres $(TOOLSDIR)/genres: genres_01.zip
 #	- mkdir -p work/genres && \
 #	cd work/genres && \
 #	unzip ../../$< 
 	
 
-/opt/toolchains/gen/bin/vgm_cmp: VGMTools_src.rar
+$(TOOLSDIR)/vgm_cmp: VGMTools_src.rar
 	- mkdir -p work/vgmtools
 	cd work/vgmtools && \
 	unrar x ../../$< 
@@ -218,3 +235,10 @@ sixpack /opt/toolchains/gen/bin/sixpack: sixpack-13.zip
 	gcc chip_cmp.o vgm_cmp.c -lz -o vgm_cmp && \
 	cp vgm_cmp $@
 
+$(TOOLSDIR)/appack: aPLib-1.1.0.zip
+	- mkdir -p work/applib
+	cd work/applib && \
+	unzip ../../$< 
+	cd work/applib/example && \
+	make -f makefile.elf && \
+	cp appack $@
