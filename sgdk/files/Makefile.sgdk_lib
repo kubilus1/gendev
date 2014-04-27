@@ -5,16 +5,20 @@ OBJC = m68k-elf-objcopy
 RM = rm -f 
 ASMZ80 = sjasm 
 BINTOS = bintos 
+RESCOMP= rescomp
 
 OPTION= -Dnologo_ 
 
 CS=$(wildcard *.c)
 SS=$(wildcard *.s)
 S80S=$(wildcard *.s80)
+RESS= $(wildcard $(RES)/*.res)
 
+RESOURCES=$(RESS:.res=.o)
 RESOURCES=$(CS:.c=.o)
 RESOURCES+=$(SS:.s=.o)
 RESOURCES+=$(S80S:.s80=.o)
+
 
 libmd.a_OBJS=$(RESOURCES)
 
@@ -40,6 +44,9 @@ all: $(libmd.a_OBJS) libmd.a
 
 %.o: %.s 
 	$(CC) $(FLAGS) -c $< -o $@ 
+
+%.s: %.res
+	$(RESCOMP) $< $@
 
 clean: 
 	#$(RM) -f z80_drv1.c z80_drv2.c 
