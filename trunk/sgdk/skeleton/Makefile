@@ -11,6 +11,7 @@ NM = nm
 NM2WCH = nm2wch
 SIZEBND = sizebnd
 MKISOFS = mkisofs
+RESCOMP= rescomp
 
 SCD_LOADER = scd/LukeProjectCD
 
@@ -37,30 +38,34 @@ SCDBOOTSS=$(wildcard scd/*.s)
 SCDBOOTSS+=$(wildcard src/scd/*.s)
 SCDBOOT_RESOURCES=$(SCDBOOTSS:.s=.o)
 
-BMPS=$(wildcard res/*.bmp)
-VGMS=$(wildcard res/*.vgm)
-RAWS=$(wildcard res/*.raw)
-PCMS=$(wildcard res/*.pcm)
-MVSS=$(wildcard res/*.mvs)
-TFDS=$(wildcard res/*.tfd)
-WAVS=$(wildcard res/*.wav)
-WAVPCMS=$(wildcard res/*.wavpcm)
-BMPS+=$(wildcard *.bmp)
-VGMS+=$(wildcard *.vgm)
-RAWS+=$(wildcard *.raw)
-PCMS+=$(wildcard *.pcm)
-MVSS+=$(wildcard *.mvs)
-TFDS+=$(wildcard *.tfd)
-WAVS+=$(wildcard *.wav)
-WAVPCMS+=$(wildcard *.wavpcm)
-RESOURCES+=$(BMPS:.bmp=.o)
-RESOURCES+=$(VGMS:.vgm=.o)
-RESOURCES+=$(RAWS:.raw=.o)
-RESOURCES+=$(PCMS:.pcm=.o)
-RESOURCES+=$(MVSS:.mvs=.o)
-RESOURCES+=$(TFDS:.tfd=.o)
-RESOURCES+=$(WAVS:.wav=.o)
-RESOURCES+=$(WAVPCMS:.wavpcm=.o)
+#BMPS=$(wildcard res/*.bmp)
+#VGMS=$(wildcard res/*.vgm)
+#RAWS=$(wildcard res/*.raw)
+#PCMS=$(wildcard res/*.pcm)
+#MVSS=$(wildcard res/*.mvs)
+#TFDS=$(wildcard res/*.tfd)
+#WAVS=$(wildcard res/*.wav)
+RESS=$(wildcard res/*.res)
+#WAVPCMS=$(wildcard res/*.wavpcm)
+#BMPS+=$(wildcard *.bmp)
+#VGMS+=$(wildcard *.vgm)
+#RAWS+=$(wildcard *.raw)
+#PCMS+=$(wildcard *.pcm)
+#MVSS+=$(wildcard *.mvs)
+#TFDS+=$(wildcard *.tfd)
+#WAVS+=$(wildcard *.wav)
+RESS+=$(wildcard *.res)
+#WAVPCMS+=$(wildcard *.wavpcm)
+
+#RESOURCES+=$(BMPS:.bmp=.o)
+#RESOURCES+=$(VGMS:.vgm=.o)
+#RESOURCES+=$(RAWS:.raw=.o)
+#RESOURCES+=$(PCMS:.pcm=.o)
+#RESOURCES+=$(MVSS:.mvs=.o)
+#RESOURCES+=$(TFDS:.tfd=.o)
+#RESOURCES+=$(WAVS:.wav=.o)
+#RESOURCES+=$(WAVPCMS:.wavpcm=.o)
+RESOURCES+=$(RESS:.res=.o)
 
 CS=$(wildcard src/*.c)
 SS=$(wildcard src/*.s)
@@ -162,6 +167,9 @@ out.iso: out.elf_scd
 
 %.s: %.rawpcm
 	$(BINTOS) -align 128 -sizealign 128 -nullfill 136 $<
+
+%.s: %.res
+	$(RESCOMP) $< $@
 
 boot/rom_head.bin: boot/rom_head.o
 	$(LD) $(LINKFLAGS) --oformat binary -o $@ $<
