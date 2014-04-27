@@ -36,11 +36,14 @@ tools: sgdk-read-only
 	cd sgdk-read-only/tools/wavtoraw/src && \
 	gcc -o wavtoraw wavtoraw.c -lm && cp wavtoraw $(GENDEV)/bin/.
 	cd sgdk-read-only/tools/rescomp && \
-		patch -u -p0 < ../../../files/rescomp.diff && \
 		make -f ../../../files/Makefile.rescomp && cp out/rescomp $(GENDEV)/bin/.
+
+patch: 
+	svn diff sgdk-read-only > files/sgdk.diff
 
 sgdk-read-only:
 	svn co http://sgdk.googlecode.com/svn/trunk/ sgdk-read-only
+	patch -u -p0 < files/sgdk.diff
 
 sgdk-read-only/src/libmd.a:
 	cp files/Makefile.sgdk_lib sgdk-read-only/.
