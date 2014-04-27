@@ -125,9 +125,6 @@ sixpack-13.zip:
 VGMTools_src.rar:
 	$(MGET) -O $@ http://www.smspower.org/forums/download.php?id=3201
 
-aPLib-1.1.0.zip:
-	$(MGET) http://ibsensoftware.com/files/$@
-
 #########################################################
 #########################################################
 #########################################################
@@ -235,10 +232,9 @@ $(TOOLSDIR)/vgm_cmp: VGMTools_src.rar
 	gcc chip_cmp.o vgm_cmp.c -lz -o vgm_cmp && \
 	cp vgm_cmp $@
 
-$(TOOLSDIR)/appack: aPLib-1.1.0.zip
-	- mkdir -p work/applib
-	cd work/applib && \
-	unzip ../../$< 
+$(TOOLSDIR)/appack: 
+	- mkdir -p work/applib 
+	cp -r files/applib/* work/applib/. 
 	cd work/applib/example && \
 	make -f makefile.elf && \
 	cp appack $@
