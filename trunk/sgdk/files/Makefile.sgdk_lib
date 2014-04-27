@@ -9,22 +9,22 @@ RESCOMP= rescomp
 
 OPTION= -Dnologo_ 
 
-CS=$(wildcard *.c)
-SS=$(wildcard *.s)
-S80S=$(wildcard *.s80)
-RESS= $(wildcard $(RES)/*.res)
+CS=$(wildcard src/*.c)
+SS=$(wildcard src/*.s)
+S80S=$(wildcard src/*.s80)
+RESS= $(wildcard res/*.res)
 
 RESOURCES=$(RESS:.res=.o)
-RESOURCES=$(CS:.c=.o)
+RESOURCES+=$(CS:.c=.o)
 RESOURCES+=$(SS:.s=.o)
 RESOURCES+=$(S80S:.s80=.o)
 
 
 libmd.a_OBJS=$(RESOURCES)
 
-INCS = -I../inc -I../res
+INCS = -Iinc -Ires
 FLAGS = $(OPTION) -m68000 -Wall -O1 -c -fomit-frame-pointer $(INCS) 
-FLAGSZ80 = -isrc -i../inc  
+FLAGSZ80 = -isrc -iinc  
 
 all: $(libmd.a_OBJS) libmd.a 
 
@@ -54,6 +54,6 @@ clean:
 	$(RM) -rf *.o *.a *.o80 *.log *.lst 
 
 install: all 
-	cp ../inc/*.h $(GENDEV)/m68k-elf/include 
-	cp ../res/*.h $(GENDEV)/m68k-elf/include 
+	cp inc/*.h $(GENDEV)/m68k-elf/include 
+	cp res/*.h $(GENDEV)/m68k-elf/include 
 	cp libmd.a $(GENDEV)/m68k-elf/lib 
