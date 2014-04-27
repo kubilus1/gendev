@@ -43,13 +43,13 @@ patch:
 
 sgdk-read-only:
 	svn co http://sgdk.googlecode.com/svn/trunk/ sgdk-read-only
+	patch -u -p0 < files/sgdk.diff
 
 sgdk-read-only/libmd.a:
-	patch -u -p0 < files/sgdk.diff
 	cd sgdk-read-only && ln -sf ../files/Makefile.sgdk_lib .
 	cd sgdk-read-only && $(MAKE) -f Makefile.sgdk_lib 
 
-install: tools sgdk-read-only sgdk-read-only/src/libmd.a
+install: tools sgdk-read-only sgdk-read-only/libmd.a
 	echo "Install"
 	cd sgdk-read-only && $(MAKE) -f Makefile.sgdk_lib install
 	install -b files/sgdk.ld $(GENDEV)/ldscripts/sgdk.ld
@@ -80,7 +80,7 @@ extras: $(extrasmd.a_OBJS) libextrasmd.a
 clean:
 	echo "Clean"
 	-cd sgdk-read-only && $(MAKE) -f Makefile.sgdk_lib clean
-	-svn revert -R sgdk-read-only/.
+	#-svn revert -R sgdk-read-only/.
 	-rm extra_libs/*.o
 	-rm extra_libs/*.a
 	-rm libextrasmd.a
