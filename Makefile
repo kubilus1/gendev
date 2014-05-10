@@ -9,20 +9,20 @@ MAKE?= make
 
 UNAMEO:=$(shell uname)
 
-GCC_VERSION=4.5.2
+GCC_VERSION=4.8.2
 MPFR_VERSION=2.4.2
 MPC_VERSION=0.8.2
 GMP_VERSION=5.0.5
-BINUTILS_VERSION=2.21.1
+BINUTILS_VERSION=2.24
 NEWLIB_VERSION=1.19.0
 
-FILES=gcc-$(GCC_VERSION).tar.bz2 gcc-g++-$(GCC_VERSION).tar.bz2 gcc-objc-$(GCC_VERSION).tar.bz2 \
+FILES=gcc-$(GCC_VERSION).tar.bz2 \
 	  mpfr-$(MPFR_VERSION).tar.bz2 mpc-$(MPC_VERSION).tar.gz gmp-$(GMP_VERSION).tar.bz2 \
-	  binutils-$(BINUTILS_VERSION).tar.bz2 newlib-$(NEWLIB_VERSION).tar.gz 
+	  binutils-$(BINUTILS_VERSION).tar.bz2 newlib-$(NEWLIB_VERSION).tar.gz
 
 all: setup build postbuild
 
-setup: work $(FILES) work/gcc-$(GCC_VERSION) work/gcc-$(GCC_VERSION)/mpfr work/gcc-$(GCC_VERSION)/mpc work/gcc-$(GCC_VERSION)/gmp work/binutils-2.21 work/newlib-$(NEWLIB_VERSION) work/makefile-gen
+setup: work $(FILES) work/gcc-$(GCC_VERSION) work/gcc-$(GCC_VERSION)/mpfr work/gcc-$(GCC_VERSION)/mpc work/gcc-$(GCC_VERSION)/gmp work/binutils-$(BINUTILS_VERSION) work/newlib-$(NEWLIB_VERSION) work/makefile-gen
 
 gendev.txz: /opt/toolchains/gen/ldscripts
 	tar cJvf gendev.txz /opt/toolchains/gen
@@ -133,10 +133,9 @@ work/makefile-gen:
 	cd work && \
 	unzip ../files/makefiles-ldscripts-2.zip
 
-work/binutils-2.21:
+work/binutils-$(BINUTILS_VERSION):
 	cd work && \
-	tar xvjf ../binutils-$(BINUTILS_VERSION).tar.bz2 && \
-	mv binutils-$(BINUTILS_VERSION) binutils-2.21
+	tar xvjf ../binutils-$(BINUTILS_VERSION).tar.bz2
 
 work/newlib-$(NEWLIB_VERSION):
 	cd work && \
@@ -144,9 +143,7 @@ work/newlib-$(NEWLIB_VERSION):
 
 work/gcc-$(GCC_VERSION):
 	cd work && \
-	tar xvjf ../gcc-$(GCC_VERSION).tar.bz2 && \
-	tar xvjf ../gcc-g++-$(GCC_VERSION).tar.bz2 && \
-	tar xvjf ../gcc-objc-$(GCC_VERSION).tar.bz2
+	tar xvjf ../gcc-$(GCC_VERSION).tar.bz2
 
 work/gcc-$(GCC_VERSION)/mpfr: work/gcc-$(GCC_VERSION)
 	cd work && \
