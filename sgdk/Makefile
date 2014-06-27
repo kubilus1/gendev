@@ -42,7 +42,7 @@ patch:
 	svn diff sgdk-read-only > files/sgdk.diff
 
 sgdk-read-only:
-	svn co http://sgdk.googlecode.com/svn/trunk/ sgdk-read-only
+	svn co http://sgdk.googlecode.com/svn/trunk/@r176 sgdk-read-only
 	patch -u -p0 < files/sgdk.diff
 
 sgdk-read-only/libmd.a:
