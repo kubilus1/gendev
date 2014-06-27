@@ -13,7 +13,7 @@ objects = appack.o
 cflags  = -Wall -O2 -s
 ldflags = $(cflags)
 
-LBITS := $(shell, getconf LONGBIT)
+LBITS := $(shell getconf LONG_BIT)
 ifeq ($(LBITS), 64)
 incdir  = ../lib/elf64
 else
