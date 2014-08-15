@@ -7,13 +7,24 @@ import struct
 class VGM_tool(object):
     
     # pcms: [(pcm_len, pcmdata)]
+
     pcms = []
+    # Tuple of (streamid, pcmdata)
+
     # pcm_lens: {start_addr, (index, addr_len, data)}
     pcm_lens = {}
+    # Key: pcm_address Value: Tuple of (streamid, length, data)
 
-    def __init__(self, infile, outfile):
+    verbose = False
+
+    def __init__(self, infile, outfile, verbose=False):
         self.infile = infile
         self.outfile = outfile
+        self.verbose = verbose
+
+    def log(self, stuff):
+        if self.verbose:
+            print stuff
 
     def print_header(self):
         with open(self.infile, 'rb') as h_in:
@@ -73,8 +84,8 @@ class VGM_tool(object):
                     dd = h_in.read(1)
 
                 elif(opcode == '\x61'):
-                    nn = h_in.read(1)
-                    nn = h_in.read(1)
+                    nn = struct.unpack('H', h_in.read(2))[0]
+                    self.log("0x61 wait: %s" % nn)
 
                 elif(opcode == '\x62' or opcode == '\x63'):
                     pass
@@ -184,17 +195,16 @@ class VGM_tool(object):
             with open(self.outfile, 'wb') as h_out:
                 h_out.write(header)
                 
-                if pcm_mode == "0x95":
-                    if(self.pcm_lens):
-                        #for i in xrange(len(self.pcm_lens)):
-                        pcm_list = self.pcm_lens.values()
-                        pcm_list.sort()
-                        h_in.read(7)
-                        
-                        for pcm_data in pcm_list:
-                            pcm_idx = pcm_data[0]
-                            pcm_len = pcm_data[1]
-                            pcm_bytes = pcm_data[2]
+                if(self.pcm_lens and False):
+                    print "no"
+                    #for i in xrange(len(self.pcm_lens)):
+                    pcm_list = self.pcm_lens.values()
+                    pcm_list.sort()
+                    h_in.read(7)
+                    for pcm_data in pcm_list:
+                        pcm_idx = pcm_data[0]
+                        pcm_len = pcm_data[1]
+                        pcm_bytes = pcm_data[2]
 
                             print "PCM: ", pcm_idx, pcm_len
 
@@ -237,6 +247,9 @@ class VGM_tool(object):
                 
                 opcode = h_in.read(1)
                 while opcode:
+                    if self.verbose:
+                        print "(0x%x) opcode: 0x%s" % (h_in.tell(),
+                                hex(ord(opcode)))
                 #while i < dlen: 
                     #prev_opcode = opcode
                     #opcode = data[i]
@@ -244,7 +257,8 @@ class VGM_tool(object):
                     nibble_a = hex(ord(opcode) & ord('\xF0'))
                     nibble_b = ord(opcode) & ord('\x0F')
 
-                    if(opcode == '\x67' and not self.pcm_lens):
+                    if(opcode == '\x67' and (not self.pcm_lens or True)):
+                        print "yes"
                         h_out.write(opcode)
                         trash = h_in.read(1)
                         h_out.write(trash)
@@ -253,9 +267,12 @@ class VGM_tool(object):
                         ss = h_in.read(4)
                         h_out.write(ss)
                         sslen = struct.unpack('I', ss)[0]
-                        print sslen
+                        print "SSLen:", sslen
+                        print h_in.tell()
                         pcm_h_in = h_in.read(sslen)
                         h_out.write(pcm_h_in)
+                        h_out.write('\x90\x00\x02\x00\x2a')
+                        h_out.write('\x91\x00\x00\x01\x00')
 
                     if(nibble_a == '0x70'):
                         #print "0x7n"
@@ -264,6 +281,7 @@ class VGM_tool(object):
                     elif(wait >= 15):
                         h_out.write('\x61')
                         h_out.write(struct.pack('H', wait))
+
                         if wait > 65535:
                             print "WAIT SIZE OVERFLOW!"
                         wait = -1
@@ -305,11 +323,17 @@ class VGM_tool(object):
                         h_out.write(aa)
                         h_out.write(dd)
                     elif(opcode == '\x61'):
-                        h_out.write(opcode)
-                        operand = h_in.read(1)
-                        h_out.write(operand)
-                        operand = h_in.read(1)
-                        h_out.write(operand)
+                        ss = struct.unpack('H', h_in.read(2))[0]
+                        if ss >= 32768:
+                            r = ss%3
+                            rslt = ss/3
+                            for i in range(3):
+                                h_out.write(opcode)
+                                h_out.write(struct.pack('H', rslt))
+                        else:
+                            h_out.write(opcode)
+                            h_out.write(struct.pack('H', ss))
+
                     elif(opcode == '\x62'):
                         h_out.write(opcode)
                     elif(opcode == '\x66'):
@@ -399,8 +423,17 @@ class VGM_tool(object):
                     elif(opcode == '\xE0'):
                         #print "e0", h_in.tell()
                         addr = struct.unpack('I', h_in.read(4))[0]
-                        pcm_data = self.pcm_lens.get(addr)
-                        if pcm_data:
+                        
+                        h_out.write('\x93')
+                        h_out.write('\x00')
+                        h_out.write(struct.pack('I', addr))
+                        h_out.write('\x80')
+                        h_out.write(struct.pack('I',
+                            self.pcm_lens.get(addr)[1]))
+                        
+                        #pcm_data = self.pcm_lens.get(addr)
+                        pcm_data = None
+                        if pcm_data and False: 
 
                             pcm_idx = pcm_data[0]
                             pcm_len = pcm_data[1]
@@ -438,24 +471,11 @@ class VGM_tool(object):
                     
 
 if __name__ == "__main__":
-    parser = OptionParser("usage: %prog [options]")
-    parser.add_option(
-        "-i",
-        "--infile",
-        dest="infile",
-        action="store",
-        type="string"
-    )
-    parser.add_option(
-        "-o",
-        "--outfile",
-        dest="outfile",
-        action="store",
-        type="string"
-    )
-    opts, args = parser.parse_args()
-    
-    vu = VGM_tool(infile=opts.infile, outfile=opts.outfile)
+    parser = argparse.ArgumentParser(description="Upgrade VGM file")
+    parser.add_argument('infile')
+    parser.add_argument('outfile')
+    args = parser.parse_args()
+    vu = VGM_upgrader(infile=args.infile, outfile=args.outfile, verbose=False)
     vu.print_header()
     vu.get_pcms()
     vu.write_vgm_16()
