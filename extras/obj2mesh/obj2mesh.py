@@ -16,14 +16,16 @@ class Obj2Mesh(object):
     vertices = []
     faces = []
     translate = {}
+    face_size = 0
 
 
-    VERT_RE = "^v (?P<x>[\-0-9\.]+) (?P<y>[\-0-9\.]+) (?P<z>[\-0-9\.]+)" 
-    FACE_RE = "^f (?P<v0>[0-9]+) (?P<v1>[0-9]+) (?P<v2>[0-9]+)" 
+    VERT_RE = "^v (?P<x>[\-0-9\.e\+]+) (?P<y>[\-0-9\.e\+]+) (?P<z>[\-0-9\.e\+]+)" 
+    FACE_RE = "(?P<v>[0-9]+)/?(?P<vt>[0-9]*)/?(?P<vn>[0-9]*)" 
 
 
-    def __init__(self, filename):
+    def __init__(self, filename, reverse=False):
         self.filename = filename
+        self.reverse = reverse
     
         vert_re = re.compile(self.VERT_RE)
         face_re = re.compile(self.FACE_RE)
@@ -34,7 +36,6 @@ class Obj2Mesh(object):
 
             for line in objfile.readlines():
                 vm = vert_re.match(line) 
-                fm = face_re.match(line)
                 if vm:
                     #print m.groupdict()
                     vg = vm.groups()
@@ -49,55 +50,66 @@ class Obj2Mesh(object):
                         self.translate[vert_idx] = self.vertices.index(temp_v) 
                 
                     vert_idx+=1
+                    continue
 
-                if fm:
-                    fd = fm.groups()
-                    # Check to see if a vertice is a dupe, use that instead
-                    a = int(fd[0]) - 1
-                    b = int(fd[1]) - 1
-                    c = int(fd[2]) - 1
+                if line.startswith("f "):
 
-                    temp_f = (
-                        self.translate.get(a,a),
-                        self.translate.get(b,b),
-                        self.translate.get(c,c)
-                    )
-                    if temp_v not in self.faces:
-                        # Only note unique faces
-                        self.faces.append(temp_f)
+                    temp_face = []
+                    for fm in face_re.finditer(line):
+                        v = fm.group('v')
+                        vt = fm.group('vt')
+                        vn = fm.group('vn')
+                        temp_face.append(int(v)-1)
+
+                    if temp_face:
+                        # Check to see if a vertice is a dupe, use that instead
+                        temp_f = []
+                        for v in temp_face:
+                            temp_f.append(self.translate.get(v,v))
+
+                        if temp_f not in self.faces:
+                            self.faces.append(temp_f)
+                            self.face_size += len(temp_f)
+                        
+
 
         print "#include \"genesis.h\""
         print "#ifndef _MESHS_H_"
         print "#define _MESHS_H_"
         print "#define verts %s" % len(self.vertices)
         print "#define faces %s" % len(self.faces)
-        print "#define edges %s" % (len(self.faces) * 3)
+        #print "#define edges %s" % (len(self.faces) * 3)
+        print "#define edges %s" % self.face_size
         print 
         print "const Vect3D_f16 cube_coord[verts] = {"
         for vert in self.vertices:
             print " {FIX16(%s), FIX16(%s), FIX16(%s)}," % (vert[0], vert[1], vert[2])
         print "};"
         print
-        print "const u16 cube_poly_ind[faces * 3] = {"
+        print "const u16 cube_poly_ind[%s] = {" % (self.face_size + len(self.faces))
         for face in self.faces:
-            print " %s, %s, %s," % (face[0], face[1], face[2])
+            print "%s," % len(face),
+            if self.reverse:
+                face.reverse()
+            print ",".join(str(x) for x in face),
+            print ","
         print "};"
         print
         print "const u16 cube_line_ind[edges * 2] = {"
         for face in self.faces:
-            print " %s, %s, " % (face[0], face[1])
-            print " %s, %s, " % (face[1], face[2])
-            print " %s, %s, " % (face[2], face[0])
+            for x in range(len(face)-1):
+                print " %s, %s, " % (face[x], face[x+1])
+            print " %s, %s, " % (face[x+1], face[0])
         print "};"
         print
         print "const Vect3D_f16 cube_face_norm[faces] = {"
         for face in self.faces:
             a = numpy.array(self.vertices[face[0]])
             b = numpy.array(self.vertices[face[1]])
-            c = numpy.array(self.vertices[face[2]])
+            c = numpy.array(self.vertices[face[len(face)-1]])
             cross = numpy.cross((b-a), (c-a))
             norm = normalized(cross)[0]
-            print " {FIX16(%s), FIX16(%s), FIX16(%s)}," % (int(norm[0]), int(norm[1]), int(norm[2]))
+            print " {FIX16(%s), FIX16(%s), FIX16(%s)}," % (float(norm[0]), float(norm[1]), float(norm[2]))
         print "};"
         print
         print "#endif"
@@ -112,7 +124,14 @@ if __name__ == "__main__":
             "--infile",
             dest="infile"
     )
+    parser.add_option(
+            "-r",
+            "--reverse",
+            action="store_true",
+            dest="reverse",
+            default=False
+    )
 
     opts, args = parser.parse_args()
 
-    o2m = Obj2Mesh(opts.infile)
+    o2m = Obj2Mesh(opts.infile, opts.reverse)
