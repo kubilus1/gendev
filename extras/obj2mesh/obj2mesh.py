@@ -13,7 +13,7 @@ def normalized(a, axis=-1, order=2):
 def get_center(vertices):
     return [float(sum(val))/float(len(vertices)) for val in zip(*vertices)]
 
-class polygon(object):
+class polymesh(object):
     def __init__(self, name, reverse=False):
         self.vertices = []
         self.faces = []
@@ -21,6 +21,7 @@ class polygon(object):
         self.face_size = 0
         self.name = name.strip()
         self.reverse = reverse
+        self.facecolor = []
 
 #    def __str__(self):
     def print_points(self):
@@ -61,9 +62,15 @@ class polygon(object):
         print "};"
         print
 
+
+        print "const u16 %s_face_color[%s] = {" % (self.name, self.num_faces)
+        for fc in self.facecolor:
+            print "%s," % fc
+        print "};"
+
         center = get_center(self.vertices)
 
-        print """polygon %s_p = {
+        print """polymesh %s_p = {
     %s,
     %s,
     %s,
@@ -71,7 +78,9 @@ class polygon(object):
     (Vect3D_f16 *) %s_coord,
     (u16 *) %s_poly_ind,
     (u16 *) %s_line_ind,
-    (Vect3D_f16 *) %s_face_norm
+    (Vect3D_f16 *) %s_face_norm,
+    {FIX16(0)},
+    (u16 *) %s_face_color
 };
 """ % (
             self.name,
@@ -84,6 +93,7 @@ class polygon(object):
             self.name,
             self.name,
             self.name,
+            self.name,
             self.name
         )
 
@@ -91,38 +101,53 @@ class polygon(object):
 class Obj2Mesh(object):
 
     objs = []
+    colors = {}
 
     VERT_RE = "^v (?P<x>[\-0-9\.e\+]+) (?P<y>[\-0-9\.e\+]+) (?P<z>[\-0-9\.e\+]+)" 
     FACE_RE = "(?P<v>[0-9]+)/?(?P<vt>[0-9]*)/?(?P<vn>[0-9]*)" 
     OBJ_RE = "^o (?P<name>.*)" 
+    USEMAT_RE = "^usemtl (?P<name>.*)"
 
-    def __init__(self, filename, reverse=False):
+    NEWMAT_RE = "^newmtl (?P<name>.*)"
+    COLOR_RE = "^Kd (?P<r>[0-1]\.[0-9]+) (?P<g>[0-1]\.[0-9]+) (?P<b>[0-1]\.[0-9]+)"
+
+    def __init__(self, filename, reverse=False, material=None):
         self.filename = filename
         self.reverse = reverse
     
         vert_re = re.compile(self.VERT_RE)
         face_re = re.compile(self.FACE_RE)
         obj_re = re.compile(self.OBJ_RE)
+        usemat_re = re.compile(self.USEMAT_RE)
+    
+        if not material is None:
+            self.read_materials(material)
 
         with open(filename, 'r') as objfile:
 
             curobj = None
             last_vertidx = 0
             vert_idx = 0
+            curcolor = None
 
             for line in objfile.readlines():
                 om = obj_re.match(line)
                 if om:
                     name = om.group('name')
-                    curobj = polygon(name, self.reverse)
+                    curobj = polymesh(name, self.reverse)
                     self.objs.append(curobj)
-                    last_vertidx = vert_idx
+                    last_vertidx = vert_idx + last_vertidx
                     vert_idx = 0
+                    curcolor = None
                     continue 
                     
 
                 vm = vert_re.match(line) 
                 if vm:
+                    if curobj is None:
+                        name = "object"
+                        curobj = polymesh(name, self.reverse)
+                        self.objs.append(curobj)
                     #print m.groupdict()
                     vg = vm.groups()
                     temp_v = (float(vg[0]), float(vg[1]), float(vg[2]))
@@ -138,13 +163,21 @@ class Obj2Mesh(object):
                     vert_idx+=1
                     continue
 
-                if line.startswith("f "):
+                um = usemat_re.match(line)
+                if um:
+                    if self.colors:
+                        colname = um.group('name')
+                        curcolor = self.colors.get(colname)
+                        #print "Found color: ", colname
 
+                if line.startswith("f "):
                     temp_face = []
                     for fm in face_re.finditer(line):
                         v = fm.group('v')
                         vt = fm.group('vt')
                         vn = fm.group('vn')
+                        #print "Vert: %s, LastVIdx: %s, Vert_idx: %s" % (v,
+                        #        last_vertidx, vert_idx)
                         temp_face.append(int(v) - last_vertidx - 1)
 
                     if temp_face:
@@ -155,12 +188,14 @@ class Obj2Mesh(object):
 
                         if temp_f not in curobj.faces:
                             curobj.faces.append(temp_f)
+                            if curcolor:
+                                curobj.facecolor.append(curcolor[1])
                             curobj.face_size += len(temp_f)
                         
 
 
         print "#include \"genesis.h\""
-        print "#include \"polygon.h\""
+        print "#include \"polymesh.h\""
         print "#ifndef _MESHS_H_"
         print "#define _MESHS_H_"
 
@@ -174,14 +209,48 @@ class Obj2Mesh(object):
             #print obj 
             obj.print_points()
 
-        print "polygon polygon_list[%s] = {" % len(self.objs)
+        # Sort palette by the index
+        print "const u16 polymesh_palette[%s] = {" % len(self.colors)
+        for k,v in sorted(self.colors.items(), key=lambda x: x[1][1]):
+            print "%s," % v[0]
+        print "};"
+
+        print "u8 polymesh_pal_len = %s;" % len(self.colors)
+
+        print "polymesh polymesh_list[%s] = {" % len(self.objs)
         for obj in self.objs:
             print "&%s_p," % obj.name
         print "};"
 
-        print "u16 polygon_list_len = %s;" % len(self.objs)
+        print "u16 polymesh_list_len = %s;" % len(self.objs)
 
         print "#endif"
+
+
+
+    def read_materials(self, material_file):
+
+        newmat_re = re.compile(self.NEWMAT_RE)
+        color_re = re.compile(self.COLOR_RE)
+
+        with open(material_file, 'r') as mat_file:
+            curcolor = None
+            for line in mat_file.readlines():
+                mm = newmat_re.match(line)
+                if mm:
+                    curcolor = mm.group('name')
+
+                cm = color_re.match(line)
+                if cm:
+                    self.colors[curcolor] = (self.to_rgb9(cm.group('r'), cm.group('g'), cm.group('b')), len(self.colors))
+               
+
+    def to_rgb9(self, r, g, b):
+        return "0x{:04x}".format( 
+            (int(float(b)*7.0)*512) +
+            (int(float(g)*7.0)*32) +
+            (int(float(r)*7.0)*2)
+        )
 
 
 if __name__ == "__main__":
@@ -200,7 +269,12 @@ if __name__ == "__main__":
             dest="reverse",
             default=False
     )
+    parser.add_option(
+            "-m",
+            "--material",
+            dest="material"
+    )
 
     opts, args = parser.parse_args()
 
-    o2m = Obj2Mesh(opts.infile, opts.reverse)
+    o2m = Obj2Mesh(opts.infile, opts.reverse, opts.material)
