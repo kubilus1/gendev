@@ -108,7 +108,7 @@ bin2c-1.0.zip:
 	$(MGET) http://downloads.sourceforge.net/project/bin2c/bin2c-1.0.zip
 
 sjasm39g6.zip:
-	$(MGET) http://home.wanadoo.nl/smastijn/sjasm39g6.zip
+	$(MGET) http://home.online.nl/smastijn/sjasm39g6.zip
 
 zasm-3.0.21-source-linux-2011-06-19.zip:
 	$(MGET) http://k1.dyndns.org/Develop/projects/zasm/distributions/zasm-3.0.21-source-linux-2011-06-19.zip
