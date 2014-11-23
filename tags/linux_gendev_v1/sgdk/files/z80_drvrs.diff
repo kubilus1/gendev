@@ -1,0 +1,122 @@
+Index: z80_mvs.h
+===================================================================
+--- z80_mvs.h	(revision 73)
++++ z80_mvs.h	(working copy)
+@@ -1,6 +1,6 @@
+ #ifndef _Z80_MVS_H_
+ #define _Z80_MVS_H_
+ 
+-extern const u8 z80_mvs[0xA5B];
++extern const u8 z80_mvs_o80[0xA5B];
+ 
+ #endif // _Z80_MVS_H_
+Index: z80_drv1.h
+===================================================================
+--- z80_drv1.h	(revision 73)
++++ z80_drv1.h	(working copy)
+@@ -1,6 +1,6 @@
+ #ifndef _Z80_DRV1_H_
+ #define _Z80_DRV1_H_
+ 
+-extern const u8 z80_drv1[0xC15];
++extern const u8 z80_drv1_o80[0xC15];
+ 
+ #endif // _Z80_DRV1_H_
+Index: z80_drv2.h
+===================================================================
+--- z80_drv2.h	(revision 73)
++++ z80_drv2.h	(working copy)
+@@ -1,6 +1,6 @@
+ #ifndef _Z80_DRV2_H_
+ #define _Z80_DRV2_H_
+ 
+-extern const u8 z80_drv2[0xC00];
++extern const u8 z80_drv2_o80[0xC00];
+ 
+ #endif // _Z80_DRV2_H_
+Index: z80_drv3.h
+===================================================================
+--- z80_drv3.h	(revision 73)
++++ z80_drv3.h	(working copy)
+@@ -1,6 +1,6 @@
+ #ifndef _Z80_DRV3_H_
+ #define _Z80_DRV3_H_
+ 
+-extern const u8 z80_drv3[0x942];
++extern const u8 z80_drv3_o80[0x942];
+ 
+ #endif // _Z80_DRV3_H_
+Index: z80_drv4.h
+===================================================================
+--- z80_drv4.h	(revision 73)
++++ z80_drv4.h	(working copy)
+@@ -1,6 +1,6 @@
+ #ifndef _Z80_DRV4_H_
+ #define _Z80_DRV4_H_
+ 
+-extern const u8 z80_drv4[0xA6A];
++extern const u8 z80_drv4_o80[0xA6A];
+ 
+ #endif // _Z80_DRV4_H_
+Index: z80_ctrl.c
+===================================================================
+--- z80_ctrl.c	(revision 73)
++++ z80_ctrl.c	(working copy)
+@@ -150,33 +150,33 @@
+     switch(driver)
+     {
+         case Z80_DRIVER_PCM:
+-            drv = z80_drv1;
+-            len = sizeof(z80_drv1);
++            drv = z80_drv1_o80;
++            len = sizeof(z80_drv1_o80);
+             break;
+ 
+         case Z80_DRIVER_2ADPCM:
+-            drv = z80_drv2;
+-            len = sizeof(z80_drv2);
++            drv = z80_drv2_o80;
++            len = sizeof(z80_drv2_o80);
+             break;
+ 
+         case Z80_DRIVER_4PCM:
+-            drv = z80_drv3;
+-            len = sizeof(z80_drv3);
++            drv = z80_drv3_o80;
++            len = sizeof(z80_drv3_o80);
+             break;
+ 
+         case Z80_DRIVER_4PCM_ENV:
+-            drv = z80_drv4;
+-            len = sizeof(z80_drv4);
++            drv = z80_drv4_o80;
++            len = sizeof(z80_drv4_o80);
+             break;
+ 
+         case Z80_DRIVER_MVS:
+-            drv = z80_mvs;
+-            len = sizeof(z80_mvs);
++            drv = z80_mvs_o80;
++            len = sizeof(z80_mvs_o80);
+             break;
+ 
+         case Z80_DRIVER_TFM:
+-            drv = z80_tfm;
+-            len = sizeof(z80_tfm);
++            drv = z80_tfm_o80;
++            len = sizeof(z80_tfm_o80);
+             break;
+ 
+         default:
+Index: z80_tfm.h
+===================================================================
+--- z80_tfm.h	(revision 73)
++++ z80_tfm.h	(working copy)
+@@ -1,6 +1,6 @@
+ #ifndef _Z80_TFM_H_
+ #define _Z80_TFM_H_
+ 
+-extern const u8 z80_tfm[0x69D];
++extern const u8 z80_tfm_o80[0x69D];
+ 
+ #endif // _Z80_TFM_H_

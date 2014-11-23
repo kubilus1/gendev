@@ -1,0 +1,16 @@
+Index: inc/tools.h
+===================================================================
+--- inc/tools.h	(revision 176)
++++ inc/tools.h	(working copy)
+@@ -1,6 +1,11 @@
+ #ifndef _TOOLS_H_
+ #define _TOOLS_H_
+ 
++#if __linux
++#define stricmp strcasecmp
++#define strnicmp strncasecmp
++#define strupr toupper
++#endif
+ 
+ #define FALSE           0
+ #define TRUE            1
