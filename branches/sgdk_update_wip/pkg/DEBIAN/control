@@ -1,0 +1,9 @@
+Package: gendev
+Version: 1
+Section: devel
+Priority: optional
+Maintainer: Matt Kubilus (mattkubilus)
+Depends: texinfo 
+Architecture: all
+Homepage: http://code.google.com/p/gendev/
+Description: Sega Genesis development on *nix.

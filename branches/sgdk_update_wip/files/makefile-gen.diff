@@ -1,0 +1,54 @@
+--- makefile-gen.old	2011-03-16 22:07:38.000000000 -0700
++++ makefile-gen	2014-02-02 22:33:44.779969997 -0800
+@@ -18,12 +18,13 @@
+ # build-m68k-newlib: build-m68k-newlib-only
+ 
+ # User configuration
++MAKE?=make
+ sh_target=sh-elf
+ m68k_target=m68k-elf
+ sh_prefix  := /opt/toolchains/gen/$(sh_target)
+ m68k_prefix := /opt/toolchains/gen/$(m68k_target)
+-binutils_ver=2.21
+-gcc_ver=4.5.2
++binutils_ver=2.24
++gcc_ver=4.8.2
+ newlib_ver=1.19.0
+ thread_model=single
+ erase=0
+@@ -84,7 +85,7 @@
+ 	-mkdir -p $(build)
+ 	> $(log)
+ 	cd $(build); ../$(src_dir)/configure --target=$(target) --prefix=$(prefix) --enable-install-libbfd $(to_log)
+-	make -C $(build) all install DESTDIR=$(DESTDIR) $(to_log)
++	$(MAKE) -C $(build) all install DESTDIR=$(DESTDIR) $(to_log)
+ 	$(clean_up)
+ 
+ $(build_gcc_pass1) $(build_gcc_pass2): build = build-gcc-$(target)-$(gcc_ver)
+@@ -95,7 +96,7 @@
+ 	-mkdir -p $(build)
+ 	> $(log)
+ 	cd $(build);  ../$(src_dir)/configure --target=$(target) --prefix=$(prefix) --without-headers --with-newlib --enable-languages=c --disable-libssp --disable-tls $(extra_configure_args) $(to_log)
+-	make -C $(build) all install DESTDIR=$(DESTDIR) $(to_log)
++	$(MAKE) -C $(build) all install DESTDIR=$(DESTDIR) $(to_log)
+ 
+ $(build_newlib): build = build-newlib-$(target)-$(newlib_ver)
+ $(build_newlib): src_dir = newlib-$(newlib_ver)
+@@ -105,7 +106,7 @@
+ 	-mkdir -p $(build)
+ 	> $(log)
+ 	cd $(build); ../$(src_dir)/configure --target=$(target) --prefix=$(prefix) $(extra_configure_args) $(to_log)
+-	make -C $(build) all install DESTDIR=$(DESTDIR) $(to_log)
++	$(MAKE) -C $(build) all install DESTDIR=$(DESTDIR) $(to_log)
+ 	$(clean_up)
+ 
+ $(build_gcc_pass2): log = $(logdir)/$(build)-pass2.log
+@@ -115,7 +116,7 @@
+ 	> $(log)
+ 	cd $(build);  ../$(src_dir)/configure --target=$(target) --prefix=$(prefix) --with-newlib --disable-libssp --disable-tls \
+ 		--enable-threads=$(thread_model) --enable-languages=$(pass2_languages) $(extra_configure_args) $(to_log)
+-	make -C $(build) all install DESTDIR=$(DESTDIR) $(to_log)
++	$(MAKE) -C $(build) all install DESTDIR=$(DESTDIR) $(to_log)
+ 	$(clean_up)
+ 
+ # ---- }}}}

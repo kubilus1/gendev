@@ -1,0 +1,62 @@
+replace
+{
+	ld	a,(#_op + 0)
+	ld	(hl),a
+}
+by
+{
+; peephole custom rule, register argument passing
+    ld  (hl),d
+}
+
+replace
+{
+	ld	iy,#_op
+	ld	a,0 (iy)
+	sub	a, %1
+	jp	C,%2
+	ld	a,%3
+	sub	a, 0 (iy)
+	jp	C,%2
+	ld	a,0 (iy)
+}
+by 
+{
+    ld a,d
+	sub	a, %1
+	jp	C,%2
+	ld	a,%3
+	sub	a, d
+	jp	C,%2
+	ld	a,d
+}
+
+replace
+{
+	ld	a,(#_op + 0)
+}
+by
+{
+    ld a,d
+}
+
+replace
+{
+	ld	iy,#_op
+	ld	a,0 (iy)
+	ld	(hl),a
+}
+by
+{
+    ld  (hl),d
+}
+
+replace
+{
+	ld	iy,#_op
+	ld	a,0 (iy)
+}
+by
+{
+    ld a,d
+}

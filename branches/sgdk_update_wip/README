@@ -1,0 +1,30 @@
+GENDEV - Genesis development environment for Linux.
+
+This is not meant to replace the SGDK (code.google.com/p/sgdk) but to
+assist setting up a working Genesis development environment on *Nix.
+
+
+Some descriptions ->
+
+
+ * gendev/Makefile 
+
+
+Makefile for setting up the required build tools.  Running this is enough for
+a basic development environment.
+
+
+ * gendev/sgdk/Makefile
+
+Makefile for setting up SGDK for use on Linux
+
+
+ * gendev/sgdk/skeleton
+
+Some basic files to assist in building SGDK project under Linux.
+
+
+
+
+
+

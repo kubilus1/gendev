@@ -1,0 +1,29 @@
+--- vgm_cmp.c.orig	2011-08-14 15:51:52.000000000 -0400
++++ vgm_cmp.c	2012-10-30 19:25:16.937415508 -0400
+@@ -11,7 +11,7 @@
+ #include <windows.h>	// for GetTickCount
+ #endif
+ 
+-#include "zlib.h"
++#include <zlib.h>
+ 
+ #include "stdtype.h"
+ #include "VGMFile.h"
+@@ -782,7 +782,8 @@
+ 		VGMPos += CmdLen;
+ 		if (StopVGM)
+ 			break;
+-		
++	
++        /*    
+ 		if (CmdTimer < GetTickCount())
+ 		{
+ 			PrintMinSec(VGMSmplPos, MinSecStr);
+@@ -793,6 +794,7 @@
+ 					MinSecStr, TempStr, VGMPos, VGMHead.lngEOFOffset);
+ 			CmdTimer = GetTickCount() + 200;
+ 		}
++        */
+ 	}
+ 	DataSizeA = VGMPos - VGMHead.lngDataOffset;
+ 	DataSizeB = DstPos - VGMHead.lngDataOffset;
