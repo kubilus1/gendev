@@ -40,9 +40,9 @@ OBJDIR_RELEASE = out
 DEP_RELEASE = 
 OUT_RELEASE = out/rescomp
 
-OBJ_DEBUG = $(OBJDIR_DEBUG)/src/snd_tools.o $(OBJDIR_DEBUG)/src/bin.o $(OBJDIR_DEBUG)/src/bitmap.o $(OBJDIR_DEBUG)/src/image.o $(OBJDIR_DEBUG)/src/img_tools.o $(OBJDIR_DEBUG)/src/libpng.o $(OBJDIR_DEBUG)/src/map.o $(OBJDIR_DEBUG)/src/palette.o $(OBJDIR_DEBUG)/src/pcm.o $(OBJDIR_DEBUG)/src/rescomp.o $(OBJDIR_DEBUG)/src/spr_tools.o $(OBJDIR_DEBUG)/src/sprite.o $(OBJDIR_DEBUG)/src/tfmmusic.o $(OBJDIR_DEBUG)/src/tile_tools.o $(OBJDIR_DEBUG)/src/tileset.o $(OBJDIR_DEBUG)/src/tools.o $(OBJDIR_DEBUG)/src/vgmmusic.o $(OBJDIR_DEBUG)/src/wav.o
+OBJ_DEBUG = $(OBJDIR_DEBUG)/src/snd_tools.o $(OBJDIR_DEBUG)/src/bin.o $(OBJDIR_DEBUG)/src/bitmap.o $(OBJDIR_DEBUG)/src/image.o $(OBJDIR_DEBUG)/src/img_tools.o $(OBJDIR_DEBUG)/src/libpng.o $(OBJDIR_DEBUG)/src/map.o $(OBJDIR_DEBUG)/src/palette.o $(OBJDIR_DEBUG)/src/pcm.o $(OBJDIR_DEBUG)/src/rescomp.o $(OBJDIR_DEBUG)/src/spr_tools.o $(OBJDIR_DEBUG)/src/sprite.o $(OBJDIR_DEBUG)/src/tfmmusic.o $(OBJDIR_DEBUG)/src/tile_tools.o $(OBJDIR_DEBUG)/src/tileset.o $(OBJDIR_DEBUG)/src/tools.o $(OBJDIR_DEBUG)/src/vgmmusic.o $(OBJDIR_DEBUG)/src/wav.o $(OBJDIR_DEBUG)/src/xgmmusic.o
 
-OBJ_RELEASE = $(OBJDIR_RELEASE)/src/snd_tools.o $(OBJDIR_RELEASE)/src/bin.o $(OBJDIR_RELEASE)/src/bitmap.o $(OBJDIR_RELEASE)/src/image.o $(OBJDIR_RELEASE)/src/img_tools.o $(OBJDIR_RELEASE)/src/libpng.o $(OBJDIR_RELEASE)/src/map.o $(OBJDIR_RELEASE)/src/palette.o $(OBJDIR_RELEASE)/src/pcm.o $(OBJDIR_RELEASE)/src/rescomp.o $(OBJDIR_RELEASE)/src/spr_tools.o $(OBJDIR_RELEASE)/src/sprite.o $(OBJDIR_RELEASE)/src/tfmmusic.o $(OBJDIR_RELEASE)/src/tile_tools.o $(OBJDIR_RELEASE)/src/tileset.o $(OBJDIR_RELEASE)/src/tools.o $(OBJDIR_RELEASE)/src/vgmmusic.o $(OBJDIR_RELEASE)/src/wav.o
+OBJ_RELEASE = $(OBJDIR_RELEASE)/src/snd_tools.o $(OBJDIR_RELEASE)/src/bin.o $(OBJDIR_RELEASE)/src/bitmap.o $(OBJDIR_RELEASE)/src/image.o $(OBJDIR_RELEASE)/src/img_tools.o $(OBJDIR_RELEASE)/src/libpng.o $(OBJDIR_RELEASE)/src/map.o $(OBJDIR_RELEASE)/src/palette.o $(OBJDIR_RELEASE)/src/pcm.o $(OBJDIR_RELEASE)/src/rescomp.o $(OBJDIR_RELEASE)/src/spr_tools.o $(OBJDIR_RELEASE)/src/sprite.o $(OBJDIR_RELEASE)/src/tfmmusic.o $(OBJDIR_RELEASE)/src/tile_tools.o $(OBJDIR_RELEASE)/src/tileset.o $(OBJDIR_RELEASE)/src/tools.o $(OBJDIR_RELEASE)/src/vgmmusic.o $(OBJDIR_RELEASE)/src/wav.o $(OBJDIR_RELEASE)/src/xgmmusic.o
 
 all: debug release
 
@@ -113,6 +113,9 @@ $(OBJDIR_DEBUG)/src/vgmmusic.o: src/vgmmusic.c
 $(OBJDIR_DEBUG)/src/wav.o: src/wav.c
 	$(CC) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/wav.c -o $(OBJDIR_DEBUG)/src/wav.o
 
+$(OBJDIR_DEBUG)/src/xgmmusic.o: src/xgmmusic.c
+	$(CC) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/xgmmusic.c -o $(OBJDIR_DEBUG)/src/xgmmusic.o
+
 clean_debug: 
 	rm -f $(OBJ_DEBUG) $(OUT_DEBUG)
 	rm -rf out
@@ -182,6 +185,9 @@ $(OBJDIR_RELEASE)/src/vgmmusic.o: src/vgmmusic.c
 
 $(OBJDIR_RELEASE)/src/wav.o: src/wav.c
 	$(CC) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/wav.c -o $(OBJDIR_RELEASE)/src/wav.o
+
+$(OBJDIR_RELEASE)/src/xgmmusic.o: src/xgmmusic.c
+	$(CC) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/xgmmusic.c -o $(OBJDIR_RELEASE)/src/xgmmusic.o
 
 clean_release: 
 	rm -f $(OBJ_RELEASE) $(OUT_RELEASE)
