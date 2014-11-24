@@ -35,15 +35,18 @@ tools: sgdk-read-only
 	gcc -o sizebnd sizebnd.c  && cp sizebnd $(GENDEV)/bin/.
 	cd sgdk-read-only/tools/wavtoraw/src && \
 	gcc -o wavtoraw wavtoraw.c -lm && cp wavtoraw $(GENDEV)/bin/.
+	cd sgdk-read-only/tools/xgmtool && \
+		make -f ../../../files/Makefile.xgmtool && cp out/xgmtool $(GENDEV)/bin/.
 	cd sgdk-read-only/tools/rescomp && \
+		patch -u -p0 < ../../../files/rescomp.diff && \
 		make -f ../../../files/Makefile.rescomp && cp out/rescomp $(GENDEV)/bin/.
 
-patch: 
+patch:
 	svn diff sgdk-read-only > files/sgdk.diff
 
 sgdk-read-only:
-	svn co http://sgdk.googlecode.com/svn/trunk/@r176 sgdk-read-only
-	patch -u -p0 < files/sgdk.diff
+	svn co http://sgdk.googlecode.com/svn/trunk/@r206 sgdk-read-only
+	#patch -u -p0 < files/sgdk.diff
 
 sgdk-read-only/libmd.a:
 	cd sgdk-read-only && ln -sf ../files/Makefile.sgdk_lib .
@@ -52,7 +55,8 @@ sgdk-read-only/libmd.a:
 install: tools sgdk-read-only sgdk-read-only/libmd.a
 	echo "Install"
 	cd sgdk-read-only && $(MAKE) -f Makefile.sgdk_lib install
-	install -b files/sgdk.ld $(GENDEV)/ldscripts/sgdk.ld
+	install -b sgdk-read-only/md.ld $(GENDEV)/ldscripts/sgdk.ld
+	#install -b files/sgdk.ld $(GENDEV)/ldscripts/sgdk.ld
 
 %.a: $(extasmd.a_OBJS)
 	$(RM) $@ 
@@ -80,7 +84,7 @@ extras: $(extrasmd.a_OBJS) libextrasmd.a
 clean:
 	echo "Clean"
 	-cd sgdk-read-only && $(MAKE) -f Makefile.sgdk_lib clean
-	#-svn revert -R sgdk-read-only/.
+	-svn revert -R sgdk-read-only/.
 	-rm extra_libs/*.o
 	-rm extra_libs/*.a
 	-rm libextrasmd.a
