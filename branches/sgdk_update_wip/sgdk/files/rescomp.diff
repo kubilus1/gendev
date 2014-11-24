@@ -1,6 +1,6 @@
 Index: inc/tools.h
 ===================================================================
---- inc/tools.h	(revision 176)
+--- inc/tools.h	(revision 206)
 +++ inc/tools.h	(working copy)
 @@ -1,6 +1,11 @@
  #ifndef _TOOLS_H_
@@ -14,3 +14,16 @@ Index: inc/tools.h
  
  #define FALSE           0
  #define TRUE            1
+Index: src/tools.c
+===================================================================
+--- src/tools.c	(revision 206)
++++ src/tools.c	(working copy)
+@@ -798,7 +798,7 @@
+     strcat(cmd, "\" \"");
+     strcat(cmd, fout);
+     strcat(cmd, "\"");
+-    strcat(cmd, " -s");
++    //strcat(cmd, " -s");
+ 
+     printf("Executing %s\n", cmd);
+ 
