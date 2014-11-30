@@ -45,7 +45,7 @@ patch:
 	svn diff sgdk-read-only > files/sgdk.diff
 
 sgdk-read-only:
-	svn co http://sgdk.googlecode.com/svn/trunk/@r206 sgdk-read-only
+	svn co http://sgdk.googlecode.com/svn/trunk sgdk-read-only
 	#patch -u -p0 < files/sgdk.diff
 
 sgdk-read-only/libmd.a:
@@ -84,7 +84,8 @@ extras: $(extrasmd.a_OBJS) libextrasmd.a
 clean:
 	echo "Clean"
 	-cd sgdk-read-only && $(MAKE) -f Makefile.sgdk_lib clean
-	-svn revert -R sgdk-read-only/.
+	-svn revert -R sgdk-read-only/src
+	-svn revert -R sgdk-read-only/tools
 	-rm extra_libs/*.o
 	-rm extra_libs/*.a
 	-rm libextrasmd.a
