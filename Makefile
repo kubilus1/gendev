@@ -6,6 +6,7 @@
 
 MGET?= wget
 MAKE?= make
+ORIG_USER:=$(shell whoami)
 
 UNAMEO:=$(shell uname)
 
@@ -165,8 +166,13 @@ work/gcc-$(GCC_VERSION)/gmp: work/gcc-$(GCC_VERSION)
 #########################################################
 
 /opt/toolchains/gen:
-	sudo mkdir -p $@
-	sudo chmod 777 /opt/toolchains/gen
+	if [ -w /opt ]; then \
+		mkdir -p $@; \
+	else \
+		sudo mkdir -p $@; \
+		sudo chown $(ORIG_USER):$(ORIG_USER) $@; \
+	fi
+	#sudo chmod 777 $@
 
 $(TOOLSDIR):
 	mkdir $@
