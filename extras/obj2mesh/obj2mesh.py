@@ -1,9 +1,12 @@
 #!/bin/env python
 
 import re
+import os
 import numpy
 
 from optparse import OptionParser
+
+DEBUG=False
 
 def normalized(a, axis=-1, order=2):
     l2 = numpy.atleast_1d(numpy.linalg.norm(a, order, axis))
@@ -23,7 +26,6 @@ class polymesh(object):
         self.reverse = reverse
         self.facecolor = []
 
-#    def __str__(self):
     def print_points(self):
         self.num_verts = len(self.vertices)
         self.num_faces = len(self.faces)
@@ -111,17 +113,62 @@ class Obj2Mesh(object):
     NEWMAT_RE = "^newmtl (?P<name>.*)"
     COLOR_RE = "^Kd (?P<r>[0-1]\.[0-9]+) (?P<g>[0-1]\.[0-9]+) (?P<b>[0-1]\.[0-9]+)"
 
-    def __init__(self, filename, reverse=False, material=None):
-        self.filename = filename
-        self.reverse = reverse
+    def __init__(self, file_list, reverse=False):
+        self.reverse = reverse    
+
+        # First parse material files
+        for filename in file_list:
+            material = "%s.mtl" % (os.path.splitext(filename)[0])
+            if os.path.isfile(material):
+                self.read_materials(material)
+        if DEBUG:         
+            print "COLORS:", self.colors
+
+
+        for filename in file_list:
+            self.parse_obj(filename)
+
+        print "#include \"genesis.h\""
+        print "#include \"polymesh.h\""
+        print "#ifndef _MESHS_H_"
+        print "#define _MESHS_H_"
+
+        #print "#define verts %s" % len(self.vertices)
+        #print "#define faces %s" % len(self.faces)
+        #print "#define edges %s" % (len(self.faces) * 3)
+        #print "#define edges %s" % self.face_size
+
+
+        for obj in self.objs:
+            #print obj 
+            obj.print_points()
+
+        # Sort palette by the index
+        print "const u16 polymesh_palette[%s] = {" % len(self.colors)
+        for k,v in sorted(self.colors.items(), key=lambda x: x[1][1]):
+            print "%s," % v[0]
+        print "};"
+
+        print "u8 polymesh_pal_len = %s;" % len(self.colors)
+
+        print "polymesh* polymesh_list[%s] = {" % len(self.objs)
+        for obj in self.objs:
+            print "&%s_p," % obj.name
+        print "};"
+
+        print "u16 polymesh_list_len = %s;" % len(self.objs)
+
+        print "#endif"
+
+
     
+    def parse_obj(self, filename):
+
         vert_re = re.compile(self.VERT_RE)
         face_re = re.compile(self.FACE_RE)
         obj_re = re.compile(self.OBJ_RE)
         usemat_re = re.compile(self.USEMAT_RE)
-    
-        if not material is None:
-            self.read_materials(material)
+
 
         with open(filename, 'r') as objfile:
 
@@ -168,7 +215,6 @@ class Obj2Mesh(object):
                     if self.colors:
                         colname = um.group('name')
                         curcolor = self.colors.get(colname)
-                        #print "Found color: ", colname
 
                 if line.startswith("f "):
                     temp_face = []
@@ -194,39 +240,6 @@ class Obj2Mesh(object):
                         
 
 
-        print "#include \"genesis.h\""
-        print "#include \"polymesh.h\""
-        print "#ifndef _MESHS_H_"
-        print "#define _MESHS_H_"
-
-        #print "#define verts %s" % len(self.vertices)
-        #print "#define faces %s" % len(self.faces)
-        #print "#define edges %s" % (len(self.faces) * 3)
-        #print "#define edges %s" % self.face_size
-
-
-        for obj in self.objs:
-            #print obj 
-            obj.print_points()
-
-        # Sort palette by the index
-        print "const u16 polymesh_palette[%s] = {" % len(self.colors)
-        for k,v in sorted(self.colors.items(), key=lambda x: x[1][1]):
-            print "%s," % v[0]
-        print "};"
-
-        print "u8 polymesh_pal_len = %s;" % len(self.colors)
-
-        print "polymesh polymesh_list[%s] = {" % len(self.objs)
-        for obj in self.objs:
-            print "&%s_p," % obj.name
-        print "};"
-
-        print "u16 polymesh_list_len = %s;" % len(self.objs)
-
-        print "#endif"
-
-
 
     def read_materials(self, material_file):
 
@@ -242,7 +255,10 @@ class Obj2Mesh(object):
 
                 cm = color_re.match(line)
                 if cm:
-                    self.colors[curcolor] = (self.to_rgb9(cm.group('r'), cm.group('g'), cm.group('b')), len(self.colors))
+                    if not self.colors.has_key(curcolor):
+                        self.colors[curcolor] = (self.to_rgb9(cm.group('r'), cm.group('g'), cm.group('b')), len(self.colors))
+                        if DEBUG:
+                            print "ADDING COLOR:", curcolor
                
 
     def to_rgb9(self, r, g, b):
@@ -260,7 +276,8 @@ if __name__ == "__main__":
     parser.add_option(
             "-f",
             "--infile",
-            dest="infile"
+            dest="infile",
+            action="append"
     )
     parser.add_option(
             "-r",
@@ -269,12 +286,7 @@ if __name__ == "__main__":
             dest="reverse",
             default=False
     )
-    parser.add_option(
-            "-m",
-            "--material",
-            dest="material"
-    )
 
     opts, args = parser.parse_args()
 
-    o2m = Obj2Mesh(opts.infile, opts.reverse, opts.material)
+    o2m = Obj2Mesh(opts.infile, opts.reverse)
