@@ -1,54 +1,60 @@
+GENDEV - Genesis development environment for Linux.
+
 Gendev is not intended to replace, but to be a companion project to the SGDK
 (Sega Genesis Development Kit).
 
 Gendev exists to setup a Linux (or presumably other Unix) system for Sega
 Genesis development.
 
-==BASIC INSTRUCTIONS:==
-{{{
+BASIC INSTRUCTIONS
+==================
+
     $ svn checkout http://gendev.googlecode.com/svn/trunk/ gendev-read-only 
     $ cd gendev-read-only 
     $ make 
-}}}
+
 Woo hoo, tools are all setup. Now let's build sgdk ... 
-{{{
+
     $ . ~/.gendev 
     $ cd gendev-read-only/sgdk 
     $ make install 
-}}}
+
 Now I want to create a project ... 
-{{{
+
     $ cp gendev-read-only/sgdk/skeleton mycoolproject 
     $ cd mycoolproject 
-}}}
+
 *type type type* 
-{{{
+
     $ make 
-}}}
 
 ----
 
-==Troubleshooting and FAQ==
-===makeinfo is missing===
+Troubleshooting and FAQ
+=======================
+
+makeinfo is missing
+-------------------
+
 Try installing the 'texinfo' package.  On Ubuntu this would be 'sudo apt-get
 install texinfo'
-===How do I build this on *BSD?===
+
+How do I build this on *BSD?
+----------------------------
+
 Use gmake.  Try the following to build the framework: 
-{{{
-MAKE=gmake MGET=fetch gmake
-}}}
+
+    MAKE=gmake MGET=fetch gmake
+
 And for sgdk
-{{{
-cd sgdk; gmake install
-}}}
-===This doesn't work/There is an obvious issue, you fool===
+
+    cd sgdk; gmake install
+
+This doesn't work/There is an obvious issue
+-------------------------------------------
+
 Please let me know and perhaps file an issue.
 
-
-GENDEV - Genesis development environment for Linux.
-
-This is not meant to replace the SGDK (code.google.com/p/sgdk) but to
-assist setting up a working Genesis development environment on *Nix.
 
 
 Some descriptions ->
