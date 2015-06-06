@@ -1,13 +1,15 @@
 GENDEV?=/opt/toolchains/gen/
 MAKE?=make
+GENBIN=$(GENDEV)/bin
+GENGCC_BIN=$(GENDEV)/m68k-elf/bin
 
-CC = m68k-elf-gcc 
-AR = m68k-elf-ar 
-RANLIB = m68k-elf-ranlib 
-OBJC = m68k-elf-objcopy 
+CC = $(GENGCC_BIN)/m68k-elf-gcc 
+AR = $(GENGCC_BIN)/m68k-elf-ar 
+RANLIB = $(GENGCC_BIN)/m68k-elf-ranlib 
+OBJC = $(GENGCC_BIN)/m68k-elf-objcopy 
 RM = rm -f 
-ASMZ80 = sjasm 
-BINTOS = bintos 
+ASMZ80 = $(GENBIN)/sjasm 
+BINTOS = $(GENBIN)/bintos 
 
 OPTION= -Dnologo_ 
 

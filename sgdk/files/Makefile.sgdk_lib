@@ -1,11 +1,16 @@
-CC = m68k-elf-gcc 
-AR = m68k-elf-ar 
-RANLIB = m68k-elf-ranlib 
-OBJC = m68k-elf-objcopy 
+GENDEV?=/opt/toolchains/gen/
+MAKE?=make
+GENGCC_BIN=$(GENDEV)/m68k-elf/bin
+GENBIN=$(GENDEV)/bin
+
+CC = $(GENGCC_BIN)/m68k-elf-gcc 
+AR = $(GENGCC_BIN)/m68k-elf-ar 
+RANLIB = $(GENGCC_BIN)/m68k-elf-ranlib 
+OBJC = $(GENGCC_BIN)/m68k-elf-objcopy 
 RM = rm -f 
-ASMZ80 = sjasm 
-BINTOS = bintos 
-RESCOMP= rescomp
+ASMZ80 = $(GENBIN)/sjasm 
+BINTOS = $(GENBIN)/bintos 
+RESCOMP= $(GENBIN)/rescomp
 
 OPTION= -Dnologo_ 
 
