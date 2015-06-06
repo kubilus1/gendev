@@ -17,13 +17,9 @@ GMP_VERSION=5.0.5
 BINUTILS_VERSION=2.24
 NEWLIB_VERSION=1.19.0
 
-FILES=gcc-$(GCC_VERSION).tar.bz2 \
-	  mpfr-$(MPFR_VERSION).tar.bz2 mpc-$(MPC_VERSION).tar.gz gmp-$(GMP_VERSION).tar.bz2 \
-	  binutils-$(BINUTILS_VERSION).tar.bz2 newlib-$(NEWLIB_VERSION).tar.gz
+all: setup do_build postbuild
 
-all: setup build postbuild
-
-setup: work $(FILES) work/gcc-$(GCC_VERSION) work/gcc-$(GCC_VERSION)/mpfr work/gcc-$(GCC_VERSION)/mpc work/gcc-$(GCC_VERSION)/gmp work/binutils-$(BINUTILS_VERSION) work/newlib-$(NEWLIB_VERSION) work/makefile-gen
+setup: work/gcc-$(GCC_VERSION) work/gcc-$(GCC_VERSION)/mpfr work/gcc-$(GCC_VERSION)/mpc work/gcc-$(GCC_VERSION)/gmp work/binutils-$(BINUTILS_VERSION) work/newlib-$(NEWLIB_VERSION) work/makefile-gen
 
 gendev.txz: /opt/toolchains/gen/ldscripts
 	tar cJvf gendev.txz /opt/toolchains/gen
@@ -35,11 +31,13 @@ pkg/opt:
 gendev_1_all.deb: pkg/opt
 	dpkg-deb -Zxz -z9 --build pkg .
 
-build: /opt/toolchains/gen
+do_build: work /opt/toolchains/gen
 	echo "Build"
 	cd work && \
-	patch -u < ../files/makefile-gen.diff || true && \
-	MAKE=$(MAKE) $(MAKE) -f makefile-gen
+		MAKE=$(MAKE) $(MAKE) -f ../gen_gcc/makefile-gen build-m68k
+	#cd work && \
+	#patch -u < ../files/makefile-gen.diff || true && \
+	#MAKE=$(MAKE) $(MAKE) -f makefile-gen
 
 postbuild: /opt/toolchains/gen/ldscripts tools
 	echo "Post build."
@@ -75,56 +73,69 @@ purge: clean
 	- rm -rf pkg/opt
 
 work:
-	mkdir work
+	[ -d work ] || mkdir work
 
 #########################################################
 #########################################################
 #########################################################
 
-gcc-$(GCC_VERSION).tar.bz2:
-	$(MGET) http://ftp.gnu.org/gnu/gcc/gcc-$(GCC_VERSION)/gcc-$(GCC_VERSION).tar.bz2
+gcc: work/gcc-$(GCC_VERSION).tar.bz2
+work/gcc-$(GCC_VERSION).tar.bz2: work
+	cd work && $(MGET) http://ftp.gnu.org/gnu/gcc/gcc-$(GCC_VERSION)/gcc-$(GCC_VERSION).tar.bz2
+	
+#g++: work/gcc-g++-$(GCC_VERSION).tar.bz2
+#work/gcc-g++-$(GCC_VERSION).tar.bz2: work
+#	cd work && $(MGET) http://ftp.gnu.org/gnu/gcc/gcc-$(GCC_VERSION)/gcc-g++-$(GCC_VERSION).tar.bz2
 
-gcc-g++-$(GCC_VERSION).tar.bz2:
-	$(MGET) http://ftp.gnu.org/gnu/gcc/gcc-$(GCC_VERSION)/gcc-g++-$(GCC_VERSION).tar.bz2
+#work/gcc-objc-$(GCC_VERSION).tar.bz2: work
+#	cd work && $(MGET) http://ftp.gnu.org/gnu/gcc/gcc-$(GCC_VERSION)/gcc-objc-$(GCC_VERSION).tar.bz2
 
-gcc-objc-$(GCC_VERSION).tar.bz2:
-	$(MGET) http://ftp.gnu.org/gnu/gcc/gcc-$(GCC_VERSION)/gcc-objc-$(GCC_VERSION).tar.bz2
+mpfr: work/mpfr-$(MPFR_VERSION).tar.bz2
+work/mpfr-$(MPFR_VERSION).tar.bz2: work
+	cd work && $(MGET) http://www.mpfr.org/mpfr-$(MPFR_VERSION)/mpfr-$(MPFR_VERSION).tar.bz2
 
-mpfr-$(MPFR_VERSION).tar.bz2:
-	$(MGET) http://www.mpfr.org/mpfr-$(MPFR_VERSION)/mpfr-$(MPFR_VERSION).tar.bz2
+mpc: work/mpc-$(MPC_VERSION).tar.gz
+work/mpc-$(MPC_VERSION).tar.gz: work
+	cd work && $(MGET) http://www.multiprecision.org/mpc/download/mpc-$(MPC_VERSION).tar.gz
 
-mpc-$(MPC_VERSION).tar.gz:
-	$(MGET) http://www.multiprecision.org/mpc/download/mpc-$(MPC_VERSION).tar.gz
+gmp: work/gmp-$(GMP_VERSION).tar.bz2
+work/gmp-$(GMP_VERSION).tar.bz2: work
+	cd work && $(MGET) ftp://ftp.gmplib.org/pub/gmp-$(GMP_VERSION)/gmp-$(GMP_VERSION).tar.bz2
 
-gmp-$(GMP_VERSION).tar.bz2:
-	$(MGET) ftp://ftp.gmplib.org/pub/gmp-$(GMP_VERSION)/gmp-$(GMP_VERSION).tar.bz2
+binutils: work/binutils-$(BINUTILS_VERSION).tar.bz2
+work/binutils-$(BINUTILS_VERSION).tar.bz2: work
+	cd work && $(MGET) http://ftp.gnu.org/gnu/binutils/binutils-$(BINUTILS_VERSION).tar.bz2
 
-binutils-$(BINUTILS_VERSION).tar.bz2:
-	$(MGET) http://ftp.gnu.org/gnu/binutils/binutils-$(BINUTILS_VERSION).tar.bz2
+newlib: work/newlib-$(NEWLIB_VERSION).tar.gz
+work/newlib-$(NEWLIB_VERSION).tar.gz: work
+	cd work && $(MGET) ftp://sources.redhat.com/pub/newlib/newlib-$(NEWLIB_VERSION).tar.gz
 
-newlib-$(NEWLIB_VERSION).tar.gz:
-	$(MGET) ftp://sources.redhat.com/pub/newlib/newlib-$(NEWLIB_VERSION).tar.gz
+bin2c: work/bin2c-1.0.zip
+work/bin2c-1.0.zip: work
+	cd work && $(MGET) http://downloads.sourceforge.net/project/bin2c/1.0/bin2c-1.0.zip
 
-bin2c-1.0.zip:
-	$(MGET) http://downloads.sourceforge.net/project/bin2c/bin2c-1.0.zip
+sjasm: work/sjasm39g6.zip
+work/sjasm39g6.zip: work
+	cd work && $(MGET) http://home.online.nl/smastijn/sjasm39g6.zip
 
-sjasm39g6.zip:
-	$(MGET) http://home.online.nl/smastijn/sjasm39g6.zip
+zasm: work/zasm-3.0.21-source-linux-2011-06-19.zip
+work/zasm-3.0.21-source-linux-2011-06-19.zip: work
+	cd work && $(MGET) http://k1.dyndns.org/Develop/projects/zasm/distributions/zasm-3.0.21-source-linux-2011-06-19.zip
 
-zasm-3.0.21-source-linux-2011-06-19.zip:
-	$(MGET) http://k1.dyndns.org/Develop/projects/zasm/distributions/zasm-3.0.21-source-linux-2011-06-19.zip
+hexbin: work/Hex2bin-1.0.10.tar.bz2
+work/Hex2bin-1.0.10.tar.bz2: work
+	cd work && $(MGET) http://downloads.sourceforge.net/project/hex2bin/hex2bin/$@
 
-Hex2bin-1.0.10.tar.bz2:
-	$(MGET) http://downloads.sourceforge.net/project/hex2bin/hex2bin/$@
+#work/genres_01.zip: work
+#	cd work && $(MGET) http://gendev.spritesmind.net/files/genres_01.zip
 
-#genres_01.zip:
-#	$(MGET) http://gendev.spritesmind.net/files/genres_01.zip
+sixpack: work/sixpack-13.zip
+work/sixpack-13.zip: work
+	cd work && $(MGET) http://jiggawatt.org/badc0de/sixpack/sixpack-13.zip
 
-sixpack-13.zip:
-	$(MGET) http://jiggawatt.org/badc0de/sixpack/sixpack-13.zip
-
-VGMTools_src.rar:
-	$(MGET) -O $@ http://www.smspower.org/forums/download.php?id=3201
+vgmtool: work/VGMTools_src.rar
+work/VGMTools_src.rar: work
+	cd work && $(MGET) -O $@ http://www.smspower.org/forums/download.php?id=3201
 
 #########################################################
 #########################################################
@@ -134,31 +145,31 @@ work/makefile-gen:
 	cd work && \
 	unzip ../files/makefiles-ldscripts-2.zip
 
-work/binutils-$(BINUTILS_VERSION):
+work/binutils-$(BINUTILS_VERSION): binutils
 	cd work && \
-	tar xvjf ../binutils-$(BINUTILS_VERSION).tar.bz2
+	tar xvjf binutils-$(BINUTILS_VERSION).tar.bz2
 
-work/newlib-$(NEWLIB_VERSION):
+work/newlib-$(NEWLIB_VERSION): newlib
 	cd work && \
-	tar xvzf ../newlib-$(NEWLIB_VERSION).tar.gz
+	tar xvzf newlib-$(NEWLIB_VERSION).tar.gz
 
-work/gcc-$(GCC_VERSION):
+work/gcc-$(GCC_VERSION): gcc
 	cd work && \
-	tar xvjf ../gcc-$(GCC_VERSION).tar.bz2
+	tar xvjf gcc-$(GCC_VERSION).tar.bz2
 
-work/gcc-$(GCC_VERSION)/mpfr: work/gcc-$(GCC_VERSION)
+work/gcc-$(GCC_VERSION)/mpfr: work/gcc-$(GCC_VERSION) mpfr
 	cd work && \
-	tar xvjf ../mpfr-$(MPFR_VERSION).tar.bz2 && \
+	tar xvjf mpfr-$(MPFR_VERSION).tar.bz2 && \
 	mv mpfr-$(MPFR_VERSION) gcc-$(GCC_VERSION)/mpfr
 
-work/gcc-$(GCC_VERSION)/mpc: work/gcc-$(GCC_VERSION)
+work/gcc-$(GCC_VERSION)/mpc: work/gcc-$(GCC_VERSION) mpc
 	cd work && \
-	tar xvzf ../mpc-$(MPC_VERSION).tar.gz && \
+	tar xvzf mpc-$(MPC_VERSION).tar.gz && \
 	mv mpc-$(MPC_VERSION) gcc-$(GCC_VERSION)/mpc
 
-work/gcc-$(GCC_VERSION)/gmp: work/gcc-$(GCC_VERSION)
+work/gcc-$(GCC_VERSION)/gmp: work/gcc-$(GCC_VERSION) gmp
 	cd work && \
-	tar xvjf ../gmp-$(GMP_VERSION).tar.bz2 && \
+	tar xvjf gmp-$(GMP_VERSION).tar.bz2 && \
 	mv gmp-$(GMP_VERSION) gcc-$(GCC_VERSION)/gmp
 
 #########################################################
@@ -181,41 +192,41 @@ $(TOOLSDIR):
 	mkdir -p $@
 	cp work/*.ld $@/.
 
-$(TOOLSDIR)/bin2c: bin2c-1.0.zip
+$(TOOLSDIR)/bin2c: bin2c
 	- mkdir -p work 
 	cd work && \
-	unzip ../bin2c-1.0.zip && \
+	unzip bin2c-1.0.zip && \
 	cd bin2c && \
 	gcc bin2c.c -o bin2c && \
 	cp bin2c $@ 
 
-$(TOOLSDIR)/sjasm: sjasm39g6.zip
+$(TOOLSDIR)/sjasm: sjasm
 	- mkdir -p work/sjasm
 	cd work/sjasm && \
-	unzip ../../sjasm39g6.zip && \
+	unzip ../sjasm39g6.zip && \
 	cd sjasmsrc39g6 && \
 	$(MAKE) && \
 	cp sjasm $@ && \
 	chmod +x $@
 
-$(TOOLSDIR)/zasm: zasm-3.0.21-source-linux-2011-06-19.zip
+$(TOOLSDIR)/zasm: zasm
 	- mkdir -p work/zasm 
 	cd work/zasm && \
-	unzip ../../$< && \
+	unzip ../$< && \
 	cd zasm-3.0.21-i386-ubuntu-linux-2011-06-19/source && \
 	$(MAKE) && \
 	cp zasm $@
 
-$(TOOLSDIR)/hex2bin: Hex2bin-1.0.10.tar.bz2
+$(TOOLSDIR)/hex2bin: hexbin
 	- mkdir -p work 
 	cd work && \
-	tar xvjf ../$< && \
+	tar xvjf $< && \
 	cp Hex2bin-1.0.10/hex2bin $@
 
-sixpack $(TOOLSDIR)/sixpack: sixpack-13.zip
+$(TOOLSDIR)/sixpack: sixpack
 	- mkdir -p work/sixpack && \
 	cd work/sixpack && \
-	unzip ../../$< 
+	unzip ../sixpack-13.zip 
 	cp work/sixpack/sixpack-12/bin/sixpack $@ 
 	chmod +x $@	
 
@@ -225,12 +236,12 @@ sixpack $(TOOLSDIR)/sixpack: sixpack-13.zip
 #	unzip ../../$< 
 	
 
-$(TOOLSDIR)/vgm_cmp: VGMTools_src.rar
+$(TOOLSDIR)/vgm_cmp: vgmtools
 	- mkdir -p work/vgmtools
 	cd work/vgmtools && \
-	unrar x ../../$< 
+	unrar x ../$< 
 	cd work/vgmtools && \
-	patch -u < ../../files/vgm_cmp.diff && \
+	patch -u < ../files/vgm_cmp.diff && \
 	gcc -c chip_cmp.c -o chip_cmp.o && \
 	gcc chip_cmp.o vgm_cmp.c -lz -o vgm_cmp && \
 	cp vgm_cmp $@

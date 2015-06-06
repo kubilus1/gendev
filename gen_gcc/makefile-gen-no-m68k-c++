@@ -1,0 +1,159 @@
+# SEGA MD/32X toolchain makefile by Chilly Willy
+# adapted from Jim Ursetto' makefile for the DC
+# adapted from Stalin's build script version 0.3
+#
+# Interesting parameters:
+# erase=0|1                     Erase build directories on the fly to save space
+# thread_model=posix|single     Set gcc threading model
+# verbose=0|1                   Display
+#
+# Interesting targets (you can 'make' any of these):
+# all: build
+# build: build-sh2 build-m68k
+# build-sh2: build-sh2-binutils build-sh2-gcc
+# build-m68k: build-m68k-binutils build-m68k-gcc
+# build-sh2-gcc: build-sh2-gcc-pass1 build-sh2-newlib build-sh2-gcc-pass2
+# build-m68k-gcc: build-m68k-gcc-pass1 build-m68k-newlib
+# build-sh2-newlib: build-sh2-newlib-only
+# build-m68k-newlib: build-m68k-newlib-only
+
+# User configuration
+sh_target=sh-elf
+m68k_target=m68k-elf
+sh_prefix  := /opt/toolchains/gen/$(sh_target)
+m68k_prefix := /opt/toolchains/gen/$(m68k_target)
+binutils_ver=2.24
+gcc_ver=4.8.2
+newlib_ver=1.19.0
+thread_model=single
+erase=0
+verbose=1
+# Set the languages to build for pass 2 of building gcc. The default
+# here is to build C, C++, Objective C, and Objective C++. You may want to take
+# out the latter two if you're not worried about them and/or you're short on
+# hard drive space.
+pass2_languages=c,c++,objc,obj-c++
+
+# build variables
+install=$(prefix)/bin
+pwd := $(shell pwd)
+logdir := $(pwd)/logs
+PATH := $(sh_prefix)/bin:$(m68k_prefix)/bin:$(PATH)
+binutils_dir=binutils-$(binutils_ver)
+gcc_dir=gcc-$(gcc_ver)
+newlib_dir=newlib-$(newlib_ver)
+
+all: build
+
+# ---- build {{{
+
+build: build-sh2 build-m68k
+build-sh2: build-sh2-binutils build-sh2-gcc
+build-m68k: build-m68k-binutils build-m68k-gcc
+build-sh2-gcc: build-sh2-gcc-pass1 build-sh2-newlib build-sh2-gcc-pass2
+build-m68k-gcc: build-m68k-gcc-pass1 build-m68k-newlib
+build-sh2-newlib: build-sh2-newlib-only
+build-m68k-newlib: build-m68k-newlib-only
+
+# Ensure that, no matter where we enter, prefix and target are set correctly.
+build_sh2_targets=build-sh2-binutils build-sh2-gcc build-sh2-gcc-pass1 build-sh2-newlib build-sh2-newlib-only build-sh2-gcc-pass2
+build_m68k_targets=build-m68k-binutils build-m68k-gcc build-m68k-gcc-pass1 build-m68k-newlib build-m68k-newlib-only
+$(build_sh2_targets): prefix = $(sh_prefix)
+$(build_sh2_targets): target = $(sh_target)
+$(build_sh2_targets): extra_configure_args = --with-endian=big --with-cpu=m2
+$(build_m68k_targets): prefix = $(m68k_prefix)
+$(build_m68k_targets): target = $(m68k_target)
+$(build_m68k_targets): extra_configure_args = --with-cpu=m68000
+
+# To avoid code repetition, we use the same commands for both
+# architectures.  But we can't create a single target called
+# build-binutils for both sh2 and m68k, because phony targets
+# can't be run multiple times.  So we create multiple targets.
+build_binutils     = build-sh2-binutils  build-m68k-binutils
+build_gcc_pass1    = build-sh2-gcc-pass1 build-m68k-gcc-pass1
+build_newlib       = build-sh2-newlib-only build-m68k-newlib-only
+build_gcc_pass2    = build-sh2-gcc-pass2
+
+# Here we use the essentially same code for multiple targets,
+# differing only by the current state of the variables below.
+$(build_binutils): build = build-binutils-$(target)-$(binutils_ver)
+$(build_binutils): src_dir = binutils-$(binutils_ver)
+$(build_binutils): log = $(logdir)/$(build).log
+$(build_binutils): logdir
+	@echo "+++ Building $(src_dir) to $(build)..."
+	-mkdir -p $(build)
+	> $(log)
+	cd $(build); ../$(src_dir)/configure --target=$(target) --prefix=$(prefix) --enable-install-libbfd $(to_log)
+	make -C $(build) all install DESTDIR=$(DESTDIR) $(to_log)
+	$(clean_up)
+
+$(build_gcc_pass1) $(build_gcc_pass2): build = build-gcc-$(target)-$(gcc_ver)
+$(build_gcc_pass1) $(build_gcc_pass2): src_dir = gcc-$(gcc_ver)
+$(build_gcc_pass1): log = $(logdir)/$(build)-pass1.log
+$(build_gcc_pass1): logdir
+	@echo "+++ Building $(src_dir) to $(build) (pass 1)..."
+	-mkdir -p $(build)
+	> $(log)
+	cd $(build);  ../$(src_dir)/configure --target=$(target) --prefix=$(prefix) --without-headers --with-newlib --enable-languages=c --disable-libssp --disable-tls $(extra_configure_args) $(to_log)
+	make -C $(build) all install DESTDIR=$(DESTDIR) $(to_log)
+
+$(build_newlib): build = build-newlib-$(target)-$(newlib_ver)
+$(build_newlib): src_dir = newlib-$(newlib_ver)
+$(build_newlib): log = $(logdir)/$(build).log
+$(build_newlib): logdir
+	@echo "+++ Building $(src_dir) to $(build)..."
+	-mkdir -p $(build)
+	> $(log)
+	cd $(build); ../$(src_dir)/configure --target=$(target) --prefix=$(prefix) $(extra_configure_args) $(to_log)
+	make -C $(build) all install DESTDIR=$(DESTDIR) $(to_log)
+	$(clean_up)
+
+$(build_gcc_pass2): log = $(logdir)/$(build)-pass2.log
+$(build_gcc_pass2): logdir
+	@echo "+++ Building $(src_dir) to $(build) (pass 2)..."
+	-mkdir -p $(build)
+	> $(log)
+	cd $(build);  ../$(src_dir)/configure --target=$(target) --prefix=$(prefix) --with-newlib --disable-libssp --disable-tls \
+	   --enable-threads=$(thread_model) --enable-languages=$(pass2_languages) $(extra_configure_args) $(to_log)
+	make -C $(build) all install DESTDIR=$(DESTDIR) $(to_log)
+	$(clean_up)
+
+# ---- }}}}
+
+
+# ---- support {{{
+
+clean:
+	-rm -rf build-newlib-$(sh_target)-$(newlib_ver)
+	-rm -rf build-newlib-$(m68k_target)-$(newlib_ver)
+	-rm -rf build-gcc-$(sh_target)-$(gcc_ver)
+	-rm -rf build-gcc-$(m68k_target)-$(gcc_ver)
+	-rm -rf build-binutils-$(sh_target)-$(binutils_ver)
+	-rm -rf build-binutils-$(m68k_target)-$(binutils_ver)
+
+logdir:
+	@mkdir -p $(logdir)
+
+# If erase=1, erase build directories on the fly.
+ifeq (1,$(erase))
+	define clean_up
+	@echo "+++ Cleaning up $(build)..."
+	-rm -rf $(build)
+	endef
+endif
+
+# If verbose=1, display output to screen as well as log files
+ifeq (1,$(verbose))
+	to_log = 2>&1 | tee -a $(log)
+else
+	to_log = >> $(log) 2>&1
+endif
+
+# ---- }}}
+
+# ---- phony targets {{{
+
+.PHONY: all build build-sh2 build-m68k $(build_sh2_targets) $(build_m68k_targets) clean
+.PHONY: build-binutils build-newlib build-gcc-pass1 build-gcc-pass2
+
+# ---- }}}}
