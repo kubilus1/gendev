@@ -17,9 +17,23 @@ GMP_VERSION=5.0.5
 BINUTILS_VERSION=2.24
 NEWLIB_VERSION=1.19.0
 
-all: setup do_build postbuild
+all: setup toolchain_build /opt/toolchains/gen/ldscripts tools sgdk_build 
+	echo "export GENDEV=/opt/toolchains/gen" > ~/.gendev
+	echo "export PATH=\$$GENDEV/m68k-elf/bin:\$$GENDEV/bin:\$$PATH" >> ~/.gendev
+	cp -r sgdk/skeleton /opt/toolchains/gen/.
 
-setup: work/gcc-$(GCC_VERSION) work/gcc-$(GCC_VERSION)/mpfr work/gcc-$(GCC_VERSION)/mpc work/gcc-$(GCC_VERSION)/gmp work/binutils-$(BINUTILS_VERSION) work/newlib-$(NEWLIB_VERSION) work/makefile-gen
+32x: setup toolchain_build_full /opt/toolchains/gen/ldscripts tools
+	echo "export GENDEV=/opt/toolchains/gen" > ~/.32xdev
+	echo "export PATH=\$$GENDEV/sh-elf/bin:\$$GENDEV/m68k-elf/bin:\$$GENDEV/bin:\$$PATH" >> ~/.32xdev
+
+setup: \
+	work \
+	work/gcc-$(GCC_VERSION) \
+	work/gcc-$(GCC_VERSION)/mpfr \
+	work/gcc-$(GCC_VERSION)/mpc \
+	work/gcc-$(GCC_VERSION)/gmp \
+	work/binutils-$(BINUTILS_VERSION) \
+	work/newlib-$(NEWLIB_VERSION)
 
 gendev.txz: /opt/toolchains/gen/ldscripts
 	tar cJvf gendev.txz /opt/toolchains/gen
@@ -31,21 +45,18 @@ pkg/opt:
 gendev_1_all.deb: pkg/opt
 	dpkg-deb -Zxz -z9 --build pkg .
 
-do_build: work /opt/toolchains/gen
+toolchain_build: work /opt/toolchains/gen
 	echo "Build"
 	cd work && \
 		MAKE=$(MAKE) $(MAKE) -f ../gen_gcc/makefile-gen build-m68k
-	#cd work && \
-	#patch -u < ../files/makefile-gen.diff || true && \
-	#MAKE=$(MAKE) $(MAKE) -f makefile-gen
 
-postbuild: /opt/toolchains/gen/ldscripts tools
-	echo "Post build."
-	echo "export GENDEV=/opt/toolchains/gen" > ~/.gendev
-	echo "export PATH=\$$GENDEV/m68k-elf/bin:\$$GENDEV/bin:\$$PATH" >> ~/.gendev
-	echo "export GENDEV=/opt/toolchains/gen" > ~/.32xdev
-	echo "export PATH=\$$GENDEV/sh-elf/bin:\$$GENDEV/m68k-elf/bin:\$$GENDEV/bin:\$$PATH" >> ~/.32xdev
-	cp -r sgdk/skeleton /opt/toolchains/gen/.
+toolchain_build_full: work /opt/toolchains/gen
+	echo "Build"
+	cd work && \
+		MAKE=$(MAKE) $(MAKE) -f ../gen_gcc/makefile-gen
+
+sgdk_build:
+	cd sgdk && make install 	
 
 TOOLSDIR=/opt/toolchains/gen/bin
 
@@ -64,10 +75,19 @@ tools: $(TOOLSDIR) $(TOOLS)
 	echo "Done with tools."
 
 clean:
-	rm -rf work
+	-rm -rf work/gcc-$(GCC_VERSION)
+	-rm -rf work/binutils-$(BINUTILS_VERSION)
+	-rm -rf work/bin2c
+	-rm -rf work/sjasm
+	-rm -rf work/zasm
+	-rm -rf work/hexbin
+	-rm -rf work/sixpack
+	-rm -rf work/vgmtools
+	-rm -rf work/build-*
+	-cd sgdk && make clean
 
 purge: clean
-	- rm *.rar *.bz2 *.gz *.tgz *.zip
+	- rm -rf work
 	- rm gendev.tgz
 	- rm gendev*.deb
 	- rm -rf pkg/opt
@@ -80,70 +100,66 @@ work:
 #########################################################
 
 gcc: work/gcc-$(GCC_VERSION).tar.bz2
-work/gcc-$(GCC_VERSION).tar.bz2: work
+work/gcc-$(GCC_VERSION).tar.bz2:
 	cd work && $(MGET) http://ftp.gnu.org/gnu/gcc/gcc-$(GCC_VERSION)/gcc-$(GCC_VERSION).tar.bz2
 	
 #g++: work/gcc-g++-$(GCC_VERSION).tar.bz2
-#work/gcc-g++-$(GCC_VERSION).tar.bz2: work
+#work/gcc-g++-$(GCC_VERSION).tar.bz2:
 #	cd work && $(MGET) http://ftp.gnu.org/gnu/gcc/gcc-$(GCC_VERSION)/gcc-g++-$(GCC_VERSION).tar.bz2
 
-#work/gcc-objc-$(GCC_VERSION).tar.bz2: work
+#work/gcc-objc-$(GCC_VERSION).tar.bz2:
 #	cd work && $(MGET) http://ftp.gnu.org/gnu/gcc/gcc-$(GCC_VERSION)/gcc-objc-$(GCC_VERSION).tar.bz2
 
 mpfr: work/mpfr-$(MPFR_VERSION).tar.bz2
-work/mpfr-$(MPFR_VERSION).tar.bz2: work
+work/mpfr-$(MPFR_VERSION).tar.bz2: 
 	cd work && $(MGET) http://www.mpfr.org/mpfr-$(MPFR_VERSION)/mpfr-$(MPFR_VERSION).tar.bz2
 
 mpc: work/mpc-$(MPC_VERSION).tar.gz
-work/mpc-$(MPC_VERSION).tar.gz: work
+work/mpc-$(MPC_VERSION).tar.gz: 
 	cd work && $(MGET) http://www.multiprecision.org/mpc/download/mpc-$(MPC_VERSION).tar.gz
 
 gmp: work/gmp-$(GMP_VERSION).tar.bz2
-work/gmp-$(GMP_VERSION).tar.bz2: work
+work/gmp-$(GMP_VERSION).tar.bz2:
 	cd work && $(MGET) ftp://ftp.gmplib.org/pub/gmp-$(GMP_VERSION)/gmp-$(GMP_VERSION).tar.bz2
 
 binutils: work/binutils-$(BINUTILS_VERSION).tar.bz2
-work/binutils-$(BINUTILS_VERSION).tar.bz2: work
+work/binutils-$(BINUTILS_VERSION).tar.bz2:
 	cd work && $(MGET) http://ftp.gnu.org/gnu/binutils/binutils-$(BINUTILS_VERSION).tar.bz2
 
 newlib: work/newlib-$(NEWLIB_VERSION).tar.gz
-work/newlib-$(NEWLIB_VERSION).tar.gz: work
+work/newlib-$(NEWLIB_VERSION).tar.gz:
 	cd work && $(MGET) ftp://sources.redhat.com/pub/newlib/newlib-$(NEWLIB_VERSION).tar.gz
 
 bin2c: work/bin2c-1.0.zip
-work/bin2c-1.0.zip: work
+work/bin2c-1.0.zip:
 	cd work && $(MGET) http://downloads.sourceforge.net/project/bin2c/1.0/bin2c-1.0.zip
 
 sjasm: work/sjasm39g6.zip
-work/sjasm39g6.zip: work
+work/sjasm39g6.zip:
 	cd work && $(MGET) http://home.online.nl/smastijn/sjasm39g6.zip
 
 zasm: work/zasm-3.0.21-source-linux-2011-06-19.zip
-work/zasm-3.0.21-source-linux-2011-06-19.zip: work
+work/zasm-3.0.21-source-linux-2011-06-19.zip:
 	cd work && $(MGET) http://k1.dyndns.org/Develop/projects/zasm/distributions/zasm-3.0.21-source-linux-2011-06-19.zip
 
 hexbin: work/Hex2bin-1.0.10.tar.bz2
-work/Hex2bin-1.0.10.tar.bz2: work
+work/Hex2bin-1.0.10.tar.bz2:
 	cd work && $(MGET) http://downloads.sourceforge.net/project/hex2bin/hex2bin/$@
 
-#work/genres_01.zip: work
+#work/genres_01.zip: 
 #	cd work && $(MGET) http://gendev.spritesmind.net/files/genres_01.zip
 
 sixpack: work/sixpack-13.zip
-work/sixpack-13.zip: work
+work/sixpack-13.zip:
 	cd work && $(MGET) http://jiggawatt.org/badc0de/sixpack/sixpack-13.zip
 
 vgmtool: work/VGMTools_src.rar
-work/VGMTools_src.rar: work
+work/VGMTools_src.rar:
 	cd work && $(MGET) -O $@ http://www.smspower.org/forums/download.php?id=3201
 
 #########################################################
 #########################################################
 #########################################################
-
-work/makefile-gen:
-	cd work && \
-	unzip ../files/makefiles-ldscripts-2.zip
 
 work/binutils-$(BINUTILS_VERSION): binutils
 	cd work && \
@@ -188,12 +204,11 @@ work/gcc-$(GCC_VERSION)/gmp: work/gcc-$(GCC_VERSION) gmp
 $(TOOLSDIR):
 	mkdir $@
 
-/opt/toolchains/gen/ldscripts: work/makefile-gen
+/opt/toolchains/gen/ldscripts:
 	mkdir -p $@
-	cp work/*.ld $@/.
+	cp gen_gcc/*.ld $@/.
 
 $(TOOLSDIR)/bin2c: bin2c
-	- mkdir -p work 
 	cd work && \
 	unzip bin2c-1.0.zip && \
 	cd bin2c && \
@@ -218,7 +233,6 @@ $(TOOLSDIR)/zasm: zasm
 	cp zasm $@
 
 $(TOOLSDIR)/hex2bin: hexbin
-	- mkdir -p work 
 	cd work && \
 	tar xvjf $< && \
 	cp Hex2bin-1.0.10/hex2bin $@

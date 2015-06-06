@@ -33,7 +33,8 @@ verbose=1
 # here is to build C, C++, Objective C, and Objective C++. You may want to take
 # out the latter two if you're not worried about them and/or you're short on
 # hard drive space.
-pass2_languages=c,c++,objc,obj-c++
+#pass2_languages=c,c++,objc,obj-c++
+pass2_languages=c
 
 # build variables
 install=$(prefix)/bin
