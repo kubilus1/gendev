@@ -8,7 +8,6 @@ Genesis development. Gendev is not intended to replace, but to be a companion pr
 BASIC INSTRUCTIONS
 ==================
 
-    $ svn checkout http://gendev.googlecode.com/svn/trunk/ gendev-read-only 
     $ git clone https://github.com/kubilus1/gendev.git
     $ cd gendev
     $ make 
