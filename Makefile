@@ -171,7 +171,7 @@ work/newlib-$(NEWLIB_VERSION): $(NEWLIB_PKG)
 	cd work && \
 	tar xvzf newlib-$(NEWLIB_VERSION).tar.gz
 
-work/gcc-$(GCC_VERSION): $(GCC)
+work/gcc-$(GCC_VERSION): $(GCC_PKG)
 	cd work && \
 	tar xvjf gcc-$(GCC_VERSION).tar.bz2
 
