@@ -140,7 +140,7 @@ work/sjasm39g6.zip:
 
 ZASM_PKG=work/zasm-3.0.21-source-linux-2011-06-19.zip
 work/zasm-3.0.21-source-linux-2011-06-19.zip:
-	cd work && $(MGET) http://k1.dyndns.org/Develop/projects/zasm/distributions/zasm-3.0.21-source-linux-2011-06-19.zip
+	cd work && $(MGET) http://k1.spdns.de/Develop/Projects/zasm/Distributions/old%20versions/zasm-3.0.21-source-linux-2011-06-19.zip 
 
 HEXBIN_PKG=work/Hex2bin-1.0.10.tar.bz2
 work/Hex2bin-1.0.10.tar.bz2:
@@ -224,10 +224,10 @@ $(TOOLSDIR)/sjasm: $(SJASM_PKG)
 	cp sjasm $@ && \
 	chmod +x $@
 
-$(TOOLSDIR)/zasm: $(SJASM_PKG)
+$(TOOLSDIR)/zasm: $(ZASM_PKG)
 	- mkdir -p work/zasm 
 	cd work/zasm && \
-	unzip ../$< && \
+	unzip ../zasm-3.0.21-source-linux-2011-06-19.zip && \
 	cd zasm-3.0.21-i386-ubuntu-linux-2011-06-19/source && \
 	$(MAKE) && \
 	cp zasm $@
