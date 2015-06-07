@@ -64,7 +64,7 @@ TOOLS=$(TOOLSDIR)/bin2c
 TOOLS+=$(TOOLSDIR)/sjasm
 ifeq ($(UNAME), Linux)
 TOOLS+=$(TOOLSDIR)/zasm
-TOOLS+=$(TOOLSDIR)/vgm_cmp
+#TOOLS+=$(TOOLSDIR)/vgm_cmp
 endif
 TOOLS+=$(TOOLSDIR)/sixpack 
 TOOLS+=$(TOOLSDIR)/appack
@@ -74,17 +74,19 @@ tools: $(TOOLSDIR) $(TOOLS)
 	-cp extras/scripts/* $(TOOLSDIR)/.
 	echo "Done with tools."
 
-clean:
+clean: clean_tools
 	-rm -rf work/gcc-$(GCC_VERSION)
 	-rm -rf work/binutils-$(BINUTILS_VERSION)
+	-rm -rf work/build-*
+	-cd sgdk && make clean
+
+clean_tools:
 	-rm -rf work/bin2c
 	-rm -rf work/sjasm
 	-rm -rf work/zasm
 	-rm -rf work/hexbin
 	-rm -rf work/sixpack
 	-rm -rf work/vgmtools
-	-rm -rf work/build-*
-	-cd sgdk && make clean
 
 purge: clean
 	- rm -rf work
@@ -155,7 +157,7 @@ work/sixpack-13.zip:
 
 VGMTOOL_PKG=work/VGMTools_src.rar
 work/VGMTools_src.rar:
-	cd work && $(MGET) -O $@ http://www.smspower.org/forums/download.php?id=3201
+	$(MGET) -O $@ http://www.smspower.org/forums/download.php?id=3201
 
 #########################################################
 #########################################################
@@ -202,7 +204,7 @@ work/gcc-$(GCC_VERSION)/gmp: work/gcc-$(GCC_VERSION) $(GMP_PKG)
 	#sudo chmod 777 $@
 
 $(TOOLSDIR):
-	mkdir $@
+	[ -d $@ ] || mkdir $@
 
 /opt/toolchains/gen/ldscripts:
 	mkdir -p $@
@@ -253,9 +255,9 @@ $(TOOLSDIR)/sixpack: $(SIXPACK_PKG)
 $(TOOLSDIR)/vgm_cmp: $(VGMTOOL_PKG)
 	- mkdir -p work/vgmtools
 	cd work/vgmtools && \
-	unrar x ../$< 
+	unrar x ../../$< 
 	cd work/vgmtools && \
-	patch -u < ../files/vgm_cmp.diff && \
+	patch -u < ../../files/vgm_cmp.diff && \
 	gcc -c chip_cmp.c -o chip_cmp.o && \
 	gcc chip_cmp.o vgm_cmp.c -lz -o vgm_cmp && \
 	cp vgm_cmp $@
