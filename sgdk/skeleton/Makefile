@@ -1,17 +1,26 @@
-CC = m68k-elf-gcc
-AS = m68k-elf-as
-OBJC = m68k-elf-objcopy
-LD = m68k-elf-ld
-RM = rm -f
-ASMZ80 = zasm
-BINTOS = bintos
-PCMTORAW = pcmtoraw
-WAVTORAW = wavtoraw
+GENDEV?=/opt/toolchains/gen/
+MAKE?=make
+GENGCC_BIN=$(GENDEV)/m68k-elf/bin
+GENBIN=$(GENDEV)/bin
+
+CC = $(GENGCC_BIN)/m68k-elf-gcc 
+AS = $(GENGCC_BIN)/m68k-elf-as
+AR = $(GENGCC_BIN)/m68k-elf-ar 
+LD = $(GENGCC_BIN)/m68k-elf-ld
+RANLIB = $(GENGCC_BIN)/m68k-elf-ranlib 
+OBJC = $(GENGCC_BIN)/m68k-elf-objcopy 
+BINTOS = $(GENBIN)/bintos 
+RESCOMP= $(GENBIN)/rescomp
+XGMTOOL= $(GENBIN)/xgmtool
+PCMTORAW = $(GENBIN)/pcmtoraw
+WAVTORAW = $(GENBIN)/wavtoraw
+SIZEBND = $(GENBIN)/sizebnd
+ASMZ80 = $(GENBIN)/zasm
+
+RM = rm -f 
 NM = nm
 NM2WCH = nm2wch
-SIZEBND = sizebnd
 MKISOFS = mkisofs
-RESCOMP= rescomp
 
 SCD_LOADER = scd/LukeProjectCD
 
