@@ -8,7 +8,7 @@ MGET?= wget
 MAKE?= make
 ORIG_USER:=$(shell whoami)
 
-UNAMEO:=$(shell uname)
+UNAME:=$(shell uname)
 
 GCC_VERSION=4.8.2
 MPFR_VERSION=2.4.2
