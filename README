@@ -1,27 +1,27 @@
 GENDEV - Genesis development environment for Linux.
 
-Gendev is not intended to replace, but to be a companion project to the SGDK
+Gendev exists to setup a Linux (or presumably other Unix) system for Sega
+Genesis development. Gendev is not intended to replace, but to be a companion project to the SGDK
 (Sega Genesis Development Kit).
 
-Gendev exists to setup a Linux (or presumably other Unix) system for Sega
-Genesis development.
 
 BASIC INSTRUCTIONS
 ==================
 
     $ svn checkout http://gendev.googlecode.com/svn/trunk/ gendev-read-only 
-    $ cd gendev-read-only 
+    $ git clone https://github.com/kubilus1/gendev.git
+    $ cd gendev
     $ make 
 
-Woo hoo, tools are all setup. Now let's build sgdk ... 
+This will build the entire GCC toolchain for genesis development, plus SGDK.
+Build takes about 1 hour on my system.  Note this will only create C libraries for the 68K processor.  For a 32x SH2
+development:
 
-    $ . ~/.gendev 
-    $ cd gendev-read-only/sgdk 
-    $ make install 
+    $ make 32x
 
 Now I want to create a project ... 
 
-    $ cp gendev-read-only/sgdk/skeleton mycoolproject 
+    $ cp -r /opt/toolchains/gen/skeleton mycoolproject 
     $ cd mycoolproject 
 
 *type type type* 
@@ -57,8 +57,8 @@ Please let me know and perhaps file an issue.
 
 
 
-Some descriptions ->
-
+Project Structure
+=================
 
  * gendev/Makefile 
 
@@ -77,4 +77,10 @@ Makefile for setting up SGDK for use on Linux
 Some basic files to assist in building SGDK project under Linux.
 
 
+ * examples
 
+A few examples using this toolkit
+
+ * extras
+
+Other tools and utilities useful for development purposes.
