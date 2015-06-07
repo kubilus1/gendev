@@ -99,7 +99,7 @@ work:
 #########################################################
 #########################################################
 
-gcc: work/gcc-$(GCC_VERSION).tar.bz2
+GCC_PKG=work/gcc-$(GCC_VERSION).tar.bz2
 work/gcc-$(GCC_VERSION).tar.bz2:
 	cd work && $(MGET) http://ftp.gnu.org/gnu/gcc/gcc-$(GCC_VERSION)/gcc-$(GCC_VERSION).tar.bz2
 	
@@ -110,50 +110,50 @@ work/gcc-$(GCC_VERSION).tar.bz2:
 #work/gcc-objc-$(GCC_VERSION).tar.bz2:
 #	cd work && $(MGET) http://ftp.gnu.org/gnu/gcc/gcc-$(GCC_VERSION)/gcc-objc-$(GCC_VERSION).tar.bz2
 
-mpfr: work/mpfr-$(MPFR_VERSION).tar.bz2
+MPFR_PKG=work/mpfr-$(MPFR_VERSION).tar.bz2
 work/mpfr-$(MPFR_VERSION).tar.bz2: 
 	cd work && $(MGET) http://www.mpfr.org/mpfr-$(MPFR_VERSION)/mpfr-$(MPFR_VERSION).tar.bz2
 
-mpc: work/mpc-$(MPC_VERSION).tar.gz
+MPC_PKG=work/mpc-$(MPC_VERSION).tar.gz
 work/mpc-$(MPC_VERSION).tar.gz: 
 	cd work && $(MGET) http://www.multiprecision.org/mpc/download/mpc-$(MPC_VERSION).tar.gz
 
-gmp: work/gmp-$(GMP_VERSION).tar.bz2
+GMP_PKG=work/gmp-$(GMP_VERSION).tar.bz2
 work/gmp-$(GMP_VERSION).tar.bz2:
 	cd work && $(MGET) ftp://ftp.gmplib.org/pub/gmp-$(GMP_VERSION)/gmp-$(GMP_VERSION).tar.bz2
 
-binutils: work/binutils-$(BINUTILS_VERSION).tar.bz2
+BINUTILS_PKG=work/binutils-$(BINUTILS_VERSION).tar.bz2
 work/binutils-$(BINUTILS_VERSION).tar.bz2:
 	cd work && $(MGET) http://ftp.gnu.org/gnu/binutils/binutils-$(BINUTILS_VERSION).tar.bz2
 
-newlib: work/newlib-$(NEWLIB_VERSION).tar.gz
+NEWLIB_PKG=work/newlib-$(NEWLIB_VERSION).tar.gz
 work/newlib-$(NEWLIB_VERSION).tar.gz:
 	cd work && $(MGET) ftp://sources.redhat.com/pub/newlib/newlib-$(NEWLIB_VERSION).tar.gz
 
-bin2c: work/bin2c-1.0.zip
+BIN2C_PKG=work/bin2c-1.0.zip
 work/bin2c-1.0.zip:
 	cd work && $(MGET) http://downloads.sourceforge.net/project/bin2c/1.0/bin2c-1.0.zip
 
-sjasm: work/sjasm39g6.zip
+SJASM_PKG=work/sjasm39g6.zip
 work/sjasm39g6.zip:
 	cd work && $(MGET) http://home.online.nl/smastijn/sjasm39g6.zip
 
-zasm: work/zasm-3.0.21-source-linux-2011-06-19.zip
+ZASM_PKG=work/zasm-3.0.21-source-linux-2011-06-19.zip
 work/zasm-3.0.21-source-linux-2011-06-19.zip:
 	cd work && $(MGET) http://k1.dyndns.org/Develop/projects/zasm/distributions/zasm-3.0.21-source-linux-2011-06-19.zip
 
-hexbin: work/Hex2bin-1.0.10.tar.bz2
+HEXBIN_PKG=work/Hex2bin-1.0.10.tar.bz2
 work/Hex2bin-1.0.10.tar.bz2:
 	cd work && $(MGET) http://downloads.sourceforge.net/project/hex2bin/hex2bin/$@
 
 #work/genres_01.zip: 
 #	cd work && $(MGET) http://gendev.spritesmind.net/files/genres_01.zip
 
-sixpack: work/sixpack-13.zip
+SIXPACK_PKG=work/sixpack-13.zip
 work/sixpack-13.zip:
 	cd work && $(MGET) http://jiggawatt.org/badc0de/sixpack/sixpack-13.zip
 
-vgmtool: work/VGMTools_src.rar
+VGMTOOL_PKG=work/VGMTools_src.rar
 work/VGMTools_src.rar:
 	cd work && $(MGET) -O $@ http://www.smspower.org/forums/download.php?id=3201
 
@@ -161,29 +161,29 @@ work/VGMTools_src.rar:
 #########################################################
 #########################################################
 
-work/binutils-$(BINUTILS_VERSION): binutils
+work/binutils-$(BINUTILS_VERSION): $(BINUTILS_PKG)
 	cd work && \
 	tar xvjf binutils-$(BINUTILS_VERSION).tar.bz2
 
-work/newlib-$(NEWLIB_VERSION): newlib
+work/newlib-$(NEWLIB_VERSION): $(NEWLIB_PKG)
 	cd work && \
 	tar xvzf newlib-$(NEWLIB_VERSION).tar.gz
 
-work/gcc-$(GCC_VERSION): gcc
+work/gcc-$(GCC_VERSION): $(GCC)
 	cd work && \
 	tar xvjf gcc-$(GCC_VERSION).tar.bz2
 
-work/gcc-$(GCC_VERSION)/mpfr: work/gcc-$(GCC_VERSION) mpfr
+work/gcc-$(GCC_VERSION)/mpfr: work/gcc-$(GCC_VERSION) $(MPFR_PKG)
 	cd work && \
 	tar xvjf mpfr-$(MPFR_VERSION).tar.bz2 && \
 	mv mpfr-$(MPFR_VERSION) gcc-$(GCC_VERSION)/mpfr
 
-work/gcc-$(GCC_VERSION)/mpc: work/gcc-$(GCC_VERSION) mpc
+work/gcc-$(GCC_VERSION)/mpc: work/gcc-$(GCC_VERSION) $(MPC_PKG)
 	cd work && \
 	tar xvzf mpc-$(MPC_VERSION).tar.gz && \
 	mv mpc-$(MPC_VERSION) gcc-$(GCC_VERSION)/mpc
 
-work/gcc-$(GCC_VERSION)/gmp: work/gcc-$(GCC_VERSION) gmp
+work/gcc-$(GCC_VERSION)/gmp: work/gcc-$(GCC_VERSION) $(GMP_PKG)
 	cd work && \
 	tar xvjf gmp-$(GMP_VERSION).tar.bz2 && \
 	mv gmp-$(GMP_VERSION) gcc-$(GCC_VERSION)/gmp
@@ -208,14 +208,14 @@ $(TOOLSDIR):
 	mkdir -p $@
 	cp gen_gcc/*.ld $@/.
 
-$(TOOLSDIR)/bin2c: bin2c
+$(TOOLSDIR)/bin2c: $(BIN2C_PKG)
 	cd work && \
 	unzip bin2c-1.0.zip && \
 	cd bin2c && \
 	gcc bin2c.c -o bin2c && \
 	cp bin2c $@ 
 
-$(TOOLSDIR)/sjasm: sjasm
+$(TOOLSDIR)/sjasm: $(SJASM_PKG)
 	- mkdir -p work/sjasm
 	cd work/sjasm && \
 	unzip ../sjasm39g6.zip && \
@@ -224,7 +224,7 @@ $(TOOLSDIR)/sjasm: sjasm
 	cp sjasm $@ && \
 	chmod +x $@
 
-$(TOOLSDIR)/zasm: zasm
+$(TOOLSDIR)/zasm: $(SJASM_PKG)
 	- mkdir -p work/zasm 
 	cd work/zasm && \
 	unzip ../$< && \
@@ -232,12 +232,12 @@ $(TOOLSDIR)/zasm: zasm
 	$(MAKE) && \
 	cp zasm $@
 
-$(TOOLSDIR)/hex2bin: hexbin
+$(TOOLSDIR)/hex2bin: $(HEXBIN_PKG)
 	cd work && \
 	tar xvjf $< && \
 	cp Hex2bin-1.0.10/hex2bin $@
 
-$(TOOLSDIR)/sixpack: sixpack
+$(TOOLSDIR)/sixpack: $(SIXPACK_PKG)
 	- mkdir -p work/sixpack && \
 	cd work/sixpack && \
 	unzip ../sixpack-13.zip 
@@ -250,7 +250,7 @@ $(TOOLSDIR)/sixpack: sixpack
 #	unzip ../../$< 
 	
 
-$(TOOLSDIR)/vgm_cmp: vgmtools
+$(TOOLSDIR)/vgm_cmp: $(VGMTOOL_PKG)
 	- mkdir -p work/vgmtools
 	cd work/vgmtools && \
 	unrar x ../$< 
