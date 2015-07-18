@@ -103,7 +103,8 @@ work:
 
 GCC_PKG=work/gcc-$(GCC_VERSION).tar.bz2
 work/gcc-$(GCC_VERSION).tar.bz2:
-	cd work && $(MGET) http://ftp.gnu.org/gnu/gcc/gcc-$(GCC_VERSION)/gcc-$(GCC_VERSION).tar.bz2
+	#cd work && $(MGET) http://ftp.gnu.org/gnu/gcc/gcc-$(GCC_VERSION)/gcc-$(GCC_VERSION).tar.bz2
+	cp files/`basename $@` $@
 	
 #g++: work/gcc-g++-$(GCC_VERSION).tar.bz2
 #work/gcc-g++-$(GCC_VERSION).tar.bz2:
@@ -114,50 +115,61 @@ work/gcc-$(GCC_VERSION).tar.bz2:
 
 MPFR_PKG=work/mpfr-$(MPFR_VERSION).tar.bz2
 work/mpfr-$(MPFR_VERSION).tar.bz2: 
-	cd work && $(MGET) http://www.mpfr.org/mpfr-$(MPFR_VERSION)/mpfr-$(MPFR_VERSION).tar.bz2
+	#cd work && $(MGET) http://www.mpfr.org/mpfr-$(MPFR_VERSION)/mpfr-$(MPFR_VERSION).tar.bz2
+	cp files/`basename $@` $@
 
 MPC_PKG=work/mpc-$(MPC_VERSION).tar.gz
-work/mpc-$(MPC_VERSION).tar.gz: 
-	cd work && $(MGET) http://www.multiprecision.org/mpc/download/mpc-$(MPC_VERSION).tar.gz
+work/mpc-$(MPC_VERSION).tar.gz:
+	#cd work && $(MGET) http://www.multiprecision.org/mpc/download/mpc-$(MPC_VERSION).tar.gz
+	cp files/`basename $@` $@
 
 GMP_PKG=work/gmp-$(GMP_VERSION).tar.bz2
 work/gmp-$(GMP_VERSION).tar.bz2:
-	cd work && $(MGET) ftp://ftp.gmplib.org/pub/gmp-$(GMP_VERSION)/gmp-$(GMP_VERSION).tar.bz2
+	#cd work && $(MGET) ftp://ftp.gmplib.org/pub/gmp-$(GMP_VERSION)/gmp-$(GMP_VERSION).tar.bz2
+	cp files/`basename $@` $@
 
 BINUTILS_PKG=work/binutils-$(BINUTILS_VERSION).tar.bz2
 work/binutils-$(BINUTILS_VERSION).tar.bz2:
-	cd work && $(MGET) http://ftp.gnu.org/gnu/binutils/binutils-$(BINUTILS_VERSION).tar.bz2
+	#cd work && $(MGET) http://ftp.gnu.org/gnu/binutils/binutils-$(BINUTILS_VERSION).tar.bz2
+	cp files/`basename $@` $@
 
 NEWLIB_PKG=work/newlib-$(NEWLIB_VERSION).tar.gz
 work/newlib-$(NEWLIB_VERSION).tar.gz:
-	cd work && $(MGET) ftp://sources.redhat.com/pub/newlib/newlib-$(NEWLIB_VERSION).tar.gz
+	#cd work && $(MGET) ftp://sources.redhat.com/pub/newlib/newlib-$(NEWLIB_VERSION).tar.gz
+	cp files/`basename $@` $@
 
 BIN2C_PKG=work/bin2c-1.0.zip
 work/bin2c-1.0.zip:
-	cd work && $(MGET) http://downloads.sourceforge.net/project/bin2c/1.0/bin2c-1.0.zip
+	#cd work && $(MGET) http://downloads.sourceforge.net/project/bin2c/1.0/bin2c-1.0.zip
+	cp files/`basename $@` $@
 
 SJASM_PKG=work/sjasm39g6.zip
 work/sjasm39g6.zip:
-	cd work && $(MGET) http://home.online.nl/smastijn/sjasm39g6.zip
+	#cd work && $(MGET) http://home.online.nl/smastijn/sjasm39g6.zip
+	cp files/`basename $@` $@
 
 ZASM_PKG=work/zasm-3.0.21-source-linux-2011-06-19.zip
 work/zasm-3.0.21-source-linux-2011-06-19.zip:
-	cd work && $(MGET) http://k1.spdns.de/Develop/Projects/zasm/Distributions/old%20versions/zasm-3.0.21-source-linux-2011-06-19.zip 
+	#cd work && $(MGET) http://k1.spdns.de/Develop/Projects/zasm/Distributions/old%20versions/zasm-3.0.21-source-linux-2011-06-19.zip 
+	cp files/`basename $@` $@
 
 HEXBIN_PKG=work/Hex2bin-1.0.10.tar.bz2
 work/Hex2bin-1.0.10.tar.bz2:
-	cd work && $(MGET) http://downloads.sourceforge.net/project/hex2bin/hex2bin/$@
+	#cd work && $(MGET) http://downloads.sourceforge.net/project/hex2bin/hex2bin/$@
+	cp files/`basename $@` $@
 
 #work/genres_01.zip: 
 #	cd work && $(MGET) http://gendev.spritesmind.net/files/genres_01.zip
 
 SIXPACK_PKG=work/sixpack-13.zip
 work/sixpack-13.zip:
-	cd work && $(MGET) http://jiggawatt.org/badc0de/sixpack/sixpack-13.zip
+	#cd work && $(MGET) http://jiggawatt.org/badc0de/sixpack/sixpack-13.zip
+	cp files/`basename $@` $@
 
 VGMTOOL_PKG=work/VGMTools_src.rar
 work/VGMTools_src.rar:
-	$(MGET) -O $@ http://www.smspower.org/forums/download.php?id=3201
+	#$(MGET) -O $@ http://www.smspower.org/forums/download.php?id=3201
+	cp files/`basename $@` $@
 
 #########################################################
 #########################################################
