@@ -1,4 +1,6 @@
 GENDEV?=/opt/toolchains/gen/
+GCC_VER?=4.8.2
+
 MAKE?=make
 GENGCC_BIN=$(GENDEV)/m68k-elf/bin
 GENBIN=$(GENDEV)/bin
@@ -34,7 +36,16 @@ ASFLAGS = -m68000 --register-prefix-optional
 LIBS =  -L$(GENDEV)/m68k-elf/lib -L$(GENDEV)/m68k-elf/lib/gcc/m68k-elf/* -L$(GENDEV)/m68k-elf/m68k-elf/lib -lmd -lnosys 
 LINKFLAGS = -T $(GENDEV)/ldscripts/sgdk.ld -nostdlib 
 SCDLINKFLAGS = -T scd/mdcd.ld -nostdlib 
-ARCHIVES = $(GENDEV)/m68k-elf/lib/libmd.a $(GENDEV)/m68k-elf/lib/gcc/m68k-elf/*/libgcc.a 
+ARCHIVES = $(GENDEV)/m68k-elf/lib/libmd.a 
+
+
+# Are we AMD64?
+LBITS := $(shell getconf LONG_BIT)
+ifeq ($(LBITS), 64)
+ARCHIVES += $(GENDEV)/m68k-elf/lib64/gcc/m68k-elf/$(GCC_VER)/libgcc.a 
+else
+ARCHIVES += $(GENDEV)/m68k-elf/lib/gcc/m68k-elf/$(GCC_VER)/libgcc.a 
+endif 
 
 RESOURCES=
 BOOT_RESOURCES=

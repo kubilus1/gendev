@@ -44,10 +44,12 @@ tools: sgdk-read-only
 		make -f ../../../files/Makefile.rescomp && cp out/rescomp $(GENDEV)/bin/.
 
 patch:
-	svn diff sgdk-read-only > files/sgdk.diff
+	cd sgdk-read-only && git diff * > ../files/sgdk.diff
+	#svn diff sgdk-read-only > files/sgdk.diff
 
 sgdk-read-only:
-	svn co http://sgdk.googlecode.com/svn/trunk sgdk-read-only
+	git clone https://github.com/Stephane-D/SGDK.git sgdk-read-only
+	#svn co http://sgdk.googlecode.com/svn/trunk sgdk-read-only
 	#patch -u -p0 < files/sgdk.diff
 
 sgdk-read-only/libmd.a:
@@ -86,8 +88,10 @@ extras: $(extrasmd.a_OBJS) libextrasmd.a
 clean:
 	echo "Clean"
 	-cd sgdk-read-only && $(MAKE) -f Makefile.sgdk_lib clean
-	-svn revert -R sgdk-read-only/src
-	-svn revert -R sgdk-read-only/tools
+	cd sgdk-read-only && git checkout src
+	cd sgdk-read-only && git checkout tools
+	#-svn revert -R sgdk-read-only/src
+	#-svn revert -R sgdk-read-only/tools
 	-rm extra_libs/*.o
 	-rm extra_libs/*.a
 	-rm libextrasmd.a

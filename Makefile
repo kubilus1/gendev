@@ -59,6 +59,10 @@ sgdk_build: /opt/toolchains/gen/m68k-elf/lib/libmd.a
 /opt/toolchains/gen/m68k-elf/lib/libmd.a:
 	cd sgdk && make install 	
 
+sgdk_clean:
+	- cd sgdk && make clean
+	- rm /opt/toolchains/gen/m68k-elf/lib/libmd.a
+
 TOOLSDIR=/opt/toolchains/gen/bin
 
 TOOLS=$(TOOLSDIR)/bin2c
