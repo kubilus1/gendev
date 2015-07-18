@@ -17,7 +17,7 @@ GMP_VERSION=5.0.5
 BINUTILS_VERSION=2.24
 NEWLIB_VERSION=1.19.0
 
-all: setup toolchain_build /opt/toolchains/gen/ldscripts tools sgdk_build 
+all: setup toolchain_build /opt/toolchains/gen/ldscripts tools sgdk_build
 	echo "export GENDEV=/opt/toolchains/gen" > ~/.gendev
 	echo "export PATH=\$$GENDEV/m68k-elf/bin:\$$GENDEV/bin:\$$PATH" >> ~/.gendev
 	cp -r sgdk/skeleton /opt/toolchains/gen/.
@@ -55,7 +55,8 @@ toolchain_build_full: work /opt/toolchains/gen
 	cd work && \
 		MAKE=$(MAKE) $(MAKE) -f ../gen_gcc/makefile-gen
 
-sgdk_build:
+sgdk_build: /opt/toolchains/gen/m68k-elf/lib/libmd.a
+/opt/toolchains/gen/m68k-elf/lib/libmd.a:
 	cd sgdk && make install 	
 
 TOOLSDIR=/opt/toolchains/gen/bin
