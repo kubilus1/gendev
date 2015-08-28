@@ -70,10 +70,10 @@ build_sh2_targets=build-sh2-binutils build-sh2-gcc build-sh2-gcc-pass1 build-sh2
 build_m68k_targets=build-m68k-binutils build-m68k-gcc build-m68k-gcc-pass1 build-m68k-newlib build-m68k-newlib-only build-m68k-gcc-pass2
 $(build_sh2_targets): prefix = $(sh_prefix)
 $(build_sh2_targets): target = $(sh_target)
-$(build_sh2_targets): extra_configure_args = --with-endian=big --with-cpu=m2
+$(build_sh2_targets): extra_configure_args = --with-endian=big --with-cpu=m2 --disable-werror
 $(build_m68k_targets): prefix = $(m68k_prefix)
 $(build_m68k_targets): target = $(m68k_target)
-$(build_m68k_targets): extra_configure_args = --with-cpu=m68000
+$(build_m68k_targets): extra_configure_args = --with-cpu=m68000 --disable-werror
 
 # To avoid code repetition, we use the same commands for both
 # architectures.  But we can't create a single target called
