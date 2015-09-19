@@ -93,7 +93,7 @@ $(build_binutils): logdir
 	@echo "+++ Building $(src_dir) to $(build)..."
 	-mkdir -p $(build)
 	> $(log)
-	cd $(build); ../$(src_dir)/configure --target=$(target) --prefix=$(prefix) --enable-install-libbfd $(to_log)
+	cd $(build); ../$(src_dir)/configure --target=$(target) --prefix=$(prefix) --enable-install-libbfd --disable-werror $(to_log)
 	$(MAKE) -C $(build) all install DESTDIR=$(DESTDIR) $(to_log)
 	$(clean_up)
 

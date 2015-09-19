@@ -40,9 +40,9 @@ OBJDIR_DEBUG = out
 DEP_DEBUG = 
 OUT_DEBUG = out/xgmtool
 
-OBJ_RELEASE = $(OBJDIR_RELEASE)/src/psg.o $(OBJDIR_RELEASE)/src/ym2612.o $(OBJDIR_RELEASE)/src/xgmtool.o $(OBJDIR_RELEASE)/src/xgmsmp.o $(OBJDIR_RELEASE)/src/xgmcom.o $(OBJDIR_RELEASE)/src/xgm.o $(OBJDIR_RELEASE)/src/xgccom.o $(OBJDIR_RELEASE)/src/xgc.o $(OBJDIR_RELEASE)/src/vgmcom.o $(OBJDIR_RELEASE)/src/vgm.o $(OBJDIR_RELEASE)/src/util.o $(OBJDIR_RELEASE)/src/samplebank.o
+OBJ_RELEASE = $(OBJDIR_RELEASE)/src/psg.o $(OBJDIR_RELEASE)/src/ym2612.o $(OBJDIR_RELEASE)/src/xgmtool.o $(OBJDIR_RELEASE)/src/xgmsmp.o $(OBJDIR_RELEASE)/src/xgmcom.o $(OBJDIR_RELEASE)/src/xgm.o $(OBJDIR_RELEASE)/src/xgccom.o $(OBJDIR_RELEASE)/src/xgc.o $(OBJDIR_RELEASE)/src/vgmcom.o $(OBJDIR_RELEASE)/src/vgm.o $(OBJDIR_RELEASE)/src/util.o $(OBJDIR_RELEASE)/src/samplebank.o $(OBJDIR_RELEASE)/src/gd3.o
 
-OBJ_DEBUG = $(OBJDIR_DEBUG)/src/psg.o $(OBJDIR_DEBUG)/src/ym2612.o $(OBJDIR_DEBUG)/src/xgmtool.o $(OBJDIR_DEBUG)/src/xgmsmp.o $(OBJDIR_DEBUG)/src/xgmcom.o $(OBJDIR_DEBUG)/src/xgm.o $(OBJDIR_DEBUG)/src/xgccom.o $(OBJDIR_DEBUG)/src/xgc.o $(OBJDIR_DEBUG)/src/vgmcom.o $(OBJDIR_DEBUG)/src/vgm.o $(OBJDIR_DEBUG)/src/util.o $(OBJDIR_DEBUG)/src/samplebank.o
+OBJ_DEBUG = $(OBJDIR_DEBUG)/src/psg.o $(OBJDIR_DEBUG)/src/ym2612.o $(OBJDIR_DEBUG)/src/xgmtool.o $(OBJDIR_DEBUG)/src/xgmsmp.o $(OBJDIR_DEBUG)/src/xgmcom.o $(OBJDIR_DEBUG)/src/xgm.o $(OBJDIR_DEBUG)/src/xgccom.o $(OBJDIR_DEBUG)/src/xgc.o $(OBJDIR_DEBUG)/src/vgmcom.o $(OBJDIR_DEBUG)/src/vgm.o $(OBJDIR_DEBUG)/src/util.o $(OBJDIR_DEBUG)/src/samplebank.o $(OBJDIR_DEBUG)/src/gd3.o
 
 all: release debug
 
@@ -95,6 +95,9 @@ $(OBJDIR_RELEASE)/src/util.o: src/util.c
 $(OBJDIR_RELEASE)/src/samplebank.o: src/samplebank.c
 	$(CC) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/samplebank.c -o $(OBJDIR_RELEASE)/src/samplebank.o
 
+$(OBJDIR_RELEASE)/src/gd3.o: src/gd3.c
+	$(CC) $(CFLAGS_RELEASE) $(INC_RELEASE) -c src/gd3.c -o $(OBJDIR_RELEASE)/src/gd3.o
+
 clean_release: 
 	rm -f $(OBJ_RELEASE) $(OUT_RELEASE)
 	rm -rf out
@@ -146,6 +149,9 @@ $(OBJDIR_DEBUG)/src/util.o: src/util.c
 
 $(OBJDIR_DEBUG)/src/samplebank.o: src/samplebank.c
 	$(CC) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/samplebank.c -o $(OBJDIR_DEBUG)/src/samplebank.o
+
+$(OBJDIR_DEBUG)/src/gd3.o: src/gd3.c
+	$(CC) $(CFLAGS_DEBUG) $(INC_DEBUG) -c src/gd3.c -o $(OBJDIR_DEBUG)/src/gd3.o
 
 clean_debug: 
 	rm -f $(OBJ_DEBUG) $(OUT_DEBUG)
