@@ -1,4 +1,4 @@
-#
+
 # HINT: If makeinfo is missing on Ubuntu, install texinfo package.
 #
 
@@ -44,6 +44,8 @@ pkg/opt:
 
 gendev_1_all.deb: pkg/opt
 	dpkg-deb -Zxz -z9 --build pkg .
+
+deb: gendev_1_all.deb
 
 toolchain_build: work /opt/toolchains/gen
 	echo "Build"
