@@ -32,6 +32,12 @@ Now I want to create a project ...
 Troubleshooting and FAQ
 =======================
 
+Build Requirements
+------------------
+On Ubuntu for instance you may want to install the following:
+
+    sudo apt-get install build-essential texinfo git
+
 makeinfo is missing
 -------------------
 
