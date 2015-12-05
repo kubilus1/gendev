@@ -87,9 +87,10 @@ extras: $(extrasmd.a_OBJS) libextrasmd.a
 
 clean:
 	echo "Clean"
-	-cd sgdk-read-only && $(MAKE) -f Makefile.sgdk_lib clean
-	cd sgdk-read-only && git checkout src
-	cd sgdk-read-only && git checkout tools
+	-rm -rf sgdk-read-only
+	#-cd sgdk-read-only && $(MAKE) -f Makefile.sgdk_lib clean
+	#cd sgdk-read-only && git checkout src
+	#cd sgdk-read-only && git checkout tools
 	#-svn revert -R sgdk-read-only/src
 	#-svn revert -R sgdk-read-only/tools
 	-rm extra_libs/*.o
