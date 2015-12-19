@@ -2,6 +2,7 @@ GENDEV?=/opt/toolchains/gen/
 GCC_VER?=4.8.2
 
 MAKE?=make
+LIB?=lib
 GENGCC_BIN=$(GENDEV)/m68k-elf/bin
 GENBIN=$(GENDEV)/bin
 
@@ -40,12 +41,14 @@ ARCHIVES = $(GENDEV)/m68k-elf/lib/libmd.a
 
 
 # Are we AMD64?
-LBITS := $(shell getconf LONG_BIT)
-ifeq ($(LBITS), 64)
-ARCHIVES += $(GENDEV)/m68k-elf/lib64/gcc/m68k-elf/$(GCC_VER)/libgcc.a 
-else
-ARCHIVES += $(GENDEV)/m68k-elf/lib/gcc/m68k-elf/$(GCC_VER)/libgcc.a 
-endif 
+#LBITS := $(shell getconf LONG_BIT)
+#ifeq ($(LBITS), 64)
+#ARCHIVES += $(GENDEV)/m68k-elf/lib64/gcc/m68k-elf/$(GCC_VER)/libgcc.a 
+#else
+#ARCHIVES += $(GENDEV)/m68k-elf/lib/gcc/m68k-elf/$(GCC_VER)/libgcc.a 
+#endif 
+
+ARCHIVES += $(GENDEV)/m68k-elf/$(LIB)/gcc/m68k-elf/$(GCC_VER)/libgcc.a 
 
 RESOURCES=
 BOOT_RESOURCES=
