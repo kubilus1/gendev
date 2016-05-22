@@ -48,7 +48,7 @@ patch:
 	#svn diff sgdk-read-only > files/sgdk.diff
 
 sgdk-read-only:
-	git clone https://github.com/Stephane-D/SGDK.git sgdk-read-only
+	git clone https://github.com/kubilus1/SGDK.git sgdk-read-only
 	#svn co http://sgdk.googlecode.com/svn/trunk sgdk-read-only
 	#patch -u -p0 < files/sgdk.diff
 
