@@ -35,7 +35,7 @@ Z80FLAGS = -vb2
 ASFLAGS = -m68000 --register-prefix-optional
 #LIBS =  -L$(GENDEV)/m68k-elf/lib -L$(GENDEV)/m68k-elf/lib/gcc/m68k-elf/4.8.2 -L$(GENDEV)/m68k-elf/m68k-elf/lib -lmd -lc -lgcc -lnosys -lm 
 LIBS =  -L$(GENDEV)/m68k-elf/lib -L$(GENDEV)/m68k-elf/lib/gcc/m68k-elf/* -L$(GENDEV)/m68k-elf/m68k-elf/lib -lmd -lnosys 
-LINKFLAGS = -T $(GENDEV)/ldscripts/sgdk.ld -nostdlib 
+LINKFLAGS = -T $(GENDEV)/ldscripts/sgdk.ld -Map=output.map -nostdlib 
 SCDLINKFLAGS = -T scd/mdcd.ld -nostdlib 
 ARCHIVES = $(GENDEV)/m68k-elf/lib/libmd.a 
 
@@ -132,10 +132,10 @@ out.iso: out.elf_scd
 	dd if=temp.bin of=$@ bs=8K conv=sync
 
 %.elf: $(OBJS) $(BOOT_RESOURCES)
-	$(CC) -o $@ $(LINKFLAGS) $(BOOT_RESOURCES) $(ARCHIVES) $(OBJS) $(LIBS)
+	$(LD) -o $@ $(LINKFLAGS) $(BOOT_RESOURCES) $(ARCHIVES) $(OBJS) $(LIBS)
 
 %.elf_scd: $(OBJS) $(SCDBOOT_RESOURCES)
-	$(CC) -o $@ $(SCDLINKFLAGS) $(SCDBOOT_RESOURCES) $(ARCHIVES) $(OBJS) $(LIBS)
+	$(LD) -o $@ $(SCDLINKFLAGS) $(SCDBOOT_RESOURCES) $(ARCHIVES) $(OBJS) $(LIBS)
 
 %.o80: %.s80
 	$(ASMZ80) $(Z80FLAGS) -o $@ $<
