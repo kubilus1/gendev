@@ -10,7 +10,7 @@ ORIG_USER:=$(shell whoami)
 
 UNAME:=$(shell uname)
 
-GCC_VERSION=4.8.2
+GCC_VERSION=6.3.0
 MPFR_VERSION=2.4.2
 MPC_VERSION=0.8.2
 GMP_VERSION=5.0.5
@@ -78,7 +78,7 @@ TOOLS+=$(TOOLSDIR)/appack
 TOOLS+=/opt/toolchains
 
 tools: $(TOOLSDIR) $(TOOLS)
-	-cp extras/scripts/* $(TOOLSDIR)/.
+	-cp extras/scripts/*.* $(TOOLSDIR)/.
 	echo "Done with tools."
 
 clean: clean_tools
