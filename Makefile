@@ -78,7 +78,7 @@ TOOLS+=$(TOOLSDIR)/appack
 TOOLS+=/opt/toolchains
 
 tools: $(TOOLSDIR) $(TOOLS)
-	-cp extras/scripts/* $(TOOLSDIR)/.
+	-cp extras/scripts/*.* $(TOOLSDIR)/.
 	echo "Done with tools."
 
 clean: clean_tools
