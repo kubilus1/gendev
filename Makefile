@@ -36,7 +36,7 @@ setup: \
 	work/newlib-$(NEWLIB_VERSION)
 
 gendev.txz: /opt/toolchains/gen/ldscripts
-	tar cJvf gendev.txz /opt/toolchains/gen
+	tar cJf gendev.txz /opt/toolchains/gen
 
 pkg/opt:
 	mkdir -p pkg/opt/toolchains
@@ -184,29 +184,29 @@ work/VGMTools_src.rar:
 
 work/binutils-$(BINUTILS_VERSION): $(BINUTILS_PKG)
 	cd work && \
-	tar xvjf binutils-$(BINUTILS_VERSION).tar.bz2
+	tar xjf binutils-$(BINUTILS_VERSION).tar.bz2
 
 work/newlib-$(NEWLIB_VERSION): $(NEWLIB_PKG)
 	cd work && \
-	tar xvzf newlib-$(NEWLIB_VERSION).tar.gz
+	tar xzf newlib-$(NEWLIB_VERSION).tar.gz
 
 work/gcc-$(GCC_VERSION): $(GCC_PKG)
 	cd work && \
-	tar xvjf gcc-$(GCC_VERSION).tar.bz2
+	tar xjf gcc-$(GCC_VERSION).tar.bz2
 
 work/gcc-$(GCC_VERSION)/mpfr: work/gcc-$(GCC_VERSION) $(MPFR_PKG)
 	cd work && \
-	tar xvjf mpfr-$(MPFR_VERSION).tar.bz2 && \
+	tar xjf mpfr-$(MPFR_VERSION).tar.bz2 && \
 	mv mpfr-$(MPFR_VERSION) gcc-$(GCC_VERSION)/mpfr
 
 work/gcc-$(GCC_VERSION)/mpc: work/gcc-$(GCC_VERSION) $(MPC_PKG)
 	cd work && \
-	tar xvzf mpc-$(MPC_VERSION).tar.gz && \
+	tar xzf mpc-$(MPC_VERSION).tar.gz && \
 	mv mpc-$(MPC_VERSION) gcc-$(GCC_VERSION)/mpc
 
 work/gcc-$(GCC_VERSION)/gmp: work/gcc-$(GCC_VERSION) $(GMP_PKG)
 	cd work && \
-	tar xvjf gmp-$(GMP_VERSION).tar.bz2 && \
+	tar xjf gmp-$(GMP_VERSION).tar.bz2 && \
 	mv gmp-$(GMP_VERSION) gcc-$(GCC_VERSION)/gmp
 
 #########################################################
@@ -255,7 +255,7 @@ $(TOOLSDIR)/zasm: $(ZASM_PKG)
 
 $(TOOLSDIR)/hex2bin: $(HEXBIN_PKG)
 	cd work && \
-	tar xvjf $< && \
+	tar xjf $< && \
 	cp Hex2bin-1.0.10/hex2bin $@
 
 $(TOOLSDIR)/sixpack: $(SIXPACK_PKG)
