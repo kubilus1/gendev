@@ -4,6 +4,7 @@
 
 #SHELL=/bin/sh
 
+GENDEV?=/opt/toolchains/gen/
 SUDO?= sudo
 MGET?= wget
 MAKE?= make
@@ -18,13 +19,13 @@ GMP_VERSION=5.0.5
 BINUTILS_VERSION=2.24
 NEWLIB_VERSION=1.19.0
 
-all: setup toolchain_build /opt/toolchains/gen/ldscripts tools sgdk_build
-	echo "export GENDEV=/opt/toolchains/gen" > ~/.gendev
+all: setup toolchain_build $(GENDEV)/ldscripts tools sgdk_build
+	echo "export GENDEV=$(GENDEV)" > ~/.gendev
 	echo "export PATH=\$$GENDEV/m68k-elf/bin:\$$GENDEV/bin:\$$PATH" >> ~/.gendev
-	cp -r sgdk/skeleton /opt/toolchains/gen/.
+	cp -r sgdk/skeleton $(GENDEV)/.
 
-32x: setup toolchain_build_full /opt/toolchains/gen/ldscripts tools
-	echo "export GENDEV=/opt/toolchains/gen" > ~/.32xdev
+32x: setup toolchain_build_full $(GENDEV)/ldscripts tools
+	echo "export GENDEV=$(GENDEV)" > ~/.32xdev
 	echo "export PATH=\$$GENDEV/sh-elf/bin:\$$GENDEV/m68k-elf/bin:\$$GENDEV/bin:\$$PATH" >> ~/.32xdev
 
 setup: \
@@ -36,37 +37,37 @@ setup: \
 	work/binutils-$(BINUTILS_VERSION) \
 	work/newlib-$(NEWLIB_VERSION)
 
-gendev.txz: /opt/toolchains/gen/ldscripts
-	tar cJf gendev.txz /opt/toolchains/gen
+gendev.txz: $(GENDEV)/ldscripts
+	tar cJf gendev.txz $(GENDEV)
 
 pkg/opt:
 	mkdir -p pkg/opt/toolchains
-	cp -r /opt/toolchains/gen pkg/opt/toolchains/.
+	cp -r $(GENDEV) pkg/opt/toolchains/.
 
 gendev_1_all.deb: pkg/opt
 	dpkg-deb -Zxz -z9 --build pkg .
 
 deb: gendev_1_all.deb
 
-toolchain_build: work /opt/toolchains/gen
+toolchain_build: work $(GENDEV)
 	echo "Build"
 	cd work && \
 		MAKE=$(MAKE) $(MAKE) -f ../gen_gcc/makefile-gen build-m68k
 
-toolchain_build_full: work /opt/toolchains/gen
+toolchain_build_full: work $(GENDEV)
 	echo "Build"
 	cd work && \
 		MAKE=$(MAKE) $(MAKE) -f ../gen_gcc/makefile-gen
 
-sgdk_build: /opt/toolchains/gen/m68k-elf/lib/libmd.a
-/opt/toolchains/gen/m68k-elf/lib/libmd.a:
-	cd sgdk && make install 	
+sgdk_build: $(GENDEV)/m68k-elf/lib/libmd.a
+$(GENDEV)/m68k-elf/lib/libmd.a:
+	cd sgdk && GENDEV=$(GENDEV) make install 	
 
 sgdk_clean:
 	- cd sgdk && make clean
-	- rm /opt/toolchains/gen/m68k-elf/lib/libmd.a
+	- rm $(GENDEV)/m68k-elf/lib/libmd.a
 
-TOOLSDIR=/opt/toolchains/gen/bin
+TOOLSDIR=$(GENDEV)/bin
 
 TOOLS=$(TOOLSDIR)/bin2c
 TOOLS+=$(TOOLSDIR)/sjasm
@@ -214,7 +215,7 @@ work/gcc-$(GCC_VERSION)/gmp: work/gcc-$(GCC_VERSION) $(GMP_PKG)
 #########################################################
 #########################################################
 
-/opt/toolchains/gen:
+$(GENDEV):
 	if [ -w /opt ]; then \
 		mkdir -p $@; \
 	else \
@@ -226,7 +227,7 @@ work/gcc-$(GCC_VERSION)/gmp: work/gcc-$(GCC_VERSION) $(GMP_PKG)
 $(TOOLSDIR):
 	[ -d $@ ] || mkdir $@
 
-/opt/toolchains/gen/ldscripts:
+$(GENDEV)/ldscripts:
 	mkdir -p $@
 	cp gen_gcc/*.ld $@/.
 
