@@ -1,4 +1,9 @@
 language: c
-sudo: required
+sudo: false
 script:
-  - make
+  - mkdir /opt/toolchains/gen
+  - make setup
+  - travis_wait 120 SUDO="" make toolchain_build 
+  - make /opt/toolchains/gen/ldscripts
+  - make tools
+  - make sgdk_build

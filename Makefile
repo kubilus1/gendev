@@ -4,6 +4,7 @@
 
 #SHELL=/bin/sh
 
+SUDO?= sudo
 MGET?= wget
 MAKE?= make
 ORIG_USER:=$(shell whoami)
@@ -217,10 +218,10 @@ work/gcc-$(GCC_VERSION)/gmp: work/gcc-$(GCC_VERSION) $(GMP_PKG)
 	if [ -w /opt ]; then \
 		mkdir -p $@; \
 	else \
-		sudo mkdir -p $@; \
-		sudo chown $(ORIG_USER):$(ORIG_USER) $@; \
+		$(SUDO) mkdir -p $@; \
+		$(SUDO) chown $(ORIG_USER):$(ORIG_USER) $@; \
 	fi
-	#sudo chmod 777 $@
+	#$(SUDO) chmod 777 $@
 
 $(TOOLSDIR):
 	[ -d $@ ] || mkdir $@
