@@ -2,7 +2,7 @@ language: c
 sudo: false
 script:
   - make setup
-  - travis_wait 120 GENDEV=".toolchain" SUDO="" make toolchain_build 
+  - travis_wait 120 'GENDEV=".toolchain" SUDO="" make toolchain_build'
   - make /opt/toolchains/gen/ldscripts
   - make tools
-  - make GENDEV=".toolchain" sgdk_build
+  - GENDEV=".toolchain" make sgdk_build
