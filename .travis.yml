@@ -1,5 +1,9 @@
+dist: trusty
 language: c
 sudo: false
+
+install: texinfo
+
 script:
   - make setup
   - make toolchain_build GENDEV=".toolchain" SUDO=""
