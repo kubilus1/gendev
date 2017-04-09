@@ -2,7 +2,10 @@ dist: trusty
 language: c
 sudo: false
 
-install: texinfo
+addons:
+  apt:
+    packages:
+      - texinfo
 
 script:
   - make setup
