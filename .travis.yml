@@ -9,7 +9,7 @@ addons:
 
 script:
   - make setup
-  - make toolchain_build GENDEV=".toolchain" SUDO="" | ./logdoer.sh
+  - travis_wait 90 make toolchain_build GENDEV=".toolchain" SUDO=""
   - GENDEV=".toolchain" make .toolchain/ldscripts
   - GENDEV=".toolchain" make tools
   - GENDEV=".toolchain" make sgdk_build
