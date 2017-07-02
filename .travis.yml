@@ -10,10 +10,10 @@ addons:
 script:
   - make setup
   #- travis_wait 90 make toolchain_build GENDEV=".toolchain" SUDO=""
-  - travis_wait 90 cd work && make -f ../gen_gcc/makefile-gen build-m68k-binutils
-  - travis_wait 90 cd work && make -f ../gen_gcc/makefile-gen build-m68k-gcc-pass1
-  - travis_wait 90 cd work && make -f ../gen_gcc/makefile-gen build-m68k-newlib
-  - travis_wait 90 cd work && make -f ../gen_gcc/makefile-gen build-m68k-gcc-pass2
+  - cd work && make -f ../gen_gcc/makefile-gen build-m68k-binutils
+  - cd work && make -f ../gen_gcc/makefile-gen build-m68k-gcc-pass1
+  - cd work && make -f ../gen_gcc/makefile-gen build-m68k-newlib
+  - cd work && make -f ../gen_gcc/makefile-gen build-m68k-gcc-pass2
   - GENDEV=".toolchain" make .toolchain/ldscripts
   - GENDEV=".toolchain" make tools
   - GENDEV=".toolchain" make sgdk_build
