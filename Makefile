@@ -77,7 +77,7 @@ TOOLS+=$(TOOLSDIR)/zasm
 endif
 TOOLS+=$(TOOLSDIR)/sixpack 
 TOOLS+=$(TOOLSDIR)/appack
-TOOLS+=/opt/toolchains
+#TOOLS+=/opt/toolchains
 
 tools: $(TOOLSDIR) $(TOOLS)
 	-cp extras/scripts/*.* $(TOOLSDIR)/.

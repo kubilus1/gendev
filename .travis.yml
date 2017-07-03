@@ -25,25 +25,21 @@ jobs:
       - travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-binutils
   - stage: pass1
     script:
-      - find .toolchains
       - export m68k_prefix=`pwd`/.toolchains/gen/m68k-elf
       - cd work
       - travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-gcc-pass1
   - stage: newlib
     script:
-      - find .toolchains
       - export m68k_prefix=`pwd`/.toolchains/gen/m68k-elf
       - cd work
       - travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-newlib
   - stage: pass2
     script:
-      - find .toolchains
       - export m68k_prefix=`pwd`/.toolchains/gen/m68k-elf
       - cd work
       - travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-gcc-pass2
   - stage: sgdk
     script:
-      - find .toolchains
       - export GENDEV=`pwd`/.toolchains/gen
       - make $GENDEV/ldscripts
       - make clean_tools tools
