@@ -42,7 +42,7 @@ jobs:
   - stage: sgdk
     script:
       - find .toolchains
-      - export GENDEV=`pwd`/.toolchains
+      - export GENDEV=`pwd`/.toolchains/gen
       - make $GENDEV/ldscripts
       - make tools
       - make sgdk_build
