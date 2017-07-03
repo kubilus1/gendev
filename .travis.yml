@@ -7,16 +7,48 @@ addons:
     packages:
       - texinfo
 
-script:
-  - make setup
+cache:
+  directories:
+  - work
+  - .toolchain
+
+jobs:
+  include:
+  - stage: setup
+    script: make setup
+  - stage: binutils
+    script:
+      - cd work
+      - travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-binutils
+  - stage: pass1
+    script:
+      - cd work
+      - travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-gcc-pass1
+  - stage: newlib
+    script:
+      - cd work
+      - travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-newlib
+  - stage: pass2
+    script:
+      - cd work
+      - travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-gcc-pass2
+  - stage: sgdk
+    script:
+      - export GENDEV=`pwd`/.toolchain
+      - make $GENDEV/ldscripts
+      - make tools
+      - make sgdk_build
+
+#script:
+#  - make setup
   #- travis_wait 90 make toolchain_build GENDEV=".toolchain" SUDO=""
-  - cd work
-  - travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-binutils
-  - travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-gcc-pass1
-  - travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-newlib
-  - travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-gcc-pass2
-  - cd ..
-  - export GENDEV=`pwd`/.toolchain
-  - make $GENDEV/ldscripts
-  - make tools
-  - make sgdk_build
+  #  - cd work
+  #- travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-binutils
+  #- travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-gcc-pass1
+  #- travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-newlib
+  #- travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-gcc-pass2
+  #- cd ..
+  #- export GENDEV=`pwd`/.toolchain
+  #- make $GENDEV/ldscripts
+  #- make tools
+  #- make sgdk_build
