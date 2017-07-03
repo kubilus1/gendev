@@ -15,8 +15,9 @@ cache:
 jobs:
   include:
   - stage: setup
-    script: make clean
-    script: make setup
+    script:
+     - make clean
+     - make setup
   - stage: binutils
     script:
       - export m68k_prefix=`pwd`/.toolchains/gen/m68k-elf
