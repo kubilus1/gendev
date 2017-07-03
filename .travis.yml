@@ -10,7 +10,7 @@ addons:
 cache:
   directories:
   - work
-  - .toolchain
+  - .toolchains
 
 jobs:
   include:
@@ -42,7 +42,7 @@ jobs:
   - stage: sgdk
     script:
       - find .toolchains
-      - export GENDEV=`pwd`/.toolchain
+      - export GENDEV=`pwd`/.toolchains
       - make $GENDEV/ldscripts
       - make tools
       - make sgdk_build
