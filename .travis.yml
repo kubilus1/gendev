@@ -16,6 +16,7 @@ script:
   - travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-newlib
   - travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-gcc-pass2
   - cd ..
-  - GENDEV=".toolchain" make .toolchain/ldscripts
-  - GENDEV=".toolchain" make tools
-  - GENDEV=".toolchain" make sgdk_build
+  - export GENDEV=`pwd`/.toolchain
+  - make .toolchain/ldscripts
+  - make tools
+  - make sgdk_build
