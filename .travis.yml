@@ -7,14 +7,15 @@ addons:
     packages:
       - texinfo
 
-cache:
-  directories:
-  - work
-  - .toolchains
+#cache:
+#  directories:
+#  - work
+#  - .toolchains
 
 jobs:
   include:
   - stage: setup
+    script: make clean
     script: make setup
   - stage: binutils
     script:
@@ -44,8 +45,8 @@ jobs:
       - find .toolchains
       - export GENDEV=`pwd`/.toolchains/gen
       - make $GENDEV/ldscripts
-      - make tools
-      - make sgdk_build
+      - make clean_tools tools
+      - make sgdk_clean sgdk_build
       - find .toolchains
 
 #script:
