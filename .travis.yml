@@ -21,6 +21,7 @@ jobs:
       - cd work
       - pwd
       - ls
+      - export m68k_prefix=`pwd`/.toolchains/gen/m68k-elf
       - travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-binutils
       - ls
   - stage: pass1
@@ -28,6 +29,7 @@ jobs:
       - cd work
       - pwd
       - ls
+      - export m68k_prefix=`pwd`/.toolchains/gen/m68k-elf
       - travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-gcc-pass1
       - ls
   - stage: newlib
@@ -35,6 +37,7 @@ jobs:
       - cd work
       - pwd
       - ls
+      - export m68k_prefix=`pwd`/.toolchains/gen/m68k-elf
       - travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-newlib
       - ls
   - stage: pass2
@@ -42,6 +45,7 @@ jobs:
       - cd work
       - pwd
       - ls
+      - export m68k_prefix=`pwd`/.toolchains/gen/m68k-elf
       - travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-gcc-pass2
       - ls
   - stage: sgdk

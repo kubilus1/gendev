@@ -21,8 +21,8 @@
 MAKE?=make
 sh_target=sh-elf
 m68k_target=m68k-elf
-sh_prefix  := /opt/toolchains/gen/$(sh_target)
-m68k_prefix := /opt/toolchains/gen/$(m68k_target)
+sh_prefix?=/opt/toolchains/gen/$(sh_target)
+m68k_prefix?=/opt/toolchains/gen/$(m68k_target)
 binutils_ver=2.24
 gcc_ver=6.3.0
 newlib_ver=1.19.0
