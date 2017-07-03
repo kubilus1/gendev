@@ -7,10 +7,10 @@ addons:
     packages:
       - texinfo
 
-#cache:
-#  directories:
-#  - work
-#  - .toolchains
+cache:
+  directories:
+  - work
+  - .toolchains
 
 jobs:
   include:
