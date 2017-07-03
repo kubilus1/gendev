@@ -28,8 +28,8 @@ gcc_ver=6.3.0
 newlib_ver=1.19.0
 thread_model=single
 erase=0
-#verbose=1
-verbose=0
+verbose=1
+#verbose=0
 # Set the languages to build for pass 2 of building gcc. The default
 # here is to build C, C++, Objective C, and Objective C++. You may want to take
 # out the latter two if you're not worried about them and/or you're short on

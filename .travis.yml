@@ -19,19 +19,31 @@ jobs:
   - stage: binutils
     script:
       - cd work
+      - pwd
+      - ls
       - travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-binutils
+      - ls
   - stage: pass1
     script:
       - cd work
+      - pwd
+      - ls
       - travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-gcc-pass1
+      - ls
   - stage: newlib
     script:
       - cd work
+      - pwd
+      - ls
       - travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-newlib
+      - ls
   - stage: pass2
     script:
       - cd work
+      - pwd
+      - ls
       - travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-gcc-pass2
+      - ls
   - stage: sgdk
     script:
       - export GENDEV=`pwd`/.toolchain
