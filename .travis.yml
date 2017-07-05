@@ -49,8 +49,7 @@ jobs:
     - make gendev.txz 
     deploy:
       provider: releases
-      api_key: 
-          secure: "$GITHUB_OAUTH_TOKEN"
+      api_key: "$GITHUB_OAUTH_TOKEN"
       skip_cleanup: true
       file: gendev.txz
       on:
