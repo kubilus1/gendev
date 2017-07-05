@@ -1,61 +1,58 @@
 dist: trusty
 language: c
 sudo: false
-
 addons:
   apt:
     packages:
-      - texinfo
-
+    - texinfo
 cache:
   directories:
   - work
-  - .toolchains
-
+  - ".toolchains"
 jobs:
   include:
   - stage: setup
     script:
-     - make clean
-     - make setup
+    - make clean
+    - make setup
   - stage: binutils
     script:
-      - export m68k_prefix=`pwd`/.toolchains/gen/m68k-elf
-      - cd work
-      - travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-binutils
+    - export m68k_prefix=`pwd`/.toolchains/gen/m68k-elf
+    - cd work
+    - travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-binutils
   - stage: pass1
     script:
-      - export m68k_prefix=`pwd`/.toolchains/gen/m68k-elf
-      - cd work
-      - travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-gcc-pass1
+    - export m68k_prefix=`pwd`/.toolchains/gen/m68k-elf
+    - cd work
+    - travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-gcc-pass1
   - stage: newlib
     script:
-      - export m68k_prefix=`pwd`/.toolchains/gen/m68k-elf
-      - cd work
-      - travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-newlib
+    - export m68k_prefix=`pwd`/.toolchains/gen/m68k-elf
+    - cd work
+    - travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-newlib
   - stage: pass2
     script:
-      - export m68k_prefix=`pwd`/.toolchains/gen/m68k-elf
-      - cd work
-      - travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-gcc-pass2
+    - export m68k_prefix=`pwd`/.toolchains/gen/m68k-elf
+    - cd work
+    - travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-gcc-pass2
   - stage: sgdk
     script:
-      - export GENDEV=`pwd`/.toolchains/gen
-      - make $GENDEV/ldscripts
-      - make clean_tools tools
-      - make sgdk_clean sgdk_build
-      - find .toolchains
-
-#script:
-#  - make setup
-  #- travis_wait 90 make toolchain_build GENDEV=".toolchain" SUDO=""
-  #  - cd work
-  #- travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-binutils
-  #- travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-gcc-pass1
-  #- travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-newlib
-  #- travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-gcc-pass2
-  #- cd ..
-  #- export GENDEV=`pwd`/.toolchain
-  #- make $GENDEV/ldscripts
-  #- make tools
-  #- make sgdk_build
+    - export GENDEV=`pwd`/.toolchains/gen
+    - make $GENDEV/ldscripts
+    - make clean_tools tools
+    - make sgdk_clean sgdk_build
+    - find .toolchains
+  - stage: release to github
+    script: 
+    - echo "Deploying to github..."
+    - export GENDEV=`pwd`/.toolchains/gen
+    - make gendev.txz 
+    deploy:
+      provider: releases
+      api_key: 
+          secure: "$GITHUB_OAUTH_TOKEN"
+      skip_cleanup: true
+      file: gendev.txz
+      on:
+        tags: true
+        repo: kubilus1/gendev
