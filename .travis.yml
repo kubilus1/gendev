@@ -10,20 +10,24 @@ cache:
   - build
 jobs:
   include:
-  - stage: build
+      #- stage: clean
+      #script:
+      #- make clean
+  - stage: build toolchain
     script:
       - travis_wait 90 make toolchain_clean toolchain_build
+  - stage: build tools
+    script:
+      - make tools_clean tools_build
   - stage: sgdk
     script:
       - export GENDEV=`pwd`/build
-      - make clean_tools tools
       - make sgdk_clean sgdk_build
-      - make deb
-      - make gendev.txz
   - stage: release to github
     script: 
     - echo "Deploying to github..."
     - export GENDEV=`pwd`/build
+    - make deb
     - make gendev.txz 
     deploy:
       provider: releases
