@@ -10,16 +10,16 @@ cache:
   - build
 jobs:
   include:
-      #- stage: clean
-      #script:
-      #- make clean
+  - stage: clean
+    script:
+      - make clean
   - stage: build toolchain
     script:
       - travis_wait 90 make toolchain_clean toolchain_build
   - stage: build tools
     script:
       - make tools_clean tools_build
-  - stage: sgdk
+  - stage: build sgdk
     script:
       - export GENDEV=`pwd`/build
       - make sgdk_clean sgdk_build

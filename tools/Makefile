@@ -9,6 +9,8 @@ WORKDIR?=$(CURDIR)/work
 
 TOOLSDIR=$(BUILDDIR)/bin
 
+UNAME:=$(shell uname)
+
 TOOLS=$(TOOLSDIR)/bin2c
 TOOLS+=$(TOOLSDIR)/sjasm
 ifeq ($(UNAME), Linux)

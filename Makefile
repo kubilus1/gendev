@@ -10,14 +10,12 @@ MAKE?= make
 ORIG_USER:=$(shell whoami)
 
 BUILDDIR?=$(CURDIR)/build
-GENDEV?=/opt/toolchains/gen/
+GENDEV?=/opt/gendev/
 TOPDIR=$(CURDIR)
-
-UNAME:=$(shell uname)
 
 PATH := $(GENDEV)/bin:$(PATH)
 
-all: toolchain_build tools_build
+build: toolchain_build tools_build sgdk_build
 	echo "Done"
 
 $(BUILDDIR):
@@ -35,51 +33,53 @@ tools_build:
 tools_clean: 
 	cd tools && make tools_clean
 
-all_2: setup toolchain_build $(GENDEV)/ldscripts tools sgdk_build
+install:
+	if [ -w /opt ]; then \
+		mkdir -p $(GENDEV); \
+	else \
+		$(SUDO) mkdir -p $@; \
+		$(SUDO) chown $(ORIG_USER):$(ORIG_USER) $@; \
+	fi
 	echo "export GENDEV=$(GENDEV)" > ~/.gendev
-	echo "export PATH=\$$GENDEV/m68k-elf/bin:\$$GENDEV/bin:\$$PATH" >> ~/.gendev
+	echo "export PATH=\$$GENDEV/bin:\$$PATH" >> ~/.gendev
 	cp -r sgdk/skeleton $(GENDEV)/.
+	#$(SUDO) chmod 777 $@
 
-32x: setup toolchain_build_full $(GENDEV)/ldscripts tools
-	echo "export GENDEV=$(GENDEV)" > ~/.32xdev
-	echo "export PATH=\$$GENDEV/sh-elf/bin:\$$GENDEV/m68k-elf/bin:\$$GENDEV/bin:\$$PATH" >> ~/.32xdev
-
-release: setup toolchain_build $(GENDEV)/ldscripts tools sgdk_build deb gendev.txz
+release: deb dist/gendev.txz
 	echo "Release"
 
-gendev.txz: $(GENDEV)/ldscripts pkg/opt
-	tar -C pkg  -cJf gendev.txz opt
+dist:
+	mkdir -p dist
 
-pkg/opt:
-	mkdir -p pkg/opt/toolchains
-	cp -r $(GENDEV) pkg/opt/toolchains/.
+dist/gendev.txz: dist
+	tar -C $(BUILDDIR)  -cJf dist/gendev.txz
 
-gendev_1_all.deb: pkg/opt
-	dpkg-deb -Zxz -z9 --build pkg .
+pkg_build:
+	mkdir -p pkg_build/opt/gendev
+	cp -r $(BUILDDIR)/* pkg_build/opt/gendev/.
+	cp -r pkg/* pkg_build/.
 
-deb: gendev_1_all.deb
+deb: dist dist/gendev_1_all.deb
+dist/gendev_1_all.deb: pkg_build
+	dpkg-deb -Zxz -z9 --build pkg_build .
 
 sgdk_build: $(GENDEV)/m68k-elf/lib/libmd.a
 $(GENDEV)/m68k-elf/lib/libmd.a:
-	cd sgdk && GENDEV=$(GENDEV) make install 	
+	cd sgdk && GENDEV=$(BUILDDIR) make install 	
 
 sgdk_clean:
 	- cd sgdk && make clean
 	- rm $(GENDEV)/m68k-elf/lib/libmd.a
 
 clean: tools_clean toolchain_clean sgdk_clean
-	-rm -rf build
+	-rm -rf $(BUILDDIR)
+	-rm -rf pkg_build
+	-rm -rf dist
 	#-rm -rf work/gcc-$(GCC_VERSION)
 	#-rm -rf work/binutils-$(BINUTILS_VERSION)
 	#-rm -rf work/build-*
 	#-cd sgdk && make clean
 
-purge: clean
-	- rm -rf work
-	- rm gendev.tgz
-	- rm gendev*.deb
-	- rm -rf pkg/opt
-
 #########################################################
 #########################################################
 #########################################################
@@ -87,13 +87,4 @@ purge: clean
 #########################################################
 #########################################################
 #########################################################
-
-$(GENDEV):
-	if [ -w /opt ]; then \
-		mkdir -p $@; \
-	else \
-		$(SUDO) mkdir -p $@; \
-		$(SUDO) chown $(ORIG_USER):$(ORIG_USER) $@; \
-	fi
-	#$(SUDO) chmod 777 $@
 
