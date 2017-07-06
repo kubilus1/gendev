@@ -1,23 +1,20 @@
 dist: trusty
 language: c
 sudo: false
-
 addons:
   apt:
     packages:
-      - texinfo
-
+    - texinfo
 cache:
   directories:
   - work
-  - .toolchains
-
+  - ".toolchains"
 jobs:
   include:
   - stage: setup
     script:
-     - make clean
-     - make setup
+    - make clean
+    - make setup
   - stage: binutils
     script:
       - export m68k_prefix=`pwd`/opt/gendev/m68k-elf
@@ -46,6 +43,19 @@ jobs:
       - make sgdk_clean sgdk_build
       - make deb
       - make gendev.txz
+  - stage: release to github
+    script: 
+    - echo "Deploying to github..."
+    - export GENDEV=`pwd`/.toolchains/gen
+    - make gendev.txz 
+    deploy:
+      provider: releases
+      api_key: "$GITHUB_OAUTH_TOKEN"
+      skip_cleanup: true
+      file: gendev.txz
+      on:
+        tags: true
+        repo: kubilus1/gendev
 
 #script:
 #  - make setup
