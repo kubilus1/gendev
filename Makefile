@@ -4,22 +4,32 @@
 
 #SHELL=/bin/sh
 
-GENDEV?=/opt/toolchains/gen/
 SUDO?= sudo
 MGET?= wget
 MAKE?= make
 ORIG_USER:=$(shell whoami)
 
+BUILDDIR?=$(CURDIR)/build
+GENDEV?=/opt/toolchains/gen/
+TOPDIR=$(CURDIR)
+
 UNAME:=$(shell uname)
 
-GCC_VERSION=6.3.0
-MPFR_VERSION=2.4.2
-MPC_VERSION=0.8.2
-GMP_VERSION=5.0.5
-BINUTILS_VERSION=2.24
-NEWLIB_VERSION=1.19.0
+PATH := $(GENDEV)/bin:$(PATH)
 
-all: setup toolchain_build $(GENDEV)/ldscripts tools sgdk_build
+all: toolchain_build
+	echo "Done"
+
+$(BUILDDIR):
+	mkdir -p $@
+
+toolchain_build:
+	cd toolchain && make toolchain_build
+
+toolchain_clean:
+	cd toolchain && make toolchain_clean
+
+all_2: setup toolchain_build $(GENDEV)/ldscripts tools sgdk_build
 	echo "export GENDEV=$(GENDEV)" > ~/.gendev
 	echo "export PATH=\$$GENDEV/m68k-elf/bin:\$$GENDEV/bin:\$$PATH" >> ~/.gendev
 	cp -r sgdk/skeleton $(GENDEV)/.
@@ -28,17 +38,11 @@ all: setup toolchain_build $(GENDEV)/ldscripts tools sgdk_build
 	echo "export GENDEV=$(GENDEV)" > ~/.32xdev
 	echo "export PATH=\$$GENDEV/sh-elf/bin:\$$GENDEV/m68k-elf/bin:\$$GENDEV/bin:\$$PATH" >> ~/.32xdev
 
-setup: \
-	work \
-	work/gcc-$(GCC_VERSION) \
-	work/gcc-$(GCC_VERSION)/mpfr \
-	work/gcc-$(GCC_VERSION)/mpc \
-	work/gcc-$(GCC_VERSION)/gmp \
-	work/binutils-$(BINUTILS_VERSION) \
-	work/newlib-$(NEWLIB_VERSION)
+release: setup toolchain_build $(GENDEV)/ldscripts tools sgdk_build deb gendev.txz
+	echo "Release"
 
-gendev.txz: $(GENDEV)/ldscripts
-	tar cJf gendev.txz $(GENDEV)
+gendev.txz: $(GENDEV)/ldscripts pkg/opt
+	tar -C pkg  -cJf gendev.txz opt
 
 pkg/opt:
 	mkdir -p pkg/opt/toolchains
@@ -48,16 +52,6 @@ gendev_1_all.deb: pkg/opt
 	dpkg-deb -Zxz -z9 --build pkg .
 
 deb: gendev_1_all.deb
-
-toolchain_build: work $(GENDEV)
-	echo "Build"
-	cd work && \
-		MAKE=$(MAKE) $(MAKE) -f ../gen_gcc/makefile-gen build-m68k
-
-toolchain_build_full: work $(GENDEV)
-	echo "Build"
-	cd work && \
-		MAKE=$(MAKE) $(MAKE) -f ../gen_gcc/makefile-gen
 
 sgdk_build: $(GENDEV)/m68k-elf/lib/libmd.a
 $(GENDEV)/m68k-elf/lib/libmd.a:
@@ -103,49 +97,9 @@ purge: clean
 	- rm gendev*.deb
 	- rm -rf pkg/opt
 
-work:
-	[ -d work ] || mkdir work
-
 #########################################################
 #########################################################
 #########################################################
-
-GCC_PKG=work/gcc-$(GCC_VERSION).tar.bz2
-work/gcc-$(GCC_VERSION).tar.bz2:
-	#cd work && $(MGET) http://ftp.gnu.org/gnu/gcc/gcc-$(GCC_VERSION)/gcc-$(GCC_VERSION).tar.bz2
-	cp files/`basename $@` $@
-	
-#g++: work/gcc-g++-$(GCC_VERSION).tar.bz2
-#work/gcc-g++-$(GCC_VERSION).tar.bz2:
-#	cd work && $(MGET) http://ftp.gnu.org/gnu/gcc/gcc-$(GCC_VERSION)/gcc-g++-$(GCC_VERSION).tar.bz2
-
-#work/gcc-objc-$(GCC_VERSION).tar.bz2:
-#	cd work && $(MGET) http://ftp.gnu.org/gnu/gcc/gcc-$(GCC_VERSION)/gcc-objc-$(GCC_VERSION).tar.bz2
-
-MPFR_PKG=work/mpfr-$(MPFR_VERSION).tar.bz2
-work/mpfr-$(MPFR_VERSION).tar.bz2: 
-	#cd work && $(MGET) http://www.mpfr.org/mpfr-$(MPFR_VERSION)/mpfr-$(MPFR_VERSION).tar.bz2
-	cp files/`basename $@` $@
-
-MPC_PKG=work/mpc-$(MPC_VERSION).tar.gz
-work/mpc-$(MPC_VERSION).tar.gz:
-	#cd work && $(MGET) http://www.multiprecision.org/mpc/download/mpc-$(MPC_VERSION).tar.gz
-	cp files/`basename $@` $@
-
-GMP_PKG=work/gmp-$(GMP_VERSION).tar.bz2
-work/gmp-$(GMP_VERSION).tar.bz2:
-	#cd work && $(MGET) ftp://ftp.gmplib.org/pub/gmp-$(GMP_VERSION)/gmp-$(GMP_VERSION).tar.bz2
-	cp files/`basename $@` $@
-
-BINUTILS_PKG=work/binutils-$(BINUTILS_VERSION).tar.bz2
-work/binutils-$(BINUTILS_VERSION).tar.bz2:
-	#cd work && $(MGET) http://ftp.gnu.org/gnu/binutils/binutils-$(BINUTILS_VERSION).tar.bz2
-	cp files/`basename $@` $@
-
-NEWLIB_PKG=work/newlib-$(NEWLIB_VERSION).tar.gz
-work/newlib-$(NEWLIB_VERSION).tar.gz:
-	#cd work && $(MGET) ftp://sources.redhat.com/pub/newlib/newlib-$(NEWLIB_VERSION).tar.gz
-	cp files/`basename $@` $@
 
 BIN2C_PKG=work/bin2c-1.0.zip
 work/bin2c-1.0.zip:
@@ -184,33 +138,6 @@ work/VGMTools_src.rar:
 #########################################################
 #########################################################
 
-work/binutils-$(BINUTILS_VERSION): $(BINUTILS_PKG)
-	cd work && \
-	tar xjf binutils-$(BINUTILS_VERSION).tar.bz2
-
-work/newlib-$(NEWLIB_VERSION): $(NEWLIB_PKG)
-	cd work && \
-	tar xzf newlib-$(NEWLIB_VERSION).tar.gz
-
-work/gcc-$(GCC_VERSION): $(GCC_PKG)
-	cd work && \
-	tar xjf gcc-$(GCC_VERSION).tar.bz2
-
-work/gcc-$(GCC_VERSION)/mpfr: work/gcc-$(GCC_VERSION) $(MPFR_PKG)
-	cd work && \
-	tar xjf mpfr-$(MPFR_VERSION).tar.bz2 && \
-	mv mpfr-$(MPFR_VERSION) gcc-$(GCC_VERSION)/mpfr
-
-work/gcc-$(GCC_VERSION)/mpc: work/gcc-$(GCC_VERSION) $(MPC_PKG)
-	cd work && \
-	tar xzf mpc-$(MPC_VERSION).tar.gz && \
-	mv mpc-$(MPC_VERSION) gcc-$(GCC_VERSION)/mpc
-
-work/gcc-$(GCC_VERSION)/gmp: work/gcc-$(GCC_VERSION) $(GMP_PKG)
-	cd work && \
-	tar xjf gmp-$(GMP_VERSION).tar.bz2 && \
-	mv gmp-$(GMP_VERSION) gcc-$(GCC_VERSION)/gmp
-
 #########################################################
 #########################################################
 #########################################################
@@ -226,10 +153,6 @@ $(GENDEV):
 
 $(TOOLSDIR):
 	[ -d $@ ] || mkdir $@
-
-$(GENDEV)/ldscripts:
-	mkdir -p $@
-	cp gen_gcc/*.ld $@/.
 
 $(TOOLSDIR)/bin2c: $(BIN2C_PKG)
 	cd work && \
