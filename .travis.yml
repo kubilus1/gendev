@@ -20,31 +20,32 @@ jobs:
      - make setup
   - stage: binutils
     script:
-      - export m68k_prefix=`pwd`/.toolchains/gen/m68k-elf
+      - export m68k_prefix=`pwd`/opt/gendev/m68k-elf
       - cd work
       - travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-binutils
   - stage: pass1
     script:
-      - export m68k_prefix=`pwd`/.toolchains/gen/m68k-elf
+      - export m68k_prefix=`pwd`/opt/gendev/m68k-elf
       - cd work
       - travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-gcc-pass1
   - stage: newlib
     script:
-      - export m68k_prefix=`pwd`/.toolchains/gen/m68k-elf
+      - export m68k_prefix=`pwd`/opt/gendev/m68k-elf
       - cd work
       - travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-newlib
   - stage: pass2
     script:
-      - export m68k_prefix=`pwd`/.toolchains/gen/m68k-elf
+      - export m68k_prefix=`pwd`/opt/gendev/m68k-elf
       - cd work
       - travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-gcc-pass2
   - stage: sgdk
     script:
-      - export GENDEV=`pwd`/.toolchains/gen
+      - export GENDEV=`pwd`/opt/gendev
       - make $GENDEV/ldscripts
       - make clean_tools tools
       - make sgdk_clean sgdk_build
-      - find .toolchains
+      - make deb
+      - make gendev.txz
 
 #script:
 #  - make setup
