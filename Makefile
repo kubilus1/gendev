@@ -13,7 +13,7 @@ BUILDDIR?=$(CURDIR)/build
 GENDEV?=/opt/gendev/
 TOPDIR=$(CURDIR)
 
-PATH := $(GENDEV)/bin:$(PATH)
+PATH := $(BUILDDIR)/bin:$(PATH)
 
 build: toolchain_build tools_build sgdk_build
 	echo "Done"
@@ -42,8 +42,8 @@ install:
 	fi
 	echo "export GENDEV=$(GENDEV)" > ~/.gendev
 	echo "export PATH=\$$GENDEV/bin:\$$PATH" >> ~/.gendev
-	cp -r sgdk/skeleton $(GENDEV)/.
 	#$(SUDO) chmod 777 $@
+	cp -r $(BUILDDIR)/* $(GENDEV)/.
 
 release: deb dist/gendev.txz
 	echo "Release"
@@ -66,6 +66,7 @@ dist/gendev_1_all.deb: pkg_build
 sgdk_build: $(GENDEV)/m68k-elf/lib/libmd.a
 $(GENDEV)/m68k-elf/lib/libmd.a:
 	cd sgdk && GENDEV=$(BUILDDIR) make install 	
+	cp -r sgdk/skeleton $(BUILDDIR)/.
 
 sgdk_clean:
 	- cd sgdk && make clean

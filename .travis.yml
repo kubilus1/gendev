@@ -26,9 +26,7 @@ jobs:
   - stage: release to github
     script: 
     - echo "Deploying to github..."
-    - export GENDEV=`pwd`/build
-    - make deb
-    - make gendev.txz 
+    - make release
     deploy:
       provider: releases
       api_key: "$GITHUB_OAUTH_TOKEN"
