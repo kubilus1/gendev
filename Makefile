@@ -52,7 +52,7 @@ dist:
 	mkdir -p dist
 
 dist/gendev.txz: dist
-	tar -C $(BUILDDIR)  -cJf dist/gendev.txz
+	tar -C $(BUILDDIR)  -cJf dist/gendev.txz .
 
 pkg_build:
 	mkdir -p pkg_build/opt/gendev
