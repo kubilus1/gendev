@@ -1,6 +1,6 @@
 GENDEV?=/opt/toolchains/gen/
 MAKE?=make
-GENGCC_BIN=$(GENDEV)/m68k-elf/bin
+GENGCC_BIN=$(GENDEV)/bin
 GENBIN=$(GENDEV)/bin
 
 CC = $(GENGCC_BIN)/m68k-elf-gcc 
