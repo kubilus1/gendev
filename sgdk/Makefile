@@ -1,7 +1,10 @@
 GENDEV?=/opt/toolchains/gen/
 MAKE?=make
 GENBIN=$(GENDEV)/bin
-GENGCC_BIN=$(GENDEV)/m68k-elf/bin
+GENGCC_BIN=$(GENDEV)/bin
+
+SGDKDIR=SGDK
+
 
 CC = $(GENGCC_BIN)/m68k-elf-gcc 
 AR = $(GENGCC_BIN)/m68k-elf-ar 
@@ -22,44 +25,49 @@ RESOURCES+=$(S80S:.s80=.o)
 
 extrasmd.a_OBJS=$(RESOURCES)
 
-INCS = -Iextra_incs -Isgdk-read-only/include -Isgdk-read-only/inc -Isgdk-read-only/res
+INCS = -Iextra_incs -I$(SGDKDIR)/include -I$(SGDKDIR)/inc -I$(SGDKDIR)/res
 FLAGS = $(OPTION) -m68000 -Wall -O1 -c -fomit-frame-pointer $(INCS) 
-FLAGSZ80 = -isrc -iextra_incs -Isgdk-read-only/include
+FLAGSZ80 = -isrc -iextra_incs -I$(SGDKDIR)/include
 
-all: tools sgdk-read-only sgdk-read-only/src/libmd.a 
+all: tools $(SGDKDIR) $(SGDKDIR)/src/libmd.a 
 
-tools: sgdk-read-only
-	cd sgdk-read-only/tools/bintos/src && \
+tools: $(SGDKDIR)
+	cd $(SGDKDIR)/tools/bintos/src && \
 	gcc -o bintos bintos.c  && cp bintos $(GENDEV)/bin/.
-	cd sgdk-read-only/tools/pcmtoraw/src && \
+	cd $(SGDKDIR)/tools/pcmtoraw/src && \
 	gcc -o pcmtoraw pcmtoraw.c  && cp pcmtoraw $(GENDEV)/bin/.
-	cd sgdk-read-only/tools/sizebnd/src && \
+	cd $(SGDKDIR)/tools/sizebnd/src && \
 	gcc -o sizebnd sizebnd.c  && cp sizebnd $(GENDEV)/bin/.
-	cd sgdk-read-only/tools/wavtoraw/src && \
+	cd $(SGDKDIR)/tools/wavtoraw/src && \
 	gcc -o wavtoraw wavtoraw.c -lm && cp wavtoraw $(GENDEV)/bin/.
-	cd sgdk-read-only/tools/xgmtool && \
+	cd $(SGDKDIR)/tools/xgmtool && \
 		make -f ../../../files/Makefile.xgmtool && cp out/xgmtool $(GENDEV)/bin/.
-	cd sgdk-read-only/tools/rescomp && \
+	cd $(SGDKDIR)/tools/rescomp && \
 		patch -u -p0 < ../../../files/rescomp.diff && \
 		make -f ../../../files/Makefile.rescomp && cp out/rescomp $(GENDEV)/bin/.
+	cp $(SGDKDIR)/bin/lz4w.jar $(GENDEV)/bin/.
 
 patch:
-	cd sgdk-read-only && git diff * > ../files/sgdk.diff
-	#svn diff sgdk-read-only > files/sgdk.diff
+	cd $(SGDKDIR) && git diff * > ../files/sgdk.diff
+	#svn diff $(SGDKDIR) > files/sgdk.diff
 
-sgdk-read-only:
-	git clone https://github.com/kubilus1/SGDK.git sgdk-read-only
-	#svn co http://sgdk.googlecode.com/svn/trunk sgdk-read-only
+prep:
+	cd $(STDKDIR) && patch -u -p0 < ../files/sgdk.diff
+
+$(SGDKDIR):
+	git clone https://github.com/Stephane-D/SGDK.git
+	#git clone https://github.com/kubilus1/SGDK.git $(SGDKDIR)
+	#svn co http://sgdk.googlecode.com/svn/trunk $(SGDKDIR)
 	#patch -u -p0 < files/sgdk.diff
 
-sgdk-read-only/libmd.a:
-	cd sgdk-read-only && ln -sf ../files/Makefile.sgdk_lib .
-	cd sgdk-read-only && $(MAKE) -f Makefile.sgdk_lib 
+$(SGDKDIR)/libmd.a:
+	cd $(SGDKDIR) && ln -sf ../files/Makefile.sgdk_lib .
+	cd $(SGDKDIR) && $(MAKE) -f Makefile.sgdk_lib 
 
-install: tools sgdk-read-only sgdk-read-only/libmd.a
+install: tools $(SGDKDIR) $(SGDKDIR)/libmd.a
 	echo "Install"
-	cd sgdk-read-only && $(MAKE) -f Makefile.sgdk_lib install
-	install -b sgdk-read-only/md.ld $(GENDEV)/ldscripts/sgdk.ld
+	cd $(SGDKDIR) && $(MAKE) -f Makefile.sgdk_lib install
+	install -b $(SGDKDIR)/md.ld $(GENDEV)/ldscripts/sgdk.ld
 	#install -b files/sgdk.ld $(GENDEV)/ldscripts/sgdk.ld
 
 %.a: $(extasmd.a_OBJS)
@@ -87,16 +95,16 @@ extras: $(extrasmd.a_OBJS) libextrasmd.a
 
 clean:
 	echo "Clean"
-	-rm -rf sgdk-read-only
-	#-cd sgdk-read-only && $(MAKE) -f Makefile.sgdk_lib clean
-	#cd sgdk-read-only && git checkout src
-	#cd sgdk-read-only && git checkout tools
-	#-svn revert -R sgdk-read-only/src
-	#-svn revert -R sgdk-read-only/tools
+	-rm -rf $(SGDKDIR)
+	#-cd $(SGDKDIR) && $(MAKE) -f Makefile.sgdk_lib clean
+	#cd $(SGDKDIR) && git checkout src
+	#cd $(SGDKDIR) && git checkout tools
+	#-svn revert -R $(SGDKDIR)/src
+	#-svn revert -R $(SGDKDIR)/tools
 	-rm extra_libs/*.o
 	-rm extra_libs/*.a
 	-rm libextrasmd.a
 
 purge: clean
 	echo "Purge"
-	rm -rf sgdk-read-only
+	rm -rf $(SGDKDIR)
