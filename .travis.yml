@@ -32,6 +32,7 @@ jobs:
       provider: releases
       api_key: "$GITHUB_OAUTH_TOKEN"
       skip_cleanup: true
+      file_glob: true
       file:
         - dist/gendev_*.txz
         - dist/gendev_*_all.deb
