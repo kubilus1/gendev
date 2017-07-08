@@ -5,14 +5,16 @@ Genesis development. Gendev is not intended to replace, but to be a companion pr
 (Sega Genesis Development Kit).
 
 
-#BASIC INSTRUCTIONS
-
+BASIC INSTRUCTIONS
+==================
 The quickest way to get going would be to simply install one of the release
 packages for this project.  Both a 'txz' and 'deb' package are provided.
 
-#USAGE
+USAGE
+=====
 
-##SETUP
+SETUP
+-----
 Set the GENDEV environment variable to the install location of the project.
 Typcially this should be '/opt/gendev'
 
@@ -22,7 +24,8 @@ $ export GENDEV=/opt/gendev
 
 You may, perhaps, add this into your bash profile for ease of use.
 
-##BUILDING SGDK PROJECTS
+BUILDING SGDK PROJECTS
+----------------------
 
 You may enter your project directory, or perhaps SGDK sample directory and
 build the projects by specifying the provided makefile.gen.
@@ -34,7 +37,8 @@ $ make -f $GENDEV/sgdk/mkfiles/makefilegen clean all
 
 You may wish, alternatively, to copy the makefile directly to your project.
 
-#PROJECT STRUCTURE
+PROJECT STRUCTURE
+=================
 
 * gendev - Top level where things generally start from.  Start building and
   packaging here.
@@ -44,7 +48,8 @@ You may wish, alternatively, to copy the makefile directly to your project.
 * gendev/examples - Old example projects
 * gendev/extras - Old helper projects
 
-#TOOLCHAIN BUILDING
+TOOLCHAIN BUILDING
+==================
 
 The toolchain is now setup with Travis-CI for continuous integration. This
 should ease porting and allow better validation of incoming patches.
@@ -62,7 +67,8 @@ The .travis-ci.yml script is a good place to look to see how the individual
 build stages are executed.
 
 
-#DESIGN PHILOSOPHY
+DESIGN PHILOSOPHY
+=================
 
 Initally this project was a quick hack pulling together GCC build chain
 scripts from ChillyWilly, and slapping together some hacks to get SGDK to
@@ -87,7 +93,8 @@ I am attempting to:
 6. Minimize changes to SGDK to make porting version easier
 
 
-#NOTES:
+NOTES:
+======
 
 * The 32x stuff is currently deprecated. I may create steps to build this
   toolchain again in the future.
