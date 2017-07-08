@@ -32,7 +32,9 @@ jobs:
       provider: releases
       api_key: "$GITHUB_OAUTH_TOKEN"
       skip_cleanup: true
-      file: gendev.txz
+      file:
+        - dist/gendev_*.txz
+        - dist/gendev_*_all.deb
       on:
         tags: true
         repo: kubilus1/gendev
