@@ -50,14 +50,13 @@ $(SGDKINSTALLDIR):
 
 install: tools $(SGDKDIR)/libmd.a $(SGDKINSTALLDIR)
 	echo "Install"
-	mkdir -p $(GENDEV)/sgdk/ldscripts
 	mkdir -p $(GENDEV)/sgdk/src
 	mkdir -p $(GENDEV)/sgdk/inc
 	mkdir -p $(GENDEV)/sgdk/lib
 	mkdir -p $(GENDEV)/sgdk/res
 	mkdir -p $(GENDEV)/sgdk/mkfiles
 	#cd $(SGDKDIR) && $(MAKE) -f Makefile.sgdk_lib install
-	cp $(SGDKDIR)/md.ld $(GENDEV)/sgdk/ldscripts/.
+	cp $(SGDKDIR)/md.ld $(GENDEV)/sgdk/.
 	#cp -r ./skeleton $(GENDEV)/.
 	cp $(SGDKDIR)/inc/* $(GENDEV)/sgdk/inc/.
 	cp -r $(SGDKDIR)/src/boot $(GENDEV)/sgdk/src/.
