@@ -54,6 +54,7 @@ $(WORKDIR)/build-newlib:
 build-gcc-2:
 	cd $(WORKDIR)/build-gcc &&  ../gcc-$(GCC_VERSION)/configure --target=m68k-elf --prefix=$(BUILDDIR) --with-newlib --disable-libssp --disable-tls --enable-threads=single --enable-languages=c --with-cpu=m68000 --disable-werror --disable-nls --disable-multilib
 	make -C $(WORKDIR)/build-gcc all install DESTDIR= $(LOG)
+	cp $(BUILDDIR)/lib/gcc/m68k-elf/$(GCC_VERSION)/libgcc.a $(BUILDDIR)/lib/.
 
 build-ldscripts: $(BUILDDIR)/ldscripts
 $(BUILDDIR)/ldscripts:

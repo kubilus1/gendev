@@ -1,102 +1,89 @@
-GENDEV?=/opt/toolchains/gen/
-MAKE?=make
+GENDEV?=/opt/gendev/
 GENBIN=$(GENDEV)/bin
-GENGCC_BIN=$(GENDEV)/m68k-elf/bin
+GENGCC_BIN=$(GENDEV)/bin
+SGDKDIR=$(CURDIR)/SGDK
+SAMPLESDIR=$(SGDKDIR)/sample
 
-CC = $(GENGCC_BIN)/m68k-elf-gcc 
-AR = $(GENGCC_BIN)/m68k-elf-ar 
-RANLIB = $(GENGCC_BIN)/m68k-elf-ranlib 
-OBJC = $(GENGCC_BIN)/m68k-elf-objcopy 
-RM = rm -f 
-ASMZ80 = $(GENBIN)/sjasm 
-BINTOS = $(GENBIN)/bintos 
+SGDKVER=1_3
+SGDKINSTALLDIR=$(GENDEV)/sgdk$(SGDKVER)
 
-OPTION= -Dnologo_ 
 
-CS=$(wildcard extra_libs/*.c)
-SS=$(wildcard extra_libs/*.s)
-S80S=$(wildcard extra_libs/*.s80)
-RESOURCES=$(CS:.c=.o)
-RESOURCES+=$(SS:.s=.o)
-RESOURCES+=$(S80S:.s80=.o)
+all: tools $(SGDKDIR) $(SGDKDIR)/libmd.a 
 
-extrasmd.a_OBJS=$(RESOURCES)
-
-INCS = -Iextra_incs -Isgdk-read-only/include -Isgdk-read-only/inc -Isgdk-read-only/res
-FLAGS = $(OPTION) -m68000 -Wall -O1 -c -fomit-frame-pointer $(INCS) 
-FLAGSZ80 = -isrc -iextra_incs -Isgdk-read-only/include
-
-all: tools sgdk-read-only sgdk-read-only/src/libmd.a 
-
-tools: sgdk-read-only
-	cd sgdk-read-only/tools/bintos/src && \
+tools: $(SGDKDIR)
+	cd $(SGDKDIR)/tools/bintos/src && \
 	gcc -o bintos bintos.c  && cp bintos $(GENDEV)/bin/.
-	cd sgdk-read-only/tools/pcmtoraw/src && \
+	cd $(SGDKDIR)/tools/pcmtoraw/src && \
 	gcc -o pcmtoraw pcmtoraw.c  && cp pcmtoraw $(GENDEV)/bin/.
-	cd sgdk-read-only/tools/sizebnd/src && \
+	cd $(SGDKDIR)/tools/sizebnd/src && \
 	gcc -o sizebnd sizebnd.c  && cp sizebnd $(GENDEV)/bin/.
-	cd sgdk-read-only/tools/wavtoraw/src && \
+	cd $(SGDKDIR)/tools/wavtoraw/src && \
 	gcc -o wavtoraw wavtoraw.c -lm && cp wavtoraw $(GENDEV)/bin/.
-	cd sgdk-read-only/tools/xgmtool && \
+	cd $(SGDKDIR)/tools/xgmtool && \
 		make -f ../../../files/Makefile.xgmtool && cp out/xgmtool $(GENDEV)/bin/.
-	cd sgdk-read-only/tools/rescomp && \
-		patch -u -p0 < ../../../files/rescomp.diff && \
+	cd $(SGDKDIR)/tools/rescomp && \
 		make -f ../../../files/Makefile.rescomp && cp out/rescomp $(GENDEV)/bin/.
+		#patch -u -p0 < ../../../files/rescomp.diff && \
+		#
+	cp $(SGDKDIR)/bin/lz4w.jar $(GENDEV)/bin/.
 
 patch:
-	cd sgdk-read-only && git diff * > ../files/sgdk.diff
-	#svn diff sgdk-read-only > files/sgdk.diff
+	cd $(SGDKDIR) && git diff * > ../files/sgdk.diff
 
-sgdk-read-only:
-	git clone https://github.com/kubilus1/SGDK.git sgdk-read-only
-	#svn co http://sgdk.googlecode.com/svn/trunk sgdk-read-only
+prep:
+	cd $(SGDKDIR) && patch -u -p1 < ../files/sgdk.diff
+
+$(SGDKDIR):
+	git clone https://github.com/Stephane-D/SGDK.git
+	cd $(SGDKDIR) && patch -u -p1 < ../files/sgdk.diff
+	#cp files/makefile.vars $(SGDKDIR)/.
+	#git clone https://github.com/kubilus1/SGDK.git $(SGDKDIR)
 	#patch -u -p0 < files/sgdk.diff
 
-sgdk-read-only/libmd.a:
-	cd sgdk-read-only && ln -sf ../files/Makefile.sgdk_lib .
-	cd sgdk-read-only && $(MAKE) -f Makefile.sgdk_lib 
+$(SGDKDIR)/libmd.a: $(SGDKDIR)
+	cd $(SGDKDIR) && ln -sf ../files/Makefile.sgdk_lib .
+	cd $(SGDKDIR) && $(MAKE) -f Makefile.sgdk_lib 
 
-install: tools sgdk-read-only sgdk-read-only/libmd.a
+$(SGDKINSTALLDIR):
+	mkdir -p $@
+	cd $(GENDEV) && ln -sf sgdk$(SGDKVER) sgdk
+
+install: tools $(SGDKDIR)/libmd.a $(SGDKINSTALLDIR)
 	echo "Install"
-	cd sgdk-read-only && $(MAKE) -f Makefile.sgdk_lib install
-	install -b sgdk-read-only/md.ld $(GENDEV)/ldscripts/sgdk.ld
-	#install -b files/sgdk.ld $(GENDEV)/ldscripts/sgdk.ld
+	mkdir -p $(GENDEV)/sgdk/src
+	mkdir -p $(GENDEV)/sgdk/inc
+	mkdir -p $(GENDEV)/sgdk/lib
+	mkdir -p $(GENDEV)/sgdk/res
+	mkdir -p $(GENDEV)/sgdk/mkfiles
+	#cd $(SGDKDIR) && $(MAKE) -f Makefile.sgdk_lib install
+	cp $(SGDKDIR)/md.ld $(GENDEV)/sgdk/.
+	#cp -r ./skeleton $(GENDEV)/.
+	cp $(SGDKDIR)/inc/* $(GENDEV)/sgdk/inc/.
+	cp -r $(SGDKDIR)/src/boot $(GENDEV)/sgdk/src/.
+	cp -r $(SGDKDIR)/res/* $(GENDEV)/sgdk/res/.
+	cp $(GENDEV)/lib/libgcc.a $(GENDEV)/sgdk/lib/.
+	cp $(SGDKDIR)/libmd.a $(GENDEV)/sgdk/lib/.
+	cp $(SGDKDIR)/makefile.gen $(GENDEV)/sgdk/mkfiles/.
+	cp files/makefile.vars $(GENDEV)/sgdk/mkfiles/.
 
-%.a: $(extasmd.a_OBJS)
-	$(RM) $@ 
-	$(AR) cru $@ $($@_OBJS) 
-	$(RANLIB) $@ 
+SAMPLES=$(wildcard $(SAMPLESDIR)/*/out)
+SAMPLEROMS=$(addsuffix /rom.bin,$(SAMPLES))
+CLEANSAMPLES=$(SAMPLES)
 
-%.o80: %.s80 
-	$(ASMZ80) $(FLAGSZ80) $< $@ out.lst 
+.PHONY: $(CLEANSAMPLES)
+sample_clean: $(CLEANSAMPLES)
+	@echo "Done cleaning samples"
 
-%.s: %.o80 
-	$(BINTOS) $< 
+$(CLEANSAMPLES):
+	cd $@/.. && make -f $(GENDEV)/sgdk/mkfiles/makefile.gen clean
 
-%.o: %.c
-	$(CC) $(FLAGS) -c $< -o $@
+samples: $(SAMPLEROMS)
+	@echo "All samples built"
 
-%.o: %.s
-	$(CC) $(FLAGS) -c $< -o $@
-
-extras: $(extrasmd.a_OBJS) libextrasmd.a
-	echo "Extras"
-	#cp libextrasmd.a $(GENDEV)/m68k-elf/lib
-	cp extra_libs/*.o $(GENDEV)/m68k-elf/lib
-	cp extra_incs/*.h $(GENDEV)/m68k-elf/include
+$(SAMPLEDIR)/%/out/rom.bin:
+	echo "ROM $@"
+	cd $@/../../ && make -f $(GENDEV)/sgdk/mkfiles/makefile.gen
 
 clean:
 	echo "Clean"
-	-rm -rf sgdk-read-only
-	#-cd sgdk-read-only && $(MAKE) -f Makefile.sgdk_lib clean
-	#cd sgdk-read-only && git checkout src
-	#cd sgdk-read-only && git checkout tools
-	#-svn revert -R sgdk-read-only/src
-	#-svn revert -R sgdk-read-only/tools
-	-rm extra_libs/*.o
-	-rm extra_libs/*.a
-	-rm libextrasmd.a
-
-purge: clean
-	echo "Purge"
-	rm -rf sgdk-read-only
+	-rm -rf $(SGDKDIR)

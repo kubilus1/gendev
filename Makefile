@@ -1,8 +1,6 @@
-
+#
 # HINT: If makeinfo is missing on Ubuntu, install texinfo package.
 #
-
-#SHELL=/bin/sh
 
 SUDO?= sudo
 MGET?= wget
@@ -12,6 +10,8 @@ ORIG_USER:=$(shell whoami)
 BUILDDIR?=$(CURDIR)/build
 GENDEV?=/opt/gendev/
 TOPDIR=$(CURDIR)
+
+VER=0.3.0
 
 PATH := $(BUILDDIR)/bin:$(PATH)
 
@@ -33,6 +33,9 @@ tools_build:
 tools_clean: 
 	cd tools && make tools_clean
 
+sgdk_samples:
+	cd sgdk && make sample_clean samples
+
 install:
 	if [ -w /opt ]; then \
 		mkdir -p $(GENDEV); \
@@ -45,41 +48,36 @@ install:
 	#$(SUDO) chmod 777 $@
 	cp -r $(BUILDDIR)/* $(GENDEV)/.
 
-release: deb dist/gendev.txz
+release: deb txz
 	echo "Release"
 
 dist:
 	mkdir -p dist
 
-dist/gendev.txz: dist
-	tar -C $(BUILDDIR)  -cJf dist/gendev.txz .
+txz: dist/gendev_$(VER).txz
+dist/gendev_$(VER).txz: dist pkg_build
+	tar -C pkg_build  -cJf dist/gendev_$(VER).txz opt
 
 pkg_build:
 	mkdir -p pkg_build/opt/gendev
 	cp -r $(BUILDDIR)/* pkg_build/opt/gendev/.
 	cp -r pkg/* pkg_build/.
 
-deb: dist dist/gendev_1_all.deb
-dist/gendev_1_all.deb: pkg_build
-	dpkg-deb -Zxz -z9 --build pkg_build .
+deb: dist dist/gendev_$(VER)_all.deb
+dist/gendev_$(VER)_all.deb: pkg_build
+	sed -i 's/##VER##/$(VER)/g' pkg_build/DEBIAN/control
+	cd dist && dpkg-deb -Zxz -z9 --build $(TOPDIR)/pkg_build .
 
-sgdk_build: $(GENDEV)/m68k-elf/lib/libmd.a
-$(GENDEV)/m68k-elf/lib/libmd.a:
+sgdk_build:
 	cd sgdk && GENDEV=$(BUILDDIR) make install 	
-	cp -r sgdk/skeleton $(BUILDDIR)/.
 
 sgdk_clean:
 	- cd sgdk && make clean
-	- rm $(GENDEV)/m68k-elf/lib/libmd.a
 
 clean: tools_clean toolchain_clean sgdk_clean
 	-rm -rf $(BUILDDIR)
 	-rm -rf pkg_build
 	-rm -rf dist
-	#-rm -rf work/gcc-$(GCC_VERSION)
-	#-rm -rf work/binutils-$(BINUTILS_VERSION)
-	#-rm -rf work/build-*
-	#-cd sgdk && make clean
 
 #########################################################
 #########################################################

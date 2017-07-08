@@ -15,7 +15,7 @@ jobs:
       - make clean
   - stage: build toolchain
     script:
-      - travis_wait 90 make toolchain_clean toolchain_build
+      - make toolchain_clean toolchain_build
   - stage: build tools
     script:
       - make tools_clean tools_build
@@ -23,6 +23,7 @@ jobs:
     script:
       - export GENDEV=`pwd`/build
       - make sgdk_clean sgdk_build
+      - make sgdk_samples
   - stage: release to github
     script: 
     - echo "Deploying to github..."
@@ -31,21 +32,9 @@ jobs:
       provider: releases
       api_key: "$GITHUB_OAUTH_TOKEN"
       skip_cleanup: true
-      file: gendev.txz
+      file:
+        - dist/gendev_*.txz
+        - dist/gendev_*_all.deb
       on:
         tags: true
         repo: kubilus1/gendev
-
-#script:
-#  - make setup
-  #- travis_wait 90 make toolchain_build GENDEV=".toolchain" SUDO=""
-  #  - cd work
-  #- travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-binutils
-  #- travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-gcc-pass1
-  #- travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-newlib
-  #- travis_wait 90 make -f ../gen_gcc/makefile-gen build-m68k-gcc-pass2
-  #- cd ..
-  #- export GENDEV=`pwd`/.toolchain
-  #- make $GENDEV/ldscripts
-  #- make tools
-  #- make sgdk_build
