@@ -46,7 +46,7 @@ $(SGDKDIR)/libmd.a: $(SGDKDIR)
 
 $(SGDKINSTALLDIR):
 	mkdir -p $@
-	cd $(GENDEV) && ln -sf sgdk$(SGDK_VER) sgdk
+	cd $(GENDEV) && ln -sf sgdk$(SGDKVER) sgdk
 
 install: tools $(SGDKDIR)/libmd.a $(SGDKINSTALLDIR)
 	echo "Install"
