@@ -6,7 +6,7 @@ index b9d7877..07d96af 100644
  RESCOMP= $(BIN)/rescomp
  MKDIR= $(BIN)/mkdir
  
-+include $(GDK)/makefile.vars
++include $(GENDEV)/sgdk/mkfiles/makefile.vars
 +
  SRC_C= $(wildcard *.c)
  SRC_C+= $(wildcard $(SRC)/*.c)
