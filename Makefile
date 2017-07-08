@@ -33,6 +33,9 @@ tools_build:
 tools_clean: 
 	cd tools && make tools_clean
 
+sgdk_samples:
+	cd sgdk && make sample_clean samples
+
 install:
 	if [ -w /opt ]; then \
 		mkdir -p $(GENDEV); \
@@ -63,14 +66,12 @@ deb: dist dist/gendev_1_all.deb
 dist/gendev_1_all.deb: pkg_build
 	dpkg-deb -Zxz -z9 --build pkg_build .
 
-sgdk_build: $(GENDEV)/m68k-elf/lib/libmd.a
-$(GENDEV)/m68k-elf/lib/libmd.a:
+sgdk_build:
 	cd sgdk && GENDEV=$(BUILDDIR) make install 	
-	cp -r sgdk/skeleton $(BUILDDIR)/.
 
 sgdk_clean:
 	- cd sgdk && make clean
-	- rm $(GENDEV)/m68k-elf/lib/libmd.a
+	#- rm $(GENDEV)/m68k-elf/lib/libmd.a
 
 clean: tools_clean toolchain_clean sgdk_clean
 	-rm -rf $(BUILDDIR)

@@ -1,12 +1,12 @@
 diff --git a/makefile.gen b/makefile.gen
-index b9d7877..5c434b5 100644
+index b9d7877..07d96af 100644
 --- a/makefile.gen
 +++ b/makefile.gen
 @@ -24,6 +24,8 @@ BINTOS= $(BIN)/bintos
  RESCOMP= $(BIN)/rescomp
  MKDIR= $(BIN)/mkdir
  
-+include $(GDK)/makefile.over
++include $(GDK)/makefile.vars
 +
  SRC_C= $(wildcard *.c)
  SRC_C+= $(wildcard $(SRC)/*.c)
@@ -28,12 +28,28 @@ index 1f6155d..f31e5b5 100644
  
 -#endif // _D__APPS_SGDK_RES_LIBRES_H_
 +#endif // _RES_LIBRES_H_
-diff --git a/sample/sound/out/rom.bin b/sample/sound/out/rom.bin
-old mode 100644
-new mode 100755
-index b19d7a9..a69da60
-Binary files a/sample/sound/out/rom.bin and b/sample/sound/out/rom.bin differ
-diff --git a/sample/sound/res/resources.res b/sample/sound/res/resources.res
+index 451564b..37b72b7 100644
+--- a/sample/hs_effect/src/boot/rom_head.c
++++ b/sample/hs_effect/src/boot/rom_head.c
+@@ -1,6 +1,6 @@
+ #include "types.h"
+ 
+-
++__attribute__((externally_visible))
+ const struct
+ {
+     char console[16];               /* Console Name (16) */
+index 451564b..37b72b7 100644
+--- a/sample/joytest/src/boot/rom_head.c
++++ b/sample/joytest/src/boot/rom_head.c
+@@ -1,6 +1,6 @@
+ #include "types.h"
+ 
+-
++__attribute__((externally_visible))
+ const struct
+ {
+     char console[16];               /* Console Name (16) */
 index 24d748b..ab8eb69 100644
 --- a/sample/sound/res/resources.res
 +++ b/sample/sound/res/resources.res
@@ -70,11 +86,6 @@ index 117e891..498160b 100644
          case Z80_DRIVER_VGM:
          {
              if (changed & state & BUTTON_X)
-diff --git a/sample/sprite/out/rom.bin b/sample/sprite/out/rom.bin
-old mode 100644
-new mode 100755
-index 794a920..6ae018a
-Binary files a/sample/sprite/out/rom.bin and b/sample/sprite/out/rom.bin differ
 diff --git a/src/z80_drv1.h b/src/z80_drv1.h
 index 06adade..a2da7b8 100644
 --- a/src/z80_drv1.h

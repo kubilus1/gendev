@@ -1,35 +1,11 @@
-GENDEV?=/opt/toolchains/gen/
-MAKE?=make
+GENDEV?=/opt/gendev/
 GENBIN=$(GENDEV)/bin
 GENGCC_BIN=$(GENDEV)/bin
+SGDKDIR=$(CURDIR)/SGDK
+SAMPLESDIR=$(SGDKDIR)/sample
 
-SGDKDIR=SGDK
 
-
-CC = $(GENGCC_BIN)/m68k-elf-gcc 
-AR = $(GENGCC_BIN)/m68k-elf-ar 
-RANLIB = $(GENGCC_BIN)/m68k-elf-ranlib 
-OBJC = $(GENGCC_BIN)/m68k-elf-objcopy 
-RM = rm -f 
-ASMZ80 = $(GENBIN)/sjasm 
-BINTOS = $(GENBIN)/bintos 
-
-OPTION= -Dnologo_ 
-
-CS=$(wildcard extra_libs/*.c)
-SS=$(wildcard extra_libs/*.s)
-S80S=$(wildcard extra_libs/*.s80)
-RESOURCES=$(CS:.c=.o)
-RESOURCES+=$(SS:.s=.o)
-RESOURCES+=$(S80S:.s80=.o)
-
-extrasmd.a_OBJS=$(RESOURCES)
-
-INCS = -Iextra_incs -I$(SGDKDIR)/include -I$(SGDKDIR)/inc -I$(SGDKDIR)/res
-FLAGS = $(OPTION) -m68000 -Wall -O1 -c -fomit-frame-pointer $(INCS) 
-FLAGSZ80 = -isrc -iextra_incs -I$(SGDKDIR)/include
-
-all: tools $(SGDKDIR) $(SGDKDIR)/src/libmd.a 
+all: tools $(SGDKDIR) $(SGDKDIR)/libmd.a 
 
 tools: $(SGDKDIR)
 	cd $(SGDKDIR)/tools/bintos/src && \
@@ -43,8 +19,9 @@ tools: $(SGDKDIR)
 	cd $(SGDKDIR)/tools/xgmtool && \
 		make -f ../../../files/Makefile.xgmtool && cp out/xgmtool $(GENDEV)/bin/.
 	cd $(SGDKDIR)/tools/rescomp && \
-		patch -u -p0 < ../../../files/rescomp.diff && \
 		make -f ../../../files/Makefile.rescomp && cp out/rescomp $(GENDEV)/bin/.
+		#patch -u -p0 < ../../../files/rescomp.diff && \
+		#
 	cp $(SGDKDIR)/bin/lz4w.jar $(GENDEV)/bin/.
 
 patch:
@@ -52,59 +29,41 @@ patch:
 	#svn diff $(SGDKDIR) > files/sgdk.diff
 
 prep:
-	cd $(STDKDIR) && patch -u -p0 < ../files/sgdk.diff
+	cd $(SGDKDIR) && patch -u -p1 < ../files/sgdk.diff
 
 $(SGDKDIR):
 	git clone https://github.com/Stephane-D/SGDK.git
+	cd $(SGDKDIR) && patch -u -p1 < ../files/sgdk.diff
+	cp files/makefile.vars $(SGDKDIR)/.
 	#git clone https://github.com/kubilus1/SGDK.git $(SGDKDIR)
 	#svn co http://sgdk.googlecode.com/svn/trunk $(SGDKDIR)
 	#patch -u -p0 < files/sgdk.diff
 
-$(SGDKDIR)/libmd.a:
+$(SGDKDIR)/libmd.a: $(SGDKDIR)
 	cd $(SGDKDIR) && ln -sf ../files/Makefile.sgdk_lib .
 	cd $(SGDKDIR) && $(MAKE) -f Makefile.sgdk_lib 
 
-install: tools $(SGDKDIR) $(SGDKDIR)/libmd.a
+install: tools $(SGDKDIR)/libmd.a
 	echo "Install"
 	cd $(SGDKDIR) && $(MAKE) -f Makefile.sgdk_lib install
 	install -b $(SGDKDIR)/md.ld $(GENDEV)/ldscripts/sgdk.ld
+	cp -r ./skeleton $(GENDEV)/.
+	cp $(SGDKDIR)/libmd.a $(GENDEV)/lib/.
 	#install -b files/sgdk.ld $(GENDEV)/ldscripts/sgdk.ld
 
-%.a: $(extasmd.a_OBJS)
-	$(RM) $@ 
-	$(AR) cru $@ $($@_OBJS) 
-	$(RANLIB) $@ 
+SAMPLES=$(wildcard $(SAMPLESDIR)/*/out)
+SAMPLEROMS=$(addsuffix /rom.bin,$(SAMPLES))
 
-%.o80: %.s80 
-	$(ASMZ80) $(FLAGSZ80) $< $@ out.lst 
+sample_clean:
+	rm $(SAMPLEROMS)
 
-%.s: %.o80 
-	$(BINTOS) $< 
+samples: $(SAMPLEROMS)
+	@echo "All samples built"
 
-%.o: %.c
-	$(CC) $(FLAGS) -c $< -o $@
-
-%.o: %.s
-	$(CC) $(FLAGS) -c $< -o $@
-
-extras: $(extrasmd.a_OBJS) libextrasmd.a
-	echo "Extras"
-	#cp libextrasmd.a $(GENDEV)/m68k-elf/lib
-	cp extra_libs/*.o $(GENDEV)/m68k-elf/lib
-	cp extra_incs/*.h $(GENDEV)/m68k-elf/include
+$(SAMPLEDIR)/%/out/rom.bin:
+	echo "ROM $@"
+	cd $@/../../ && GDK=$(SGDKDIR) make -f ../../makefile.gen
 
 clean:
 	echo "Clean"
 	-rm -rf $(SGDKDIR)
-	#-cd $(SGDKDIR) && $(MAKE) -f Makefile.sgdk_lib clean
-	#cd $(SGDKDIR) && git checkout src
-	#cd $(SGDKDIR) && git checkout tools
-	#-svn revert -R $(SGDKDIR)/src
-	#-svn revert -R $(SGDKDIR)/tools
-	-rm extra_libs/*.o
-	-rm extra_libs/*.a
-	-rm libextrasmd.a
-
-purge: clean
-	echo "Purge"
-	rm -rf $(SGDKDIR)
