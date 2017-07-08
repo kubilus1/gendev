@@ -32,7 +32,7 @@ build the projects by specifying the provided makefile.gen.
 
 ```
 $ cd myaweseomeproject
-$ make -f $GENDEV/sgdk/mkfiles/makefilegen clean all
+$ make -f $GENDEV/sgdk/mkfiles/makefile.gen clean all
 ```
 
 You may wish, alternatively, to copy the makefile directly to your project.
