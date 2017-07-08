@@ -23,9 +23,6 @@ jobs:
     script:
       - export GENDEV=`pwd`/build
       - make sgdk_clean sgdk_build
-  - stage: sgdk sample build
-    script:
-      - export GENDEV=`pwd`/build
       - make sgdk_samples
   - stage: release to github
     script: 
