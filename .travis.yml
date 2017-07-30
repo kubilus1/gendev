@@ -15,7 +15,7 @@ jobs:
       - make clean
   - stage: build toolchain
     script:
-      - make toolchain_clean toolchain_build
+      - travis_wait 90 make toolchain_clean toolchain_build
   - stage: build tools
     script:
       - make tools_clean tools_build
