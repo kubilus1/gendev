@@ -40,7 +40,7 @@ $(WORKDIR)/build-binutils:
 
 build-gcc-1: $(WORKDIR)/build-gcc
 $(WORKDIR)/build-gcc:
-	find $(TOPDIR) -name "m68k-elf-cc"
+	cd $(WORKDIR)/gcc-$(GCC_VERSION) && patch -p1 -i $(FILESDIR)/gcc.patch
 	cd $(WORKDIR)/gcc-$(GCC_VERSION) && ./contrib/download_prerequisites
 	mkdir -p $@
 	cd $@ && ../gcc-$(GCC_VERSION)/configure --target=m68k-elf --prefix=$(BUILDDIR) --without-headers --with-newlib --enable-languages=c --disable-libssp --disable-tls --with-cpu=m68000 --disable-werror --disable-nls --disable-multilib
