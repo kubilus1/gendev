@@ -48,6 +48,8 @@ $(WORKDIR)/build-gcc:
 
 build-newlib: $(WORKDIR)/build-newlib
 $(WORKDIR)/build-newlib:
+	find $(BUILDDIR) -name "m68k-elf-cc"
+	find $(WORKDIR) -name "m68k-elf-cc"
 	mkdir -p $@
 	cd $@ && ../newlib-$(NEWLIB_VERSION)/configure --target=m68k-elf --prefix=$(BUILDDIR) --with-cpu=m68000 --disable-werror
 	make -C $@ all install DESTDIR= $(LOG)

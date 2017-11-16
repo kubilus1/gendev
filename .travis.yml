@@ -8,14 +8,31 @@ addons:
 cache:
   directories:
   - build
+  - toolchain/work
 jobs:
   include:
   - stage: clean
     script:
       - make clean
-  - stage: build toolchain
+  - stage: Setup toolchain
     script:
-      - travis_wait 90 make toolchain_clean toolchain_build
+      - make toolchain_clean 
+      - cd toolchain && make setup
+  - stage: Build bintutils
+    script:
+      - cd toolchain && make build-binutils
+  - stage: Build GCC pass 1
+    script:
+      - cd toolchain && make build-gcc-1
+  - stage: Build newlib
+    script:
+      - cd toolchain && make build-newlib
+  - stage: Build GCC pass 2
+    script:
+      - cd toolchain && make build-gcc-2
+  - stage: Build ldscripts
+    script:
+      - cd toolchain && make build-ldscripts
   - stage: build tools
     script:
       - make tools_clean tools_build
