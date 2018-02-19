@@ -5,6 +5,7 @@
 SUDO?= sudo
 MGET?= wget
 MAKE?= make
+
 ORIG_USER:=$(shell whoami)
 
 BUILDDIR?=$(CURDIR)/build
@@ -22,19 +23,19 @@ $(BUILDDIR):
 	mkdir -p $@
 
 toolchain_build:
-	cd toolchain && make toolchain_build
+	cd toolchain && $(MAKE) toolchain_build
 
 toolchain_clean:
-	cd toolchain && make toolchain_clean
+	cd toolchain && $(MAKE) toolchain_clean
 
 tools_build: 
-	cd tools && make tools_build
+	cd tools && $(MAKE) tools_build
 
 tools_clean: 
-	cd tools && make tools_clean
+	cd tools && $(MAKE) tools_clean
 
 sgdk_samples:
-	cd sgdk && make sample_clean samples
+	cd sgdk && $(MAKE) sample_clean samples
 
 install:
 	if [ -w /opt ]; then \
@@ -69,10 +70,10 @@ dist/gendev_$(VER)_all.deb: pkg_build
 	cd dist && dpkg-deb -Zxz -z9 --build $(TOPDIR)/pkg_build .
 
 sgdk_build:
-	cd sgdk && GENDEV=$(BUILDDIR) make install 	
+	cd sgdk && GENDEV=$(BUILDDIR) $(MAKE) install 	
 
 sgdk_clean:
-	- cd sgdk && make clean
+	- cd sgdk && $(MAKE) clean
 
 clean: tools_clean toolchain_clean sgdk_clean
 	-rm -rf $(BUILDDIR)

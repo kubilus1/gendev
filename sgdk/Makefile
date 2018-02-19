@@ -20,9 +20,9 @@ tools: $(SGDKDIR)
 	cd $(SGDKDIR)/tools/wavtoraw/src && \
 	gcc -o wavtoraw wavtoraw.c -lm && cp wavtoraw $(GENDEV)/bin/.
 	cd $(SGDKDIR)/tools/xgmtool && \
-		make -f ../../../files/Makefile.xgmtool && cp out/xgmtool $(GENDEV)/bin/.
+		$(MAKE) -f ../../../files/Makefile.xgmtool && cp out/xgmtool $(GENDEV)/bin/.
 	cd $(SGDKDIR)/tools/rescomp && \
-		make -f ../../../files/Makefile.rescomp && cp out/rescomp $(GENDEV)/bin/.
+		$(MAKE) -f ../../../files/Makefile.rescomp && cp out/rescomp $(GENDEV)/bin/.
 		#patch -u -p0 < ../../../files/rescomp.diff && \
 		#
 	cp $(SGDKDIR)/bin/lz4w.jar $(GENDEV)/bin/.
@@ -75,14 +75,14 @@ sample_clean: $(CLEANSAMPLES)
 	@echo "Done cleaning samples"
 
 $(CLEANSAMPLES):
-	cd $@/.. && make -f $(GENDEV)/sgdk/mkfiles/makefile.gen clean
+	cd $@/.. && $(MAKE) -f $(GENDEV)/sgdk/mkfiles/makefile.gen clean
 
 samples: $(SAMPLEROMS)
 	@echo "All samples built"
 
 $(SAMPLEDIR)/%/out/rom.bin:
 	echo "ROM $@"
-	cd $@/../../ && make -f $(GENDEV)/sgdk/mkfiles/makefile.gen
+	cd $@/../../ && $(MAKE) -f $(GENDEV)/sgdk/mkfiles/makefile.gen
 
 clean:
 	echo "Clean"

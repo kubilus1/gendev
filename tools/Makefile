@@ -140,5 +140,5 @@ $(TOOLSDIR)/appack:
 	- mkdir -p $(WORKDIR)/applib 
 	cp -r files/applib/* $(WORKDIR)/applib/. 
 	cd $(WORKDIR)/applib/example && \
-	make -f makefile.elf && \
+	$(MAKE) -f makefile.elf && \
 	cp appack $@
