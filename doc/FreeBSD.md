@@ -10,13 +10,20 @@ From the root shell, run the following commands:
 
 Type 'y' and hit enter to proceed with installing the packages.
 
+Alternatively if you prefer to install from ports you can run the following [which will also install a much lower number of dependencies]:
+
+    portmaster -d devel/git devel/gmake print/texinfo lang/gcc java/openjdk7-jre ftp/wget
+
+Type 'y' and hit enter to proceed with installing the packages.
+
 ## Build the toolchain
 
 Next, clone the repository and build the toolchain. [This may take some time to complete]
 
     git clone https://github.com/edenist/gendev.git
     cd gendev
-    MAKE=gmake gmake
+    export MAKE=gmake [or 'setenv MAKE gmake' for csh]
+    gmake
 
 The built toolchain and SGDK can now be installed.
 
@@ -33,6 +40,7 @@ Now install to $GENDEV
 
 You can test your new installation by building some sample code. This is also useful as a project template.
 
+    export GENDEV=/opt/gendev [or 'setenv GENDEV /opt/gendev' for csh]
     cd ~/  (or some other directory)
     cp -r gendev/sgdk/SGDK/sample/cube_flat ./
     cd cube_flat
