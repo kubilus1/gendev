@@ -100,6 +100,7 @@ NOTES:
   toolchain again in the future.
 * All testing is done on 64bit Ubuntu installations, specifically Zesty and
   Trusty.  Your mileage may vary with other distros.
+* [FreeBSD instructions](doc/FreeBSD.md)
 * This project is still way too messy, and hopefully I have time to cleanup
   cruft bit by bit.
 * I welcome patches and pull requests.
