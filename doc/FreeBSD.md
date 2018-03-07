@@ -46,4 +46,4 @@ You can test your new installation by building some sample code. This is also us
     cd cube_flat
     gmake -f $GENDEV/sgdk/mkfiles/makefile.gen clean all
 
-If everything builds correctly, you should end up with a file out/rom.bin with a size of 131072 bytes. You can run this file in an emulator of choice to confirm your builds are correct. 
+If everything builds correctly, you should end up with a file out/rom.bin with a size of 131072 bytes. You can run this file in an emulator of choice to confirm your builds are functioning correctly. 
