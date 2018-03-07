@@ -20,7 +20,7 @@ Type 'y' and hit enter to proceed with installing the packages.
 
 Next, clone the repository and build the toolchain. [This may take some time to complete]
 
-    git clone https://github.com/edenist/gendev.git
+    git clone https://github.com/kubilus1/gendev.git
     cd gendev
     export MAKE=gmake [or 'setenv MAKE gmake' for csh]
     gmake
