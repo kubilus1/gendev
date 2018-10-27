@@ -1,6 +1,9 @@
 dist: trusty
 language: c
 sudo: false
+branches:
+  only:
+    - master
 addons:
   apt:
     packages:
