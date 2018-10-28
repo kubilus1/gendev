@@ -18,7 +18,7 @@
 # build-m68k-newlib: build-m68k-newlib-only
 
 # User configuration
-MAKE?=make
+MAKE?=CFLAGS=-static make
 sh_target=sh-elf
 m68k_target=m68k-elf
 sh_prefix?=/opt/toolchains/gen/$(sh_target)
@@ -73,7 +73,7 @@ $(build_sh2_targets): target = $(sh_target)
 $(build_sh2_targets): extra_configure_args = --with-endian=big --with-cpu=m2 --disable-werror
 $(build_m68k_targets): prefix = $(m68k_prefix)
 $(build_m68k_targets): target = $(m68k_target)
-$(build_m68k_targets): extra_configure_args = --with-cpu=m68000 --disable-werror
+$(build_m68k_targets): extra_configure_args = --with-cpu=m68000 --disable-werror --disable-nls --disable-multilib
 
 # To avoid code repetition, we use the same commands for both
 # architectures.  But we can't create a single target called
@@ -125,7 +125,7 @@ $(build_gcc_pass2): logdir
 	> $(log)
 	cd $(build);  ../$(src_dir)/configure --target=$(target) --prefix=$(prefix) --with-newlib --disable-libssp --disable-tls \
 		--enable-threads=$(thread_model) --enable-languages=$(pass2_languages) $(extra_configure_args) $(to_log)
-	$(MAKE) -C $(build) all install DESTDIR=$(DESTDIR) $(to_log)
+	$(MAKE) -j8 -C $(build) all install DESTDIR=$(DESTDIR) $(to_log)
 	$(clean_up)
 
 # ---- }}}}

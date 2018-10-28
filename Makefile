@@ -12,7 +12,7 @@ BUILDDIR?=$(CURDIR)/build
 GENDEV?=/opt/gendev/
 TOPDIR=$(CURDIR)
 
-VER=0.3.0
+VER?=dev
 
 PATH := $(BUILDDIR)/bin:$(PATH)
 
@@ -21,6 +21,16 @@ build: toolchain_build tools_build sgdk_build
 
 $(BUILDDIR):
 	mkdir -p $@
+
+stepbystep:
+	make clean
+	make toolchain_clean
+	cd toolchain && make setup
+	cd toolchain && make build-binutils
+	cd toolchain && make build-gcc-1
+	cd toolchain && make build-newlib
+	cd toolchain && make build-gcc-2
+	cd toolchain && make build-ldscripts
 
 toolchain_build:
 	cd toolchain && $(MAKE) toolchain_build

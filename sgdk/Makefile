@@ -4,7 +4,7 @@ GENGCC_BIN=$(GENDEV)/bin
 SGDKDIR=$(CURDIR)/SGDK
 SAMPLESDIR=$(SGDKDIR)/sample
 
-SGDKVER=1_3
+SGDKVER=1.34
 SGDKINSTALLDIR=$(GENDEV)/sgdk$(SGDKVER)
 
 
@@ -34,7 +34,9 @@ prep:
 	cd $(SGDKDIR) && patch -u -p1 < ../files/sgdk.diff
 
 $(SGDKDIR):
-	git clone https://github.com/Stephane-D/SGDK.git
+	git clone -b '$(SGDKVER)' --single-branch --depth 1 https://github.com/Stephane-D/SGDK.git
+	#git clone https://github.com/Stephane-D/SGDK.git
+	#cd $(SGDKDIR) && $ git checkout tags/$(SGDKVER)
 	cd $(SGDKDIR) && patch -u -p1 < ../files/sgdk.diff
 	#cp files/makefile.vars $(SGDKDIR)/.
 	#git clone https://github.com/kubilus1/SGDK.git $(SGDKDIR)
@@ -46,6 +48,7 @@ $(SGDKDIR)/libmd.a: $(SGDKDIR)
 
 $(SGDKINSTALLDIR):
 	mkdir -p $@
+	rm -f $(GENDEV)/sgdk
 	cd $(GENDEV) && ln -sf sgdk$(SGDKVER) sgdk
 
 install: tools $(SGDKDIR)/libmd.a $(SGDKINSTALLDIR)
