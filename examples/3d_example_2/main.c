@@ -2,7 +2,7 @@
 
 #include "meshs.h"
 
-#define MAX_POINTS 256 
+#define MAX_POINTS 256
 
 #define DEBUG 0
 
@@ -27,7 +27,7 @@ Transformation3D transformation;
 
 Vect3D_f16 rotstep;
 
-Vect3D_f16 camvec = {FIX16(0),FIX16(0),FIX16(12)}; 
+Vect3D_f16 camvec = {FIX16(0),FIX16(0),FIX16(12)};
 
 u16 flatDrawing;
 
@@ -53,50 +53,50 @@ fix16 get_distance(Vect3D_f16 v1, Vect3D_f16 v2) {
         //fix16 distance_2 = fix16Sqrt((xd*xd + yd*yd + zd*zd));
         //fix16 distance_2 = fix16Sqrt(xd*xd+yd*yd+zd*zd);
 
-    // Taxicab distance for now    
+    // Taxicab distance for now
 #if 1
     return (abs(v2.x-v1.x) + abs(v2.y-v1.y) + abs(v2.z-v1.z));
 #endif
 }
 
-u16 Partition_polymesh(polymesh **data, u16 p, u16 r)      
-{                                                   
-    polymesh* x = data[p];                               
-    u16 i = p - 1;                                  
-    u16 j = r + 1;                                  
-                                                    
-    while (TRUE)                                    
-    {                                               
-        i++;                                        
-        while ((i < r) && (data[i]->distance < x->distance)) i++;       
-        j--;                                       
-        while ((j > p) && (data[j]->distance > x->distance)) j--;      
-                                                    
-        if (i < j)                                  
-        {                                           
-            polymesh* tmp;                               
-                                                    
-            tmp = data[i];                          
-            data[i] = data[j];                      
-            data[j] = tmp;                         
-        }                                           
-        else                                        
-            return j;                               
-    }                                               
-}                                                   
-                                                    
+u16 Partition_polymesh(polymesh **data, u16 p, u16 r)
+{
+    polymesh* x = data[p];
+    u16 i = p - 1;
+    u16 j = r + 1;
+
+    while (TRUE)
+    {
+        i++;
+        while ((i < r) && (data[i]->distance < x->distance)) i++;
+        j--;
+        while ((j > p) && (data[j]->distance > x->distance)) j--;
+
+        if (i < j)
+        {
+            polymesh* tmp;
+
+            tmp = data[i];
+            data[i] = data[j];
+            data[j] = tmp;
+        }
+        else
+            return j;
+    }
+}
+
 void sort_polymeshs(polymesh** data, u16 p, u16 r) {
-    if (p < r)                                      
-    {                                               
-        u16 q = Partition_polymesh(data, p, r);       
-        sort_polymeshs(data, p, q);                   
-        sort_polymeshs(data, q + 1, r);               
-    }                                               
+    if (p < r)
+    {
+        u16 q = Partition_polymesh(data, p, r);
+        sort_polymeshs(data, p, q);
+        sort_polymeshs(data, q + 1, r);
+    }
 }
 
 void render(polymesh** poly_list, u8 list_len, Transformation3D* transform) {
     Vect3D_f16 v1;
-#if DEBUG    
+#if DEBUG
     Vect2D_s16 cpts_2D[10];
 #endif
     u8 i;
@@ -112,7 +112,7 @@ void render(polymesh** poly_list, u8 list_len, Transformation3D* transform) {
     }
 
     M3D_transform(transform, stars_3D, stars_t3D, NUM_STARS);
-    M3D_project_s16(stars_t3D, stars_t2D, NUM_STARS);  
+    M3D_project_s16(stars_t3D, stars_t2D, NUM_STARS);
 
     BMP_setPixels_V2D(stars_t2D, 15, NUM_STARS);
 #if DEBUG
@@ -149,7 +149,7 @@ void render(polymesh** poly_list, u8 list_len, Transformation3D* transform) {
         m.pt1.y-=20;
 
         BMP_drawLine(&m);
-        
+
         m.pt1 = cpts_2D[i];
         m.pt2 = cpts_2D[i];
 
@@ -178,7 +178,7 @@ int main()
     JOY_setEventHandler(handleJoyEvent);
 
     //BMP_init(TRUE, PAL1, FALSE);
-    BMP_init(FALSE, PAL0, FALSE);
+    BMP_init(TRUE, PLAN_A, PAL1, FALSE);
 
     //BGR ?
 
@@ -208,11 +208,11 @@ int main()
 
     flatDrawing = 1;
     rotstep.y = FIX16(0.2);
-    
+
     light_mask[0] = 0x00;
-    light_mask[1] = 0x10; 
+    light_mask[1] = 0x10;
     light_mask[2] = 0x20;
- 
+
     int i;
     for(i=0;i<NUM_STARS;i++) {
         stars_3D[i].x=fix16Div(random(), FIX16(1));
@@ -295,13 +295,13 @@ void drawPoints(u8 col, polymesh inpoly)
                 *pt_dst++ = pts_2D[*poly_ind++];
             }
             *pt_dst--;
-            
+
             dp = fix16Mul(transformation.lightInv.x, norm->x) +
                  fix16Mul(transformation.lightInv.y, norm->y) +
                  fix16Mul(transformation.lightInv.z, norm->z);
 
             col = *base_col + pal_offset;
-            
+
             if (dp > 0) {
                 light += (dp >> (FIX16_FRAC_BITS - 1));
                 if (light >= 3) {
@@ -309,7 +309,7 @@ void drawPoints(u8 col, polymesh inpoly)
                 } else {
                     col = light_mask[light] | col;
                 }
-            } else {                
+            } else {
                 col = light_mask[0] | col;
             }
 
@@ -323,7 +323,7 @@ void drawPoints(u8 col, polymesh inpoly)
 #endif
             } else {
 #if DEBUG
-                BMP_drawText("CULLED", 10, i);            
+                BMP_drawText("CULLED", 10, i);
 #endif
             }
             base_col++;
@@ -338,7 +338,7 @@ void drawPoints(u8 col, polymesh inpoly)
 
         l.col = col;
         line_ind = inpoly.line_ind;
-        
+
         // Number of lines
         i = inpoly.num_edges;
 
