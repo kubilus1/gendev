@@ -3,16 +3,16 @@ MAKE?=make
 GENGCC_BIN=$(GENDEV)/bin
 GENBIN=$(GENDEV)/bin
 
-CC = $(GENGCC_BIN)/m68k-elf-gcc 
-AR = $(GENGCC_BIN)/m68k-elf-ar 
-RANLIB = $(GENGCC_BIN)/m68k-elf-ranlib 
-OBJC = $(GENGCC_BIN)/m68k-elf-objcopy 
-RM = rm -f 
-ASMZ80 = $(GENBIN)/sjasm 
-BINTOS = $(GENBIN)/bintos 
-RESCOMP= $(GENBIN)/rescomp
+CC = $(GENGCC_BIN)/m68k-elf-gcc
+AR = $(GENGCC_BIN)/m68k-elf-ar
+RANLIB = $(GENGCC_BIN)/m68k-elf-ranlib
+OBJC = $(GENGCC_BIN)/m68k-elf-objcopy
+RM = rm -f
+ASMZ80 = $(GENBIN)/sjasm
+BINTOS = $(GENBIN)/bintos
+RESCOMP= java -jar ./bin/rescomp.jar
 
-OPTION= -Dnologo_ 
+OPTION= -Dnologo_
 
 CS=$(wildcard src/*.c)
 SS=$(wildcard src/*.s)
@@ -24,41 +24,46 @@ RESOURCES+=$(CS:.c=.o)
 RESOURCES+=$(SS:.s=.o)
 RESOURCES+=$(S80S:.s80=.o)
 
-
 libmd.a_OBJS=$(RESOURCES)
 
 INCS = -Iinc -Ires
-FLAGS = $(OPTION) -m68000 -Wall -O1 -c -fomit-frame-pointer $(INCS) 
-FLAGSZ80 = -isrc -iinc  
+FLAGS = $(OPTION) -m68000 -Wall -O1 -c -fomit-frame-pointer $(INCS)
+FLAGSZ80 = -isrc -iinc
 
-all: $(libmd.a_OBJS) libmd.a 
+all: appack $(libmd.a_OBJS) libmd.a
 
-%.a: $(libmd.a_OBJS) 
-	$(RM) $@ 
-	$(AR) cru $@ $($@_OBJS) 
-	$(RANLIB) $@ 
+appack:
+	echo -n "osBits="> tools/appack/makefile.vars
+	getconf LONG_BIT >> tools/appack/makefile.vars
+	cd tools/appack/ && make -f makefile.elf
+	cp tools/appack/appack bin/
 
-%.o80: %.s80 
-	$(ASMZ80) $(FLAGSZ80) $< $@ out.lst 
+%.a: $(libmd.a_OBJS)
+	$(RM) $@
+	$(AR) cru $@ $($@_OBJS)
+	$(RANLIB) $@
 
-%.s: %.o80 
-	$(BINTOS) $< 
+%.o80: %.s80
+	$(ASMZ80) $(FLAGSZ80) $< $@ out.lst
 
-%.o: %.c 
-	$(CC) $(FLAGS) -c $< -o $@ 
+%.s: %.o80
+	$(BINTOS) $<
 
-%.o: %.s 
-	$(CC) $(FLAGS) -c $< -o $@ 
+%.o: %.c
+	$(CC) $(FLAGS) -c $< -o $@
+
+%.o: %.s
+	$(CC) $(FLAGS) -c $< -o $@
 
 %.s: %.res
 	$(RESCOMP) $< $@
 
-clean: 
-	#$(RM) -f z80_drv1.c z80_drv2.c 
+clean:
+	#$(RM) -f z80_drv1.c z80_drv2.c
 	$(RM) $(RESOURCES)
-	$(RM) -rf *.o *.a *.o80 *.log *.lst 
+	$(RM) -rf *.o *.a *.o80 *.log *.lst
 
-install: all 
-	cp inc/*.h $(GENDEV)/m68k-elf/include 
-	cp res/*.h $(GENDEV)/m68k-elf/include 
-	cp libmd.a $(GENDEV)/m68k-elf/lib 
+install: all
+	cp inc/*.h $(GENDEV)/m68k-elf/include
+	cp res/*.h $(GENDEV)/m68k-elf/include
+	cp libmd.a $(GENDEV)/m68k-elf/lib

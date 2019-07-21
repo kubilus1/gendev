@@ -38,10 +38,10 @@ toolchain_build:
 toolchain_clean:
 	cd toolchain && $(MAKE) toolchain_clean
 
-tools_build: 
+tools_build:
 	cd tools && $(MAKE) tools_build
 
-tools_clean: 
+tools_clean:
 	cd tools && $(MAKE) tools_clean
 
 sgdk_samples:
@@ -80,7 +80,7 @@ dist/gendev_$(VER)_all.deb: pkg_build
 	cd dist && dpkg-deb -Zxz -z9 --build $(TOPDIR)/pkg_build .
 
 sgdk_build:
-	cd sgdk && GENDEV=$(BUILDDIR) $(MAKE) install 	
+	cd sgdk && GENDEV=$(BUILDDIR) $(MAKE) install
 
 sgdk_clean:
 	- cd sgdk && $(MAKE) clean
@@ -97,4 +97,3 @@ clean: tools_clean toolchain_clean sgdk_clean
 #########################################################
 #########################################################
 #########################################################
-
