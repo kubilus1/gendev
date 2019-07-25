@@ -47,17 +47,19 @@ tools_clean:
 sgdk_samples:
 	cd sgdk && $(MAKE) sample_clean samples
 
-install:
-	if [ -w /opt ]; then \
-		mkdir -p $(GENDEV); \
-	else \
-		$(SUDO) mkdir -p $@; \
-		$(SUDO) chown $(ORIG_USER):$(ORIG_USER) $@; \
-	fi
+install: $(GENDEV)
 	echo "export GENDEV=$(GENDEV)" > ~/.gendev
 	echo "export PATH=\$$GENDEV/bin:\$$PATH" >> ~/.gendev
 	#$(SUDO) chmod 777 $@
 	cp -r $(BUILDDIR)/* $(GENDEV)/.
+
+$(GENDEV):
+	if [ -w `dirname $@` ]; then \
+		mkdir -p $@; \
+	else \
+		$(SUDO) mkdir -p $@; \
+		$(SUDO) chown $(ORIG_USER):$(ORIG_USER) $@; \
+	fi
 
 release: deb txz
 	echo "Release"

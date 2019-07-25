@@ -1,4 +1,4 @@
-GENDEV?=/opt/toolchains/gen/
+GENDEV?=/opt/gendev/
 GCC_VER?=6.3.0
 
 MAKE?=make
@@ -28,16 +28,16 @@ MKISOFS = mkisofs
 SCD_LOADER = scd/LukeProjectCD
 
 OPTION =
-INCS = -I. -I$(GENDEV)/m68k-elf/include -I$(GENDEV)/m68k-elf/include -Isrc -Ires
+INCS = -I./res -I. -I$(GENDEV)/m68k-elf/include -I$(GENDEV)/sgdk/inc -I$(GENDEV)/sgdk/res -I./src
 CCFLAGS = $(OPTION) -m68000 -Wall -O2 -c -fomit-frame-pointer
 HWCCFLAGS = $(OPTION) -m68000 -Wall -O1 -c -fomit-frame-pointer
 Z80FLAGS = -vb2
 ASFLAGS = -m68000 --register-prefix-optional
 #LIBS =  -L$(GENDEV)/m68k-elf/lib -L$(GENDEV)/m68k-elf/lib/gcc/m68k-elf/4.8.2 -L$(GENDEV)/m68k-elf/m68k-elf/lib -lmd -lc -lgcc -lnosys -lm 
-LIBS =  -L$(GENDEV)/m68k-elf/lib -L$(GENDEV)/m68k-elf/lib/gcc/m68k-elf/* -lmd -lnosys 
+LIBS =  -L$(GENDEV)/m68k-elf/lib -L$(GENDEV)/sgdk/lib -lmd -lnosys 
 LINKFLAGS = -T $(GENDEV)/ldscripts/sgdk.ld -Map=output.map -nostdlib 
 SCDLINKFLAGS = -T scd/mdcd.ld -nostdlib 
-ARCHIVES = $(GENDEV)/m68k-elf/lib/libmd.a 
+ARCHIVES = $(GENDEV)/sgdk/lib/libmd.a 
 
 
 # Are we AMD64?
@@ -106,6 +106,11 @@ all: out.bin
 
 boot/sega.o: boot/rom_head.bin
 	$(AS) $(ASFLAGS) boot/sega.s -o $@
+
+
+src/boot/sega.o: out/rom_head.bin
+	$(AS) $(ASFLAGS) src/boot/sega.s -o $@
+
 
 scd/segacd.o: 
 	$(AS) $(ASFLAGS) scd/segacd.s -o $@
@@ -195,6 +200,9 @@ out.iso: out.elf_scd
 	$(RESCOMP) $< $@
 
 boot/rom_head.bin: boot/rom_head.o
+	$(LD) $(LINKFLAGS) --oformat binary -o $@ $<
+	
+out/rom_head.bin: src/boot/rom_head.o
 	$(LD) $(LINKFLAGS) --oformat binary -o $@ $<
 	
 
