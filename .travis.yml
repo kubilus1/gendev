@@ -7,9 +7,10 @@ branches:
     - /^\d+\.\d+(\.\d+)?(-\S*)?$/
 addons:
   apt:
+    update: true
     packages:
     - texinfo
-    - openjdk-8-jdk
+    - openjdk-8-jdk-headless
     - dos2unix
     - g++
 cache:
