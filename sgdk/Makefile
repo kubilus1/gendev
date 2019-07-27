@@ -4,7 +4,7 @@ GENGCC_BIN=$(GENDEV)/bin
 SGDKDIR=$(CURDIR)/SGDK
 SAMPLESDIR=$(SGDKDIR)/sample
 
-SGDKVER=v1.40
+SGDKVER=1.34
 SGDKINSTALLDIR=$(GENDEV)/sgdk$(SGDKVER)
 
 all: tools $(SGDKDIR) $(SGDKDIR)/libmd.a
@@ -18,17 +18,17 @@ tools: $(SGDKDIR)
 		$(MAKE) -f ../../../files/Makefile.xgmtool && cp out/xgmtool $(GENDEV)/bin/.
 	cp $(SGDKDIR)/bin/*.jar $(GENDEV)/bin/.
 
-patch:
-	cd $(SGDKDIR) && git diff * > ../files/sgdk.diff
+patch: $(SGDKDIR)
+	cd $(SGDKDIR) && git diff * > ../files/sgdk_$(SGDKVER).diff
 
-prep:
-	cd $(SGDKDIR) && patch -u -p1 -l < ../files/sgdk.diff
+prep: $(SGDKDIR)
+	cd $(SGDKDIR) && patch -u -p1 -l < ../files/sgdk_$(SGDKVER).diff
 
 $(SGDKDIR):
 	git clone -b '$(SGDKVER)' --single-branch --depth 1 https://github.com/Stephane-D/SGDK.git
-	cd $(SGDKDIR) && find . -regextype posix-extended -regex '.*make(lib|file).*' -exec dos2unix {} \; && patch -u -p1 -l < ../files/sgdk.diff
+	#cd $(SGDKDIR) && find . -regextype posix-extended -regex '.*make(lib|file).*' -exec dos2unix {} \;
 
-$(SGDKDIR)/libmd.a: $(SGDKDIR)
+$(SGDKDIR)/libmd.a: prep
 	cp -rf ../tools/files/applib/lib $(SGDKDIR)/tools/appack
 	cd $(SGDKDIR) && ln -sf ../files/Makefile.sgdk_lib .
 	cd $(SGDKDIR) && $(MAKE) -f Makefile.sgdk_lib
