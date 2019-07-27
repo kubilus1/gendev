@@ -36,6 +36,9 @@ jobs:
           #  - gendev_*_all.deb
 
   release:
+    docker:
+      - image: ubuntu:bionic
+
     steps:
       - attach_workspace:
           at: ./build
