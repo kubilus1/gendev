@@ -26,4 +26,4 @@ jobs:
 
       - run:
           name: build SGDK
-          command: sgdk_build
+          command: make sgdk_build
