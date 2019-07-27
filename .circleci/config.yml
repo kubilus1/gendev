@@ -53,14 +53,15 @@ jobs:
 
 workflows:
   version: 2
-  jobs:
-    - build
-    - release:
-        requires:
-          - build
-        filters:
-          tags:
-            only: /.*/
-          branches:
-            only: master
+  build_n_release:
+    jobs:
+      - build
+      - release:
+          requires:
+            - build
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              only: master
 
