@@ -16,6 +16,6 @@ jobs:
           name: build tools
           command: make tools_build
 
-	  - run:
-		  name: build SGDK
+      - run:
+          name: build SGDK
           command: sgdk_build
