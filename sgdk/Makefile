@@ -13,12 +13,8 @@ all: tools $(SGDKDIR) $(SGDKDIR)/libmd.a
 tools: $(SGDKDIR)
 	cd $(SGDKDIR)/tools/bintos/src && \
 	gcc -o bintos bintos.c  && cp bintos $(GENDEV)/bin/.
-	cd $(SGDKDIR)/tools/pcmtoraw/src && \
-	gcc -o pcmtoraw pcmtoraw.c  && cp pcmtoraw $(GENDEV)/bin/.
 	cd $(SGDKDIR)/tools/sizebnd/src && \
 	gcc -o sizebnd sizebnd.c  && cp sizebnd $(GENDEV)/bin/.
-	cd $(SGDKDIR)/tools/wavtoraw/src && \
-	gcc -o wavtoraw wavtoraw.c -lm && cp wavtoraw $(GENDEV)/bin/.
 	cd $(SGDKDIR)/tools/xgmtool && \
 		$(MAKE) -f ../../../files/Makefile.xgmtool && cp out/xgmtool $(GENDEV)/bin/.
 	cd $(SGDKDIR)/tools/rescomp && \
@@ -28,16 +24,16 @@ tools: $(SGDKDIR)
 	cp $(SGDKDIR)/bin/lz4w.jar $(GENDEV)/bin/.
 
 patch:
-	cd $(SGDKDIR) && git diff * > ../files/sgdk.diff
+	cd $(SGDKDIR) && git diff * > ../files/sgdk_$(SGDKVER).diff
 
 prep:
-	cd $(SGDKDIR) && patch -u -p1 < ../files/sgdk.diff
+	cd $(SGDKDIR) && patch -u -p1 < ../files/sgdk_$(SGDKVER).diff
 
 $(SGDKDIR):
 	git clone -b '$(SGDKVER)' --single-branch --depth 1 https://github.com/Stephane-D/SGDK.git
 	#git clone https://github.com/Stephane-D/SGDK.git
 	#cd $(SGDKDIR) && $ git checkout tags/$(SGDKVER)
-	cd $(SGDKDIR) && patch -u -p1 < ../files/sgdk.diff
+	cd $(SGDKDIR) && patch -u -p1 < ../files/sgdk_$(SGDKVER).diff
 	#cp files/makefile.vars $(SGDKDIR)/.
 	#git clone https://github.com/kubilus1/SGDK.git $(SGDKDIR)
 	#patch -u -p0 < files/sgdk.diff

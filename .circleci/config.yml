@@ -1,0 +1,70 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: ubuntu:bionic
+
+    environment:
+      - DEBIAN_FRONTEND=noninteractive
+    
+    steps:
+      - checkout
+      - run:
+          name: Setup prereqs
+          command: |
+              apt-get update
+              apt-get install -y build-essential wget unzip unrar-free texinfo git openjdk-8-jdk-headless dos2unix
+      - run:
+          name: build toolchain
+          command: make toolchain_build
+      - run:
+          name: build tools
+          command: make tools_build
+      - run:
+          name: build SGDK
+          command: make sgdk_build
+      - run:
+          name: build samples
+          command: |
+              export GENDEV=`pwd`/build
+              make sgdk_samples
+      - persist_to_workspace:
+          root: build
+          paths:
+             - '*'
+          #  - gendev_*.txz
+          #  - gendev_*_all.deb
+
+  release:
+    docker:
+      - image: ubuntu:bionic
+
+    steps:
+      - attach_workspace:
+          at: ./build
+      - run:
+          name: Create release
+          command: make release
+      - run:
+          name: Upload release bins
+          command: |
+               REL_URL=$(curl -H "Authorization: token ${GITHUB_TOKEN}" https://api.github.com/repos/kubilus1/gendev/releases/tags/0.0.0 | jq -r '.upload_url' | sed -e 's/{?name,label}/?name=/g')
+               for PKG in $(ls ./dist/*); do
+                   PKG_NAME=$(basename $PKG)
+                   curl -vvvv -XPOST --data-binary @${PKG} -H "Content-Type: application/octet-stream" -H "Authorization: token ${GITHUB_TOKEN}" ${REL_URL}${PKG_NAME}
+               done
+
+workflows:
+  version: 2
+  build_n_release:
+    jobs:
+      - build
+      - release:
+          requires:
+            - build
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              only: master
+
