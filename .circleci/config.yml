@@ -55,7 +55,7 @@ workflows:
   version: 2
   jobs:
     - build
-    - release
+    - release:
         requires:
           - build
         filters:
