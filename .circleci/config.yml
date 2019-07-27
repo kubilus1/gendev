@@ -1,0 +1,20 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: ubuntu:bionic
+
+    steps:
+      - checkout
+
+      - run:
+          name: build toolchain
+          command: make toolchain_build
+
+      - run:
+          name: build tools
+          command: make tools_build
+
+	  - run:
+		  name: build SGDK
+          command: sgdk_build
