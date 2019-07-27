@@ -13,8 +13,12 @@ all: tools $(SGDKDIR) $(SGDKDIR)/libmd.a
 tools: $(SGDKDIR)
 	cd $(SGDKDIR)/tools/bintos/src && \
 	gcc -o bintos bintos.c  && cp bintos $(GENDEV)/bin/.
+	cd $(SGDKDIR)/tools/pcmtoraw/src && \
+		gcc -o pcmtoraw pcmtoraw.c  && cp pcmtoraw $(GENDEV)/bin/.
 	cd $(SGDKDIR)/tools/sizebnd/src && \
 	gcc -o sizebnd sizebnd.c  && cp sizebnd $(GENDEV)/bin/.
+	cd $(SGDKDIR)/tools/wavtoraw/src && \
+		gcc -o wavtoraw wavtoraw.c -lm && cp wavtoraw $(GENDEV)/bin/.
 	cd $(SGDKDIR)/tools/xgmtool && \
 		$(MAKE) -f ../../../files/Makefile.xgmtool && cp out/xgmtool $(GENDEV)/bin/.
 	cd $(SGDKDIR)/tools/rescomp && \
