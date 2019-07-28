@@ -40,6 +40,7 @@ jobs:
       - image: ubuntu:bionic
 
     steps:
+      - checkout
       - run: apt-get update && apt-get install ca-certificates -y
       - run:
           name: Setup prereqs
