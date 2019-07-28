@@ -51,7 +51,7 @@ jobs:
           at: ./build
       - run:
           name: Create release
-          command: make release
+          command: VER=$CIRCLE_TAG make release
       - run:
           name: Upload release bins
           command: |
