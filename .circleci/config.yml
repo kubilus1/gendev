@@ -58,12 +58,15 @@ workflows:
   version: 2
   build_n_release:
     jobs:
-      - build
+      - build:
+          filters:
+            tags:
+              only: /^\d+\.\d+(\.\d+)?(-\S*)?$/
       - release:
           requires:
             - build
           filters:
             tags:
-              only: /.*/
+              only: /^\d+\.\d+(\.\d+)?(-\S*)?$/
             branches:
               ignore: /.*/ 
