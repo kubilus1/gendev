@@ -41,6 +41,11 @@ jobs:
 
     steps:
       - run: apt-get update && apt-get install ca-certificates -y
+      - run:
+          name: Setup prereqs
+          command: |
+              apt-get update
+              apt-get install -y ca-certificates build-essential curl jq
       - attach_workspace:
           at: ./build
       - run:
