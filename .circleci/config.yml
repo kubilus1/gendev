@@ -55,7 +55,7 @@ jobs:
       - run:
           name: Upload release bins
           command: |
-               REL_URL=$(curl -H "Authorization: token ${GITHUB_TOKEN}" https://api.github.com/repos/kubilus1/gendev/releases/tags/0.0.0 | jq -r '.upload_url' | sed -e 's/{?name,label}/?name=/g')
+               REL_URL=$(curl -H "Authorization: token ${GITHUB_TOKEN}" https://api.github.com/repos/kubilus1/gendev/releases/tags/${CIRCLE_TAG} | jq -r '.upload_url' | sed -e 's/{?name,label}/?name=/g')
                for PKG in $(ls ./dist/*); do
                    PKG_NAME=$(basename $PKG)
                    curl -vvvv -XPOST --data-binary @${PKG} -H "Content-Type: application/octet-stream" -H "Authorization: token ${GITHUB_TOKEN}" ${REL_URL}${PKG_NAME}
