@@ -40,15 +40,22 @@ jobs:
       - image: ubuntu:bionic
 
     steps:
+      - checkout
+      - run: apt-get update && apt-get install ca-certificates -y
+      - run:
+          name: Setup prereqs
+          command: |
+              apt-get update
+              apt-get install -y ca-certificates build-essential curl jq
       - attach_workspace:
           at: ./build
       - run:
           name: Create release
-          command: make release
+          command: VER=$CIRCLE_TAG make release
       - run:
           name: Upload release bins
           command: |
-               REL_URL=$(curl -H "Authorization: token ${GITHUB_TOKEN}" https://api.github.com/repos/kubilus1/gendev/releases/tags/0.0.0 | jq -r '.upload_url' | sed -e 's/{?name,label}/?name=/g')
+               REL_URL=$(curl -H "Authorization: token ${GITHUB_TOKEN}" https://api.github.com/repos/kubilus1/gendev/releases/tags/${CIRCLE_TAG} | jq -r '.upload_url' | sed -e 's/{?name,label}/?name=/g')
                for PKG in $(ls ./dist/*); do
                    PKG_NAME=$(basename $PKG)
                    curl -vvvv -XPOST --data-binary @${PKG} -H "Content-Type: application/octet-stream" -H "Authorization: token ${GITHUB_TOKEN}" ${REL_URL}${PKG_NAME}
@@ -58,13 +65,15 @@ workflows:
   version: 2
   build_n_release:
     jobs:
-      - build
+      - build:
+          filters:
+            tags:
+              only: /^\d+\.\d+(\.\d+)?(-\S*)?$/
       - release:
           requires:
             - build
           filters:
             tags:
-              only: /.*/
+              only: /^\d+\.\d+(\.\d+)?(-\S*)?$/
             branches:
-              only: master
-
+              ignore: /.*/ 
