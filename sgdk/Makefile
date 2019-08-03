@@ -4,7 +4,7 @@ GENGCC_BIN=$(GENDEV)/bin
 SGDKDIR=$(CURDIR)/SGDK
 SAMPLESDIR=$(SGDKDIR)/sample
 
-SGDKVER=1.34
+SGDKVER=v1.40
 SGDKINSTALLDIR=$(GENDEV)/sgdk$(SGDKVER)
 
 all: tools $(SGDKDIR) $(SGDKDIR)/libmd.a
@@ -19,7 +19,7 @@ tools: $(SGDKDIR)
 	cp $(SGDKDIR)/bin/*.jar $(GENDEV)/bin/.
 
 patch: $(SGDKDIR)
-	cd $(SGDKDIR) && git diff * > ../files/sgdk_$(SGDKVER).diff
+	cd $(SGDKDIR) && git diff . > ../files/sgdk_$(SGDKVER).diff
 
 prep: $(SGDKDIR)
 	cd $(SGDKDIR) && patch -u -p1 -l < ../files/sgdk_$(SGDKVER).diff

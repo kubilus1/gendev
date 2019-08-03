@@ -1,3 +1,5 @@
+# Not using Travis anymore but keeping this for now.
+
 dist: bionic
 language: c
 sudo: false
