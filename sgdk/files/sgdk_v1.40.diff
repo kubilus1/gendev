@@ -12,7 +12,7 @@ index f12594d..d240b3f 100644
  SRC_C+= $(wildcard $(SRC)/*.c)
  SRC_S= $(wildcard *.s)
 diff --git a/sample/xgmplayer/src/main.c b/sample/xgmplayer/src/main.c
-index 5623e70..5c4e75f 100644
+index 5623e70..f23590b 100644
 --- a/sample/xgmplayer/src/main.c
 +++ b/sample/xgmplayer/src/main.c
 @@ -285,7 +285,7 @@ int main()
@@ -20,7 +20,7 @@ index 5623e70..5c4e75f 100644
  
      // init Sprite engine
 -    SPR_initEx(20, 80, 64);
-+    SPR_initEx(80, 64);
++    SPR_initEx(0, 0);
  
      // prepare sprites for panning
      YMPanSprites[0] = SPR_addSprite(&left_right, 32 + 0, 203, TILE_ATTR(PAL0, TRUE, FALSE, FALSE));

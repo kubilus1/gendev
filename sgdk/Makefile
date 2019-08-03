@@ -26,7 +26,6 @@ prep: $(SGDKDIR)
 
 $(SGDKDIR):
 	git clone -b '$(SGDKVER)' --single-branch --depth 1 https://github.com/Stephane-D/SGDK.git
-	#cd $(SGDKDIR) && find . -regextype posix-extended -regex '.*make(lib|file).*' -exec dos2unix {} \;
 
 $(SGDKDIR)/libmd.a: prep
 	cp -rf ../tools/files/applib/lib $(SGDKDIR)/tools/appack

@@ -55,7 +55,7 @@ PROJECT STRUCTURE
 TOOLCHAIN BUILDING
 ==================
 
-The toolchain is now setup with Travis-CI for continuous integration. This
+The toolchain is now setup with CircleCI for continuous integration. This
 should ease porting and allow better validation of incoming patches.
 
 You may decide to build the full toolchain by making sure you have the following
@@ -66,7 +66,6 @@ package installed:
  - curl
  - wget
  - unzip
- - dos2unix
 
 and then:
 ```
@@ -75,7 +74,7 @@ $ make
 ```
 ... and wait about 45 minutes or so.
 
-The .travis-ci.yml script is a good place to look to see how the individual
+The .circleci/config.yml script is a good place to look to see how the individual
 build stages are executed.
 
 
