@@ -38,22 +38,24 @@ toolchain_build:
 toolchain_clean:
 	cd toolchain && $(MAKE) toolchain_clean
 
-tools_build: 
+tools_build:
 	cd tools && $(MAKE) tools_build
 
-tools_clean: 
+tools_clean:
 	cd tools && $(MAKE) tools_clean
 
 sgdk_samples:
 	cd sgdk && $(MAKE) sample_clean samples
 
-install:
+$(GENDEV):
 	if [ -w /opt ]; then \
 		mkdir -p $(GENDEV); \
 	else \
 		$(SUDO) mkdir -p $@; \
 		$(SUDO) chown $(ORIG_USER):$(ORIG_USER) $@; \
 	fi
+
+install: $(GENDEV)
 	echo "export GENDEV=$(GENDEV)" > ~/.gendev
 	echo "export PATH=\$$GENDEV/bin:\$$PATH" >> ~/.gendev
 	#$(SUDO) chmod 777 $@
@@ -80,7 +82,7 @@ dist/gendev_$(VER)_all.deb: pkg_build
 	cd dist && dpkg-deb -Zxz -z9 --build $(TOPDIR)/pkg_build .
 
 sgdk_build:
-	cd sgdk && GENDEV=$(BUILDDIR) $(MAKE) install 	
+	cd sgdk && GENDEV=$(BUILDDIR) $(MAKE) install
 
 sgdk_clean:
 	- cd sgdk && $(MAKE) clean
@@ -97,4 +99,3 @@ clean: tools_clean toolchain_clean sgdk_clean
 #########################################################
 #########################################################
 #########################################################
-

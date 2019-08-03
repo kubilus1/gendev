@@ -1,4 +1,6 @@
-dist: trusty
+# Not using Travis anymore but keeping this for now.
+
+dist: bionic
 language: c
 sudo: false
 branches:
@@ -7,8 +9,12 @@ branches:
     - /^\d+\.\d+(\.\d+)?(-\S*)?$/
 addons:
   apt:
+    update: true
     packages:
     - texinfo
+    - openjdk-8-jdk-headless
+    - dos2unix
+    - g++
 cache:
   directories:
   - build
@@ -20,7 +26,7 @@ jobs:
       - make clean
   - stage: Setup toolchain
     script:
-      - make toolchain_clean 
+      - make toolchain_clean
       - cd toolchain && make setup
   - stage: Build bintutils
     script:
@@ -47,7 +53,7 @@ jobs:
       - make sgdk_samples
   - stage: release to github
     if: tag IS present
-    script: 
+    script:
     - echo "Deploying to github..."
     - VER=$TRAVIS_TAG make release
     deploy:

@@ -10,6 +10,10 @@ BASIC INSTRUCTIONS
 The quickest way to get going would be to simply install one of the release
 packages for this project.  Both a 'txz' and 'deb' package are provided.
 
+To run SGDK or in our case, Gendev, you need following packages:
+ - texinfo 
+ - openjdk-8-jdk
+
 USAGE
 =====
 
@@ -51,19 +55,26 @@ PROJECT STRUCTURE
 TOOLCHAIN BUILDING
 ==================
 
-The toolchain is now setup with Travis-CI for continuous integration. This
+The toolchain is now setup with CircleCI for continuous integration. This
 should ease porting and allow better validation of incoming patches.
 
-You may decide to build the full toolchain by making sure you have the texinfo
-package installed, and then:
+You may decide to build the full toolchain by making sure you have the following
+package installed:
+ - git
+ - build-essential
+ - texinfo
+ - curl
+ - wget
+ - unzip
 
+and then:
 ```
 $ cd gendev
 $ make
 ```
 ... and wait about 45 minutes or so.
 
-The .travis-ci.yml script is a good place to look to see how the individual
+The .circleci/config.yml script is a good place to look to see how the individual
 build stages are executed.
 
 
@@ -85,7 +96,7 @@ maintain.
 
 I am attempting to:
 
-1. Not necessarilly require building everything 
+1. Not necessarilly require building everything
 2. Shorten the build time
 3. Hook up with continuous integration tools
 4. Reduce the footprint
@@ -98,8 +109,8 @@ NOTES:
 
 * The 32x stuff is currently deprecated. I may create steps to build this
   toolchain again in the future.
-* All testing is done on 64bit Ubuntu installations, specifically Zesty and
-  Trusty.  Your mileage may vary with other distros.
+* All testing is done on 64bit Ubuntu installations, specifically Bionic.
+  Your mileage may vary with other distros.
 * [FreeBSD instructions](doc/FreeBSD.md)
 * This project is still way too messy, and hopefully I have time to cleanup
   cruft bit by bit.

@@ -1,0 +1,44 @@
+diff --git a/makefile.gen b/makefile.gen
+index f12594d..d240b3f 100644
+--- a/makefile.gen
++++ b/makefile.gen
+@@ -25,6 +25,8 @@ BINTOS= $(BIN)/bintos
+ RESCOMP= $(JAVA) -jar $(BIN)/rescomp.jar
+ MKDIR= $(BIN)/mkdir
+ 
++include $(GENDEV)/sgdk/mkfiles/makefile.vars
++
+ SRC_C= $(wildcard *.c)
+ SRC_C+= $(wildcard $(SRC)/*.c)
+ SRC_S= $(wildcard *.s)
+diff --git a/sample/xgmplayer/src/main.c b/sample/xgmplayer/src/main.c
+index 5623e70..f23590b 100644
+--- a/sample/xgmplayer/src/main.c
++++ b/sample/xgmplayer/src/main.c
+@@ -285,7 +285,7 @@ int main()
+     initBGScroll();
+ 
+     // init Sprite engine
+-    SPR_initEx(20, 80, 64);
++    SPR_initEx(0, 0);
+ 
+     // prepare sprites for panning
+     YMPanSprites[0] = SPR_addSprite(&left_right, 32 + 0, 203, TILE_ATTR(PAL0, TRUE, FALSE, FALSE));
+diff --git a/tools/appack/makefile.elf b/tools/appack/makefile.elf
+index 63864f9..2826b2f 100644
+--- a/tools/appack/makefile.elf
++++ b/tools/appack/makefile.elf
+@@ -12,7 +12,12 @@ objects = appack.o
+ 
+ cflags  = -Wall -O2 -s
+ ldflags = $(cflags)
+-incdir  = ../lib/elf
++include ./makefile.vars
++ifeq ($(osBits), 32)
++  incdir  = ./lib/elf
++else
++  incdir  = ./lib/elf64
++endif
+ libs    = $(incdir)/aplib.a
+ 
+ .PHONY: all clean
