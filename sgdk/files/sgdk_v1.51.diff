@@ -1,0 +1,36 @@
+diff --git a/makefile.gen b/makefile.gen
+index 2954963..5762be9 100644
+--- a/makefile.gen
++++ b/makefile.gen
+@@ -25,6 +25,8 @@ BINTOS= $(BIN)/bintos
+ RESCOMP= $(JAVA) -jar $(BIN)/rescomp.jar
+ MKDIR= $(BIN)/mkdir
+ 
++include $(GENDEV)/sgdk/mkfiles/makefile.vars
++
+ SRC_C= $(wildcard *.c)
+ SRC_C+= $(wildcard $(SRC)/*.c)
+ SRC_C+= $(wildcard $(SRC)/*/*.c)
+diff --git a/tools/appack/makefile.elf b/tools/appack/makefile.elf
+index fb10510..527053d 100644
+--- a/tools/appack/makefile.elf
++++ b/tools/appack/makefile.elf
+@@ -12,7 +12,14 @@ objects = appack.o
+ 
+ cflags  = -Wall -O2 -s
+ ldflags = $(cflags)
+-incdir  = lib/elf
++
++include ./makefile.vars
++ifeq ($(osBits), 32)
++  incdir  = ./lib/elf
++else
++  incdir  = ./lib/elf64
++endif
++
+ libs    = $(incdir)/aplib.a
+ 
+ .PHONY: all clean
+-- 
+2.17.0
+
