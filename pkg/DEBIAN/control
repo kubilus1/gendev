@@ -3,7 +3,7 @@ Version: ##VER##
 Section: devel
 Priority: optional
 Maintainer: Matt Kubilus (mattkubilus)
-Depends: texinfo, openjdk-8-jre, make
+Depends: texinfo, default-jre, make
 Architecture: all
 Homepage: https://github.com/kubilus1/gendev
 Description: Sega Genesis development on *nix.
