@@ -24,6 +24,7 @@ patch: $(SGDKDIR)
 prep: $(SGDKDIR)
 	cd $(SGDKDIR) && patch -u -p1 -l < ../files/sgdk_$(SGDKVER).diff
 
+SGDK: $(SGDKDIR)
 $(SGDKDIR):
 	git clone -b '$(SGDKVER)' --single-branch --depth 1 https://github.com/Stephane-D/SGDK.git
 
