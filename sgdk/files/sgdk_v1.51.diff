@@ -1,5 +1,5 @@
 diff --git a/makefile.gen b/makefile.gen
-index 2954963..5762be9 100644
+index b2e19e1..61f4f56 100644
 --- a/makefile.gen
 +++ b/makefile.gen
 @@ -25,6 +25,8 @@ BINTOS= $(BIN)/bintos
@@ -10,7 +10,16 @@ index 2954963..5762be9 100644
 +
  SRC_C= $(wildcard *.c)
  SRC_C+= $(wildcard $(SRC)/*.c)
- SRC_C+= $(wildcard $(SRC)/*/*.c)
+ SRC_S= $(wildcard *.s)
+@@ -114,7 +116,7 @@ out/rom.bin: out/rom.out
+ 	$(SIZEBND) out/rom.bin -sizealign 131072
+ 
+ out/symbol.txt: out/rom.out
+-	$(NM) --plugin=liblto_plugin-0.dll -n out/rom.out > out/symbol.txt
++	$(NM) -n out/rom.out > out/symbol.txt
+ 
+ out/rom.out: out/sega.o out/cmd_ $(LIBMD)
+ 	$(CC) -B$(BIN) -n -T $(GDK)/md.ld -nostdlib out/sega.o @out/cmd_ $(LIBMD) $(LIB)/libgcc.a -o out/rom.out
 diff --git a/tools/appack/makefile.elf b/tools/appack/makefile.elf
 index fb10510..527053d 100644
 --- a/tools/appack/makefile.elf
@@ -31,6 +40,3 @@ index fb10510..527053d 100644
  libs    = $(incdir)/aplib.a
  
  .PHONY: all clean
--- 
-2.17.0
-
