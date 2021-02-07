@@ -1,5 +1,7 @@
 # Not using Travis anymore but keeping this for now.
 
+arch: 
+  - arm64
 dist: bionic
 language: c
 sudo: false
