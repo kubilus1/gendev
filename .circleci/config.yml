@@ -17,6 +17,7 @@ jobs:
       - run:
           name: build toolchain
           command: make toolchain_build
+          no_output_timeout: 30m
       - run:
           name: build tools
           command: make tools_build
