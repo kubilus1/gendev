@@ -16,6 +16,8 @@ addons:
     - texinfo
     - openjdk-8-jdk-headless
     - dos2unix
+    - unrar-free
+    - gcc
     - g++
 cache:
   directories:
