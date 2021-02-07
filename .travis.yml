@@ -34,6 +34,10 @@ jobs:
       - cd toolchain && make setup
   - stage: Build bintutils
     script:
+      - pwd
+      - ls
+      - ls ..
+      - ls ../binutils-2.34
       - cd toolchain && make build-binutils
   - stage: Build GCC pass 1
     script:
