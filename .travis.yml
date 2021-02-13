@@ -36,7 +36,7 @@ jobs:
       - ls ./toolchain
       - ls ./toolchain/binutils-2.34
       - HOST=aarch64-linux-gnu make build-binutils
-      - HOST=aarch64-linux-gnu make build-gcc-1
+      - LOG=/dev/stdout HOST=aarch64-linux-gnu make build-gcc-1
       - HOST=aarch64-linux-gnu make build-newlib
       - HOST=aarch64-linux-gnu make build-gcc-2
       - HOST=aarch64-linux-gnu make build-ldscripts
