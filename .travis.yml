@@ -40,7 +40,7 @@ jobs:
       - cd toolchain && HOST=aarch64-linux-gnu make build-binutils
   - stage: Build GCC pass 1
     script:
-      - cd toolchain && HOST=aarch64-linux-gnu make build-gcc-1
+      - cd toolchain && LOG=/dev/stdout HOST=aarch64-linux-gnu make build-gcc-1
   - stage: Build newlib
     script:
       - cd toolchain && HOST=aarch64-linux-gnu make build-newlib
