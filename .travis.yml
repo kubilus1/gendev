@@ -49,7 +49,7 @@ jobs:
       - cd toolchain && HOST=aarch64-linux-gnu make build-gcc-2
   - stage: Build ldscripts
     script:
-      - cd toolchain && HOST=aarch64-linux-gnu make build-ldscripts
+      - cd toolchain && LOG=/dev/stdout HOST=aarch64-linux-gnu make build-ldscripts
   - stage: build tools
     script:
       - make tools_clean tools_build
