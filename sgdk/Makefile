@@ -9,7 +9,7 @@ SGDKINSTALLDIR=$(GENDEV)/sgdk$(SGDKVER)
 
 all: tools $(SGDKDIR) $(SGDKDIR)/libmd.a
 
-tools: submodule
+tools: $(SGDKDIR)
 	cd $(SGDKDIR)/tools/bintos/src && \
 	gcc -o bintos bintos.c  && cp bintos $(GENDEV)/bin/.
 	cd $(SGDKDIR)/tools/sizebnd/src && \
@@ -18,13 +18,14 @@ tools: submodule
 		$(MAKE) -f ../../../files/Makefile.xgmtool && cp out/xgmtool $(GENDEV)/bin/.
 	cp $(SGDKDIR)/bin/*.jar $(GENDEV)/bin/.
 
-patch: submodule
+patch: $(SGDKDIR)
 	cd $(SGDKDIR) && git diff . > ../files/sgdk_$(SGDKVER).diff
 
-prep: submodule
+prep: $(SGDKDIR)
 	cd $(SGDKDIR) && patch -u -p1 -l < ../files/sgdk_$(SGDKVER).diff
 
-submodule:
+SGDK: $(SGDKDIR)
+$(SGDKDIR):
 	git submodule update --init
 
 $(SGDKDIR)/libmd.a: prep
