@@ -23,6 +23,7 @@ patch: $(SGDKDIR)
 prep: $(SGDKDIR)
 	cd $(SGDKDIR) && patch -u -p1 -l < ../files/sgdk_$(SGDKVER).diff
 
+.PHONY: $(SGDKDIR)
 SGDK: $(SGDKDIR)
 $(SGDKDIR):
 	git submodule update --init
