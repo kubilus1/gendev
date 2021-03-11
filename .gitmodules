@@ -1,0 +1,3 @@
+[submodule "sgdk/SGDK"]
+	path = sgdk/SGDK
+	url = https://github.com/Stephane-D/SGDK.git

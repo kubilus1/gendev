@@ -5,7 +5,6 @@ SGDKDIR=$(CURDIR)/SGDK
 SAMPLESDIR=$(SGDKDIR)/sample
 
 SGDKVER=v1.51
-SGDKINSTALLDIR=$(GENDEV)/sgdk$(SGDKVER)
 
 all: tools $(SGDKDIR) $(SGDKDIR)/libmd.a
 
@@ -24,21 +23,17 @@ patch: $(SGDKDIR)
 prep: $(SGDKDIR)
 	cd $(SGDKDIR) && patch -u -p1 -l < ../files/sgdk_$(SGDKVER).diff
 
+.PHONY: $(SGDKDIR)
 SGDK: $(SGDKDIR)
 $(SGDKDIR):
-	git clone -b '$(SGDKVER)' --single-branch --depth 1 https://github.com/Stephane-D/SGDK.git
+	git submodule update --init
 
 $(SGDKDIR)/libmd.a: prep
 	cp -rf ../tools/files/applib/lib $(SGDKDIR)/tools/appack
 	cd $(SGDKDIR) && ln -sf ../files/Makefile.sgdk_lib .
 	cd $(SGDKDIR) && $(MAKE) -f Makefile.sgdk_lib
 
-$(SGDKINSTALLDIR):
-	mkdir -p $@
-	rm -f $(GENDEV)/sgdk
-	cd $(GENDEV) && ln -sf sgdk$(SGDKVER) sgdk
-
-install: tools $(SGDKDIR)/libmd.a $(SGDKINSTALLDIR)
+install: tools $(SGDKDIR)/libmd.a $(SGDKDIR)
 	echo "Install"
 	mkdir -p $(GENDEV)/sgdk/src
 	mkdir -p $(GENDEV)/sgdk/inc
