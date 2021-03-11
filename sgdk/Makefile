@@ -26,7 +26,7 @@ prep: $(SGDKDIR)
 
 SGDK: $(SGDKDIR)
 $(SGDKDIR):
-	git clone -b '$(SGDKVER)' --single-branch --depth 1 https://github.com/Stephane-D/SGDK.git
+	git submodule init && git submodule update
 
 $(SGDKDIR)/libmd.a: prep
 	cp -rf ../tools/files/applib/lib $(SGDKDIR)/tools/appack
