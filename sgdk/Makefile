@@ -26,7 +26,7 @@ prep: $(SGDKDIR)
 
 SGDK: $(SGDKDIR)
 $(SGDKDIR):
-	git submodule init
+	git submodule update --init
 
 $(SGDKDIR)/libmd.a: prep
 	cp -rf ../tools/files/applib/lib $(SGDKDIR)/tools/appack
