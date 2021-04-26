@@ -4,7 +4,7 @@ GENGCC_BIN=$(GENDEV)/bin
 SGDKDIR=$(CURDIR)/SGDK
 SAMPLESDIR=$(SGDKDIR)/sample
 
-SGDKVER=v1.51
+SGDKVER=v1.62
 SGDKINSTALLDIR=$(GENDEV)/sgdk$(SGDKVER)
 
 all: tools $(SGDKDIR) $(SGDKDIR)/libmd.a
@@ -28,17 +28,19 @@ SGDK: $(SGDKDIR)
 $(SGDKDIR):
 	git clone -b '$(SGDKVER)' --single-branch --depth 1 https://github.com/Stephane-D/SGDK.git
 
-$(SGDKDIR)/libmd.a: prep
-	cp -rf ../tools/files/applib/lib $(SGDKDIR)/tools/appack
-	cd $(SGDKDIR) && ln -sf ../files/Makefile.sgdk_lib .
-	cd $(SGDKDIR) && $(MAKE) -f Makefile.sgdk_lib
+$(SGDKDIR)/lib/libmd.a: prep
+	#cp -rf ../tools/files/applib/lib $(SGDKDIR)/tools/appack
+	#cd $(SGDKDIR) && ln -sf ../files/Makefile.sgdk_lib .
+	#cd $(SGDKDIR) && $(MAKE) -f Makefile.sgdk_lib
+	cd $(SGDKDIR) && $(MAKE) -f makelib.gen
+	
 
 $(SGDKINSTALLDIR):
 	mkdir -p $@
 	rm -f $(GENDEV)/sgdk
 	cd $(GENDEV) && ln -sf sgdk$(SGDKVER) sgdk
 
-install: tools $(SGDKDIR)/libmd.a $(SGDKINSTALLDIR)
+install: tools $(SGDKDIR)/lib/libmd.a $(SGDKINSTALLDIR)
 	echo "Install"
 	mkdir -p $(GENDEV)/sgdk/src
 	mkdir -p $(GENDEV)/sgdk/inc
@@ -50,7 +52,7 @@ install: tools $(SGDKDIR)/libmd.a $(SGDKINSTALLDIR)
 	cp -r $(SGDKDIR)/src/boot $(GENDEV)/sgdk/src/.
 	cp -r $(SGDKDIR)/res/* $(GENDEV)/sgdk/res/.
 	cp $(GENDEV)/lib/libgcc.a $(GENDEV)/sgdk/lib/.
-	cp $(SGDKDIR)/libmd.a $(GENDEV)/sgdk/lib/.
+	cp $(SGDKDIR)/lib/libmd.a $(GENDEV)/sgdk/lib/.
 	cp $(SGDKDIR)/makefile.gen $(GENDEV)/sgdk/mkfiles/.
 	cp files/makefile.vars $(GENDEV)/sgdk/mkfiles/.
 	cp $(SGDKDIR)/tools/sizebnd/src/sizebnd $(GENDEV)/bin/
