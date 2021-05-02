@@ -29,6 +29,7 @@ SGDK: $(SGDKDIR)
 $(SGDKDIR):
 	cd $(BUILDDIR) && git clone -b '$(SGDKVER)' --single-branch --depth 1 https://github.com/Stephane-D/SGDK.git sgdk
 	cd $(SGDKDIR) && patch -u -p1 -l < $(CURDIR)/patches/sgdk_$(SGDKVER).diff
+	rm -f $(SGDKDIR)/lib/*.a
 
 
 $(SGDKDIR)/mkfiles: $(SGDKDIR)
@@ -38,8 +39,9 @@ $(SGDKDIR)/mkfiles: $(SGDKDIR)
 	cp -f $(CURDIR)/mkfiles/Makefile.rom $@/.
 
 $(SGDKDIR)/lib/libmd.a: $(SGDKDIR) $(SGDKDIR)/mkfiles
-	#cd $(SGDKDIR) && GENDEV=$(BUILDDIR) $(MAKE) -f makelib.gen
 	cd $(SGDKDIR) && SGDKDIR=$(SGDKDIR) $(MAKE) -f $(CURDIR)/mkfiles/Makefile.sgdk_lib
+	cp $(BUILDDIR)/lib/libgcc.a $(SGDKDIR)/lib/libgcc.a
+	mv $(SGDKDIR)/libmd.a $(SGDKDIR)/lib/libmd.a
 	@echo "Done building sgdk library"	
 
 $(SGDKINSTALLDIR):
