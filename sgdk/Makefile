@@ -1,13 +1,14 @@
 GENDEV?=/opt/gendev/
 GENBIN=$(GENDEV)/bin
 GENGCC_BIN=$(GENDEV)/bin
-SGDKDIR=$(CURDIR)/SGDK
+BUILDDIR=$(CURDIR)/../build
+SGDKDIR?=$(BUILDDIR)/sgdk
 SAMPLESDIR=$(SGDKDIR)/sample
 
 SGDKVER=v1.62
 SGDKINSTALLDIR=$(GENDEV)/sgdk$(SGDKVER)
 
-all: tools $(SGDKDIR) $(SGDKDIR)/libmd.a
+all: tools $(SGDKDIR) $(SGDKDIR)/lib/libmd.a
 
 tools: $(SGDKDIR)
 	cd $(SGDKDIR)/tools/bintos/src && \
@@ -15,25 +16,31 @@ tools: $(SGDKDIR)
 	cd $(SGDKDIR)/tools/sizebnd/src && \
 	gcc -o sizebnd sizebnd.c  && cp sizebnd $(GENDEV)/bin/.
 	cd $(SGDKDIR)/tools/xgmtool && \
-		$(MAKE) -f ../../../files/Makefile.xgmtool && cp out/xgmtool $(GENDEV)/bin/.
+		$(MAKE) -f $(CURDIR)/mkfiles/Makefile.xgmtool && cp out/xgmtool $(GENDEV)/bin/.
 	cp $(SGDKDIR)/bin/*.jar $(GENDEV)/bin/.
 
 patch: $(SGDKDIR)
-	cd $(SGDKDIR) && git diff . > ../files/sgdk_$(SGDKVER).diff
+	cd $(SGDKDIR) && git diff . > $(CURDIR)/patches/sgdk_$(SGDKVER).diff
 
 prep: $(SGDKDIR)
-	cd $(SGDKDIR) && patch -u -p1 -l < ../files/sgdk_$(SGDKVER).diff
+	cd $(SGDKDIR) && patch -u -p1 -l < $(CURDIR)/patches/sgdk_$(SGDKVER).diff
 
 SGDK: $(SGDKDIR)
 $(SGDKDIR):
-	git clone -b '$(SGDKVER)' --single-branch --depth 1 https://github.com/Stephane-D/SGDK.git
+	cd $(BUILDDIR) && git clone -b '$(SGDKVER)' --single-branch --depth 1 https://github.com/Stephane-D/SGDK.git sgdk
+	cd $(SGDKDIR) && patch -u -p1 -l < $(CURDIR)/patches/sgdk_$(SGDKVER).diff
 
-$(SGDKDIR)/lib/libmd.a: prep
-	#cp -rf ../tools/files/applib/lib $(SGDKDIR)/tools/appack
-	#cd $(SGDKDIR) && ln -sf ../files/Makefile.sgdk_lib .
-	#cd $(SGDKDIR) && $(MAKE) -f Makefile.sgdk_lib
-	cd $(SGDKDIR) && $(MAKE) -f makelib.gen
-	
+
+$(SGDKDIR)/mkfiles: $(SGDKDIR)
+	mkdir -p $(SGDKDIR)/mkfiles
+	cp -f $(CURDIR)/mkfiles/makefile.vars $@/.
+	cp -f $(CURDIR)/mkfiles/Makefile.sgdk_lib $@/.
+	cp -f $(CURDIR)/mkfiles/Makefile.rom $@/.
+
+$(SGDKDIR)/lib/libmd.a: $(SGDKDIR) $(SGDKDIR)/mkfiles
+	#cd $(SGDKDIR) && GENDEV=$(BUILDDIR) $(MAKE) -f makelib.gen
+	cd $(SGDKDIR) && SGDKDIR=$(SGDKDIR) $(MAKE) -f $(CURDIR)/mkfiles/Makefile.sgdk_lib
+	@echo "Done building sgdk library"	
 
 $(SGDKINSTALLDIR):
 	mkdir -p $@
@@ -54,7 +61,7 @@ install: tools $(SGDKDIR)/lib/libmd.a $(SGDKINSTALLDIR)
 	cp $(GENDEV)/lib/libgcc.a $(GENDEV)/sgdk/lib/.
 	cp $(SGDKDIR)/lib/libmd.a $(GENDEV)/sgdk/lib/.
 	cp $(SGDKDIR)/makefile.gen $(GENDEV)/sgdk/mkfiles/.
-	cp files/makefile.vars $(GENDEV)/sgdk/mkfiles/.
+	cp mkfiles/makefile.vars $(GENDEV)/sgdk/mkfiles/.
 	cp $(SGDKDIR)/tools/sizebnd/src/sizebnd $(GENDEV)/bin/
 
 SAMPLES=$(wildcard $(SAMPLESDIR)/*/out)
@@ -66,14 +73,14 @@ sample_clean: $(CLEANSAMPLES)
 	@echo "Done cleaning samples"
 
 $(CLEANSAMPLES):
-	cd $@/.. && $(MAKE) -f $(SGDKDIR)/makefile.gen clean
+	cd $@/.. && SGDKDIR=$(SGDKDIR) $(MAKE) -f $(CURDIR)/mkfiles/Makefile.rom clean
 
 samples: $(SAMPLEROMS)
 	@echo "All samples built"
 
-$(SAMPLEDIR)/%/out/rom.bin:
+$(SAMPLESDIR)/%/out/rom.bin:
 	echo "ROM $@"
-	cd $@/../../ && $(MAKE) -f $(GENDEV)/sgdk/mkfiles/makefile.gen
+	cd $@/../../ && SGDKDIR=$(SGDKDIR) $(MAKE) -f $(CURDIR)/mkfiles/Makefile.rom
 
 clean:
 	echo "Clean"
