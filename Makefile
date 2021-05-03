@@ -19,6 +19,9 @@ PATH := $(BUILDDIR)/bin:$(PATH)
 build: toolchain_build tools_build sgdk_build
 	echo "Done"
 
+docker_build:
+	docker build -t gendev .
+
 $(BUILDDIR):
 	mkdir -p $@
 
@@ -52,7 +55,7 @@ $(GENDEV):
 		$(SUDO) chown $(ORIG_USER):$(ORIG_USER) $@; \
 	fi
 
-install: $(GENDEV) sgdk_install
+install: $(GENDEV)
 	echo "export GENDEV=$(GENDEV)" > ~/.gendev
 	echo "export PATH=\$$GENDEV/bin:\$$PATH" >> ~/.gendev
 	#$(SUDO) chmod 777 $@

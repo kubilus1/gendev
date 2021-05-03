@@ -42,4 +42,4 @@ ENV PATH $GENDEV/bin:$PATH
 
 WORKDIR /src
 
-ENTRYPOINT make -f $GENDEV/sgdk/mkfiles/makefile.gen 
+ENTRYPOINT make -f $GENDEV/sgdk/mkfiles/Makefile.rom 

@@ -14,7 +14,7 @@ GENGCC_BIN= $(GENDEV)/bin
 GENBIN= $(GENDEV)/bin
 BIN= $(GENDEV)/bin
 
-GDK= $(GENDEV)/sgdk
+GDK= $(SGDKDIR)
 
 AS = $(GENGCC_BIN)/m68k-elf-as
 AR = $(GENGCC_BIN)/m68k-elf-ar
@@ -24,11 +24,11 @@ MKISOFS = mkisofs
 
 ###############################################################################
 # SGDK overrid vars
-LIB= $(GENDEV)/sgdk/lib
+LIB= $(SGDKDIR)/lib
 
-LIBSRC= $(GENDEV)/sgdk/src
-LIBRES= $(GENDEV)/sgdk/res
-LIBINCLUDE= $(GENDEV)/sgdk/inc
+LIBSRC= $(SGDKDIR)/src
+LIBRES= $(SGDKDIR)/res
+LIBINCLUDE= $(SGDKDIR)/inc
 
 SRC= src
 RES= res

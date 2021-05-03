@@ -1,4 +1,4 @@
-GENDEV?=/opt/toolchains/gen/
+GENDEV?=/opt/gendev/
 MAKE?=make
 GENGCC_BIN=$(GENDEV)/bin
 GENBIN=$(GENDEV)/bin
