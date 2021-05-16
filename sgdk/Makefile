@@ -12,7 +12,7 @@ SAMPLESDIR=$(SGDKDIR)/sample
 SGDKVER=v1.62
 
 # SGDK install location
-SGDKINSTALLDIR=$(GENDEV)/sgdk
+SGDKINSTALLDIR=$(GENDEV)/sgdk$(SGDKVER)
 
 all: $(SGDKDIR) $(SGDKDIR)/lib/libmd.a tools
 
@@ -79,7 +79,7 @@ install: $(SGDKDIR)/lib/libmd.a $(SGDKINSTALLDIR)
 	echo "Install"
 	cp $(SGDKDIR)/md.ld $(SGDKINSTALLDIR)/.
 	cp $(SGDKDIR)/inc/* $(SGDKINSTALLDIR)/inc/.
-	cp -r $(SGDKDIR)/src/* $(SGDKINSTALLDIR)/src/.
+	cp -r $(SGDKDIR)/src/boot $(SGDKINSTALLDIR)/src/.
 	cp -r $(SGDKDIR)/res/* $(SGDKINSTALLDIR)/res/.
 	cp $(GENDEV)/lib/libgcc.a $(SGDKINSTALLDIR)/lib/.
 	cp $(SGDKDIR)/lib/libmd.a $(SGDKINSTALLDIR)/lib/.
