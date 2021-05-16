@@ -5,48 +5,13 @@
 GENDEV?=/opt/gendev
 SGDKDIR?=$(GENDEV)/sgdk
 
-include $(SGDKDIR)/makefile.gen
+# Set GDK before including default SGDK makefile
+GDK=$(SGDKDIR)
 
-###############################################################################
-# Gendev specific vars
-PATH := $(GENDEV)/bin:$(PATH)
-GENGCC_BIN= $(GENDEV)/bin
-GENBIN= $(GENDEV)/bin
-BIN= $(GENDEV)/bin
+include $(SGDKDIR)/mkfiles/makefile.gen
 
-GDK= $(SGDKDIR)
-
-AS = $(GENGCC_BIN)/m68k-elf-as
-AR = $(GENGCC_BIN)/m68k-elf-ar
-RANLIB = $(GENGCC_BIN)/m68k-elf-ranlib
-NM2WCH = nm2wch
-MKISOFS = mkisofs
-
-###############################################################################
-# SGDK overrid vars
-LIB= $(SGDKDIR)/lib
-
-LIBSRC= $(SGDKDIR)/src
-LIBRES= $(SGDKDIR)/res
-LIBINCLUDE= $(SGDKDIR)/inc
-
-SRC= src
-RES= res
-INCLUDE= inc
-
-SHELL= sh
-RM = rm -f
-CP= cp
-CC = $(GENGCC_BIN)/m68k-elf-gcc
-LD = $(GENGCC_BIN)/m68k-elf-ld
-NM = nm
-#JAVA= java
-ECHO= echo
-OBJCPY = $(GENGCC_BIN)/m68k-elf-objcopy
-ASMZ80 = $(GENBIN)/sjasm
-#ASMZ80 = $(GENBIN)/zasm
-#MACCER= $(BIN)/mac68k
-SIZEBND= $(GENGCC_BIN)/sizebnd
-BINTOS = $(GENBIN)/bintos
-RESCOMP= $(JAVA) -jar $(GENBIN)/rescomp.jar
-MKDIR= mkdir
+# Override shell variables
+MKDIR=/bin/mkdir 
+RM=/bin/rm 
+CP=/bin/cp 
+SHELL=/bin/bash 

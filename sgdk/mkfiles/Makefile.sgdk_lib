@@ -2,6 +2,8 @@ GENDEV?=/opt/gendev/
 MAKE?=make
 GENGCC_BIN=$(GENDEV)/bin
 GENBIN=$(GENDEV)/bin
+SGDKBIN=$(GENDEV)/sgdk/bin
+
 
 CC = $(GENGCC_BIN)/m68k-elf-gcc
 AR = $(GENGCC_BIN)/m68k-elf-ar
@@ -9,7 +11,7 @@ RANLIB = $(GENGCC_BIN)/m68k-elf-ranlib
 OBJC = $(GENGCC_BIN)/m68k-elf-objcopy
 RM = rm -f
 ASMZ80 = $(GENBIN)/sjasm
-BINTOS = $(GENBIN)/bintos
+BINTOS = $(SGDKBIN)/bintos
 RESCOMP= java -jar ./bin/rescomp.jar
 
 OPTION= -Dnologo_

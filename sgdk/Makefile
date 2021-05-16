@@ -1,35 +1,29 @@
+
+# Locatin of gendev install
 GENDEV?=/opt/gendev/
 GENBIN=$(GENDEV)/bin
-GENGCC_BIN=$(GENDEV)/bin
 
-
-
+# Location of build and source
 BUILDDIR?=$(CURDIR)/build
-SGDKDIR?=$(BUILDDIR)/sgdk
-
-
-
+SGDKDIR=$(BUILDDIR)/sgdk
 SAMPLESDIR=$(SGDKDIR)/sample
 
+# Version of SGDK to build
 SGDKVER=v1.62
 
-
-SGDKINSTALLDIR=$(GENDEV)/sgdk$(SGDKVER)
-
-
-
+# SGDK install location
+SGDKINSTALLDIR=$(GENDEV)/sgdk
 
 all: $(SGDKDIR) $(SGDKDIR)/lib/libmd.a tools
 
-tools: $(SGDKDIR)
+# Various tools needed to use SGDK
+tools: $(SGDKDIR) $(SGDKINSTALLDIR)
 	cd $(SGDKDIR)/tools/bintos/src && \
 	gcc -o bintos bintos.c
 	cd $(SGDKDIR)/tools/sizebnd/src && \
 	gcc -o sizebnd sizebnd.c
 	cd $(SGDKDIR)/tools/xgmtool && \
 		$(MAKE) -f $(CURDIR)/mkfiles/Makefile.xgmtool
-
-toolsinstall: $(SGDKINSTALLDIR)
 	cd $(SGDKDIR)/tools/bintos/src && \
 		cp bintos $(SGDKINSTALLDIR)/bin/.
 	cd $(SGDKDIR)/tools/sizebnd/src && \
@@ -38,15 +32,19 @@ toolsinstall: $(SGDKINSTALLDIR)
 		cp out/xgmtool $(SGDKINSTALLDIR)/bin/.
 	cp $(SGDKDIR)/bin/*.jar $(SGDKINSTALLDIR)/bin/.
 
+
+# Create a new patchfile based on the current SGDK checkout
 patch: $(SGDKDIR)
 	cd $(SGDKDIR) && git diff . > $(CURDIR)/patches/sgdk_$(SGDKVER).diff
 
+# Update an SGDK checkout with the current versions patchfile
 prep: $(SGDKDIR)
 	cd $(SGDKDIR) && patch -u -p1 -l < $(CURDIR)/patches/sgdk_$(SGDKVER).diff
 
 $(BUILDDIR):
 	mkdir -p $@
 
+# Checkout and prep SGDK for building
 SGDK: $(SGDKDIR)
 $(SGDKDIR): $(BUILDDIR)
 	cd $(BUILDDIR) && git clone -b '$(SGDKVER)' --single-branch --depth 1 https://github.com/Stephane-D/SGDK.git sgdk
@@ -60,7 +58,7 @@ $(SGDKDIR)/mkfiles: $(SGDKDIR)
 	cp -f $(CURDIR)/mkfiles/Makefile.sgdk_lib $@/.
 	cp -f $(CURDIR)/mkfiles/Makefile.rom $@/.
 
-$(SGDKDIR)/lib/libmd.a: $(SGDKDIR) $(SGDKDIR)/mkfiles
+$(SGDKDIR)/lib/libmd.a: $(SGDKDIR) $(SGDKDIR)/mkfiles tools
 	cd $(SGDKDIR) && SGDKDIR=$(SGDKDIR) $(MAKE) -f $(CURDIR)/mkfiles/Makefile.sgdk_lib
 	cp $(GENDEV)/lib/libgcc.a $(SGDKDIR)/lib/libgcc.a
 	mv $(SGDKDIR)/libmd.a $(SGDKDIR)/lib/libmd.a
@@ -77,17 +75,23 @@ $(SGDKINSTALLDIR):
 	mkdir -p $@/lib
 	mkdir -p $@/mkfiles
 
-install: toolsinstall $(SGDKDIR)/lib/libmd.a $(SGDKINSTALLDIR)
+install: $(SGDKDIR)/lib/libmd.a $(SGDKINSTALLDIR)
 	echo "Install"
 	cp $(SGDKDIR)/md.ld $(SGDKINSTALLDIR)/.
 	cp $(SGDKDIR)/inc/* $(SGDKINSTALLDIR)/inc/.
-	cp -r $(SGDKDIR)/src/boot $(SGDKINSTALLDIR)/src/.
+	cp -r $(SGDKDIR)/src/* $(SGDKINSTALLDIR)/src/.
 	cp -r $(SGDKDIR)/res/* $(SGDKINSTALLDIR)/res/.
 	cp $(GENDEV)/lib/libgcc.a $(SGDKINSTALLDIR)/lib/.
 	cp $(SGDKDIR)/lib/libmd.a $(SGDKINSTALLDIR)/lib/.
 	cp $(SGDKDIR)/makefile.gen $(SGDKINSTALLDIR)/mkfiles/.
 	cp $(SGDKDIR)/mkfiles/* $(SGDKINSTALLDIR)/mkfiles/.
 	cp $(SGDKDIR)/tools/sizebnd/src/sizebnd $(SGDKINSTALLDIR)/bin/
+	cd $(SGDKINSTALLDIR)/bin && ln -sf ../../bin/m68k-elf-gcc gcc
+	cd $(SGDKINSTALLDIR)/bin && ln -sf ../../bin/m68k-elf-nm nm
+	cd $(SGDKINSTALLDIR)/bin && ln -sf ../../bin/m68k-elf-ld ld
+	cd $(SGDKINSTALLDIR)/bin && ln -sf ../../bin/m68k-elf-objcopy objcopy
+	cd $(SGDKINSTALLDIR)/bin && ln -sf ../../bin/sjasm sjasm
+
 
 SAMPLES=$(wildcard $(SAMPLESDIR)/*/out)
 SAMPLEROMS=$(addsuffix /rom.bin,$(SAMPLES))
@@ -98,14 +102,14 @@ sample_clean: $(CLEANSAMPLES)
 	@echo "Done cleaning samples"
 
 $(CLEANSAMPLES):
-	cd $@/.. && SGDKDIR=$(SGDKDIR) $(MAKE) -f $(CURDIR)/mkfiles/Makefile.rom clean
+	cd $@/.. && $(MAKE) -f $(CURDIR)/mkfiles/Makefile.rom clean
 
 samples: $(SAMPLEROMS)
 	@echo "All samples built"
 
 $(SAMPLESDIR)/%/out/rom.bin:
 	echo "ROM $@"
-	cd $@/../../ && SGDKDIR=$(SGDKDIR) $(MAKE) -f $(CURDIR)/mkfiles/Makefile.rom
+	cd $@/../../ && GENDEV=$(GENDEV) $(MAKE) -f $(SGDKINSTALLDIR)/mkfiles/Makefile.rom
 
 clean:
 	echo "Clean"
