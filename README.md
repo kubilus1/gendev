@@ -17,6 +17,8 @@ To run SGDK or in our case, Gendev, you need following packages:
  - texinfo 
  - openjdk-8-jdk
 
+[Latest Releases](https://github.com/kubilus1/gendev/releases/latest)
+
 SETUP
 -----
 Set the GENDEV environment variable to the install location of the project.
