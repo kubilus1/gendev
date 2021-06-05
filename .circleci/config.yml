@@ -25,7 +25,7 @@ jobs:
           name: build SGDK
           command: |
               export GENDEV=`pwd`/build
-              make sgdk_build
+              make sgdk_build sgdk_install
       - run:
           name: build samples
           command: |
