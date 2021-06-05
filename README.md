@@ -7,15 +7,15 @@ Genesis development. Gendev is not intended to replace, but to be a companion pr
 
 BASIC INSTRUCTIONS
 ==================
+
+INSTALLATION
+------------
 The quickest way to get going would be to simply install one of the release
 packages for this project.  Both a 'txz' and 'deb' package are provided.
 
 To run SGDK or in our case, Gendev, you need following packages:
  - texinfo 
  - openjdk-8-jdk
-
-USAGE
-=====
 
 SETUP
 -----
@@ -27,6 +27,8 @@ $ export GENDEV=/opt/gendev
 ```
 
 You may, perhaps, add this into your bash profile for ease of use.
+USAGE
+=====
 
 BUILDING SGDK PROJECTS
 ----------------------
@@ -36,7 +38,7 @@ build the projects by specifying the provided makefile.gen.
 
 ```
 $ cd myaweseomeproject
-$ make -f $GENDEV/sgdk/mkfiles/makefile.gen clean all
+$ make -f $GENDEV/sgdk/mkfiles/Makefile.rom clean all
 ```
 
 You may wish, alternatively, to copy the makefile directly to your project.
