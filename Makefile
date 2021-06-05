@@ -19,6 +19,9 @@ PATH := $(BUILDDIR)/bin:$(PATH)
 build: toolchain_build tools_build sgdk_build
 	echo "Done"
 
+docker_build:
+	docker build -t gendev .
+
 $(BUILDDIR):
 	mkdir -p $@
 
@@ -43,9 +46,6 @@ tools_build:
 
 tools_clean:
 	cd tools && $(MAKE) tools_clean
-
-sgdk_samples:
-	cd sgdk && $(MAKE) sample_clean samples
 
 $(GENDEV):
 	if [ -w /opt ]; then \
@@ -82,10 +82,16 @@ dist/gendev_$(VER)_all.deb: pkg_build
 	cd dist && dpkg-deb -Zxz -z9 --build $(TOPDIR)/pkg_build .
 
 sgdk_build:
-	cd sgdk && GENDEV=$(BUILDDIR) $(MAKE) install
+	cd sgdk && GENDEV=$(BUILDDIR) $(MAKE)
+
+sgdk_install: $(GENDEV)
+	cd sgdk && $(MAKE) install
 
 sgdk_clean:
 	- cd sgdk && $(MAKE) clean
+
+sgdk_samples:
+	cd sgdk && $(MAKE) sample_clean samples
 
 clean: tools_clean toolchain_clean sgdk_clean
 	-rm -rf $(BUILDDIR)

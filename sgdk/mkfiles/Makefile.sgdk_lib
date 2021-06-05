@@ -1,7 +1,9 @@
-GENDEV?=/opt/toolchains/gen/
+GENDEV?=/opt/gendev/
 MAKE?=make
 GENGCC_BIN=$(GENDEV)/bin
 GENBIN=$(GENDEV)/bin
+SGDKBIN=$(GENDEV)/sgdk/bin
+
 
 CC = $(GENGCC_BIN)/m68k-elf-gcc
 AR = $(GENGCC_BIN)/m68k-elf-ar
@@ -9,7 +11,7 @@ RANLIB = $(GENGCC_BIN)/m68k-elf-ranlib
 OBJC = $(GENGCC_BIN)/m68k-elf-objcopy
 RM = rm -f
 ASMZ80 = $(GENBIN)/sjasm
-BINTOS = $(GENBIN)/bintos
+BINTOS = $(SGDKBIN)/bintos
 RESCOMP= java -jar ./bin/rescomp.jar
 
 OPTION= -Dnologo_
@@ -30,13 +32,7 @@ INCS = -Iinc -Ires
 FLAGS = $(OPTION) -m68000 -Wall -O1 -c -fomit-frame-pointer $(INCS)
 FLAGSZ80 = -isrc -iinc
 
-all: appack $(libmd.a_OBJS) libmd.a
-
-appack:
-	echo -n "osBits="> tools/appack/makefile.vars
-	getconf LONG_BIT >> tools/appack/makefile.vars
-	cd tools/appack/ && make -f makefile.elf
-	cp tools/appack/appack bin/
+all: $(libmd.a_OBJS) libmd.a
 
 %.a: $(libmd.a_OBJS)
 	$(RM) $@
@@ -53,10 +49,13 @@ appack:
 	$(CC) $(FLAGS) -c $< -o $@
 
 %.o: %.s
-	$(CC) $(FLAGS) -c $< -o $@
+	$(CC) -x assembler-with-cpp -MMD $(FLAGS) -c $< -o $@
 
-%.s: %.res
-	$(RESCOMP) $< $@
+%.o: %.rs
+	$(CC) -x assembler-with-cpp $(FLAGS_LIB) -c $*.rs -o $@
+
+%.rs: %.res
+	$(RESCOMP) $*.res $*.rs -dep $*.o
 
 clean:
 	#$(RM) -f z80_drv1.c z80_drv2.c
