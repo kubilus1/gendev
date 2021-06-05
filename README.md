@@ -27,6 +27,7 @@ $ export GENDEV=/opt/gendev
 ```
 
 You may, perhaps, add this into your bash profile for ease of use.
+
 USAGE
 =====
 
