@@ -1,5 +1,7 @@
 # Not using Travis anymore but keeping this for now.
 
+arch: 
+  - arm64
 dist: bionic
 language: c
 sudo: false
@@ -14,6 +16,7 @@ addons:
     - texinfo
     - openjdk-8-jdk-headless
     - dos2unix
+    - unrar-free
     - g++
 cache:
   directories:
@@ -30,19 +33,23 @@ jobs:
       - cd toolchain && make setup
   - stage: Build bintutils
     script:
-      - cd toolchain && make build-binutils
+      - pwd
+      - ls
+      - ls ./toolchain/work
+      - ls ./toolchain/work/binutils-2.34
+      - cd toolchain && HOST=aarch64-linux-gnu make build-binutils
   - stage: Build GCC pass 1
     script:
-      - cd toolchain && make build-gcc-1
+      - cd toolchain && LOG=/dev/stdout HOST=aarch64-linux-gnu make build-gcc-1
   - stage: Build newlib
     script:
-      - cd toolchain && make build-newlib
+      - cd toolchain && HOST=aarch64-linux-gnu make build-newlib
   - stage: Build GCC pass 2
     script:
-      - cd toolchain && make build-gcc-2
+      - cd toolchain && HOST=aarch64-linux-gnu make build-gcc-2
   - stage: Build ldscripts
     script:
-      - cd toolchain && make build-ldscripts
+      - cd toolchain && LOG=/dev/stdout HOST=aarch64-linux-gnu make build-ldscripts
   - stage: build tools
     script:
       - make tools_clean tools_build
